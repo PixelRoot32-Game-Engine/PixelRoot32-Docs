@@ -31,7 +31,7 @@ Run the tool from a clone of the repository; the CLI entry point is **`python ma
 #### Step 1: Clone repository
 
 ```bash
-git clone https://github.com/Gperez88/PixelRoot32-Sprite-Compiler.git
+git clone https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Sprite-Sheet-Compiler.git
 cd PixelRoot32-Sprite-Compiler
 ```
 
@@ -51,7 +51,7 @@ Work from this directory (or call `python` with the full path to `main.py`) when
 
 ### Method 2: Pre-built binaries (no Python)
 
-The **[Releases](https://github.com/Gperez88/PixelRoot32-Sprite-Compiler/releases)** page may ship standalone builds so you do **not** need to install Python. Exact file names change per release; pick the asset for your OS.
+The **[Releases](ttps://github.com/PixelRoot32-Game-Engine/PixelRoot32-Sprite-Sheet-Compiler/releases)** page may ship standalone builds so you do **not** need to install Python. Exact file names change per release; pick the asset for your OS.
 
 #### Windows
 
@@ -117,7 +117,7 @@ pip install -r requirements.txt
 ### Getting help
 
 - [Usage guide](/guide/tools/sprite-compiler/usage-guide) — CLI patterns (`python main.py …`).
-- Open an issue on the [Sprite Compiler](https://github.com/Gperez88/PixelRoot32-Sprite-Compiler) repository if something fails.
+- Open an issue on the [Sprite Compiler](ttps://github.com/PixelRoot32-Game-Engine/PixelRoot32-Sprite-Sheet-Compiler/PixelRoot32-Sprite-Compiler) repository if something fails.
 
 ## Next steps
 
