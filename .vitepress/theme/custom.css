@@ -1,0 +1,94 @@
+/**
+ * PixelRoot32 docs theme — palette aligned with Components Landing (tailwind.css).
+ * Overrides VitePress default theme CSS variables.
+ */
+
+:root {
+  /* Logo / landing palette (source of truth mirrors landing @theme) */
+  --pr32-black: #000000;
+  --pr32-grey-dark: #545454;
+  --pr32-grey-mid: #888888;
+  --pr32-grey-light: #b3b3b3;
+  --pr32-white: #ffffff;
+  --pr32-red-primary: #cd2f50;
+  --pr32-red-dark: #ae2a45;
+  --pr32-red-darker: #87263a;
+  --pr32-orange-fire: #e76f48;
+  --pr32-surface-muted: #1a1a1a;
+}
+
+/* ----- Light: readable UI, brand accents ----- */
+:root {
+  --vp-c-brand-1: var(--pr32-red-dark);
+  --vp-c-brand-2: var(--pr32-red-darker);
+  --vp-c-brand-3: var(--pr32-red-primary);
+  --vp-c-brand-soft: rgba(205, 47, 80, 0.14);
+
+  --vp-c-tip-1: var(--vp-c-brand-1);
+  --vp-c-tip-2: var(--vp-c-brand-2);
+  --vp-c-tip-3: var(--vp-c-brand-3);
+  --vp-c-tip-soft: var(--vp-c-brand-soft);
+
+  --vp-c-note-1: var(--vp-c-brand-1);
+  --vp-c-note-2: var(--vp-c-brand-2);
+  --vp-c-note-3: var(--vp-c-brand-3);
+  --vp-c-note-soft: var(--vp-c-brand-soft);
+
+  --vp-c-bg: #ffffff;
+  --vp-c-bg-alt: #f4f4f5;
+  --vp-c-bg-elv: #ffffff;
+  --vp-c-bg-soft: #ececee;
+
+  --vp-c-border: #d4d4d8;
+  --vp-c-divider: #e4e4e7;
+  --vp-c-gutter: #e4e4e7;
+
+  --vp-c-text-1: #18181b;
+  --vp-c-text-2: #52525b;
+  --vp-c-text-3: #71717a;
+
+  --vp-font-family-mono: 'JetBrains Mono', ui-monospace, 'Menlo', 'Monaco', 'Consolas',
+    'Liberation Mono', 'Courier New', monospace;
+}
+
+/* ----- Dark: landing line (black base, grey surfaces, red brand) ----- */
+.dark {
+  --vp-c-brand-1: #f27892;
+  --vp-c-brand-2: var(--pr32-red-primary);
+  --vp-c-brand-3: var(--pr32-red-dark);
+  --vp-c-brand-soft: rgba(205, 47, 80, 0.18);
+
+  --vp-c-tip-1: var(--vp-c-brand-1);
+  --vp-c-tip-2: var(--vp-c-brand-2);
+  --vp-c-tip-3: var(--vp-c-brand-3);
+  --vp-c-tip-soft: var(--vp-c-brand-soft);
+
+  --vp-c-note-1: var(--vp-c-brand-1);
+  --vp-c-note-2: var(--vp-c-brand-2);
+  --vp-c-note-3: var(--vp-c-brand-3);
+  --vp-c-note-soft: var(--vp-c-brand-soft);
+
+  --vp-c-bg: var(--pr32-black);
+  --vp-c-bg-alt: var(--pr32-surface-muted);
+  --vp-c-bg-elv: #1f1f1f;
+  --vp-c-bg-soft: #262626;
+
+  --vp-c-border: #3d3d3d;
+  --vp-c-divider: #2a2a2a;
+  --vp-c-gutter: var(--pr32-black);
+
+  --vp-c-text-1: var(--pr32-white);
+  --vp-c-text-2: var(--pr32-grey-light);
+  --vp-c-text-3: var(--pr32-grey-mid);
+
+  --vp-c-gray-1: var(--pr32-grey-light);
+  --vp-c-gray-2: var(--pr32-grey-mid);
+  --vp-c-gray-3: var(--pr32-grey-dark);
+  --vp-c-gray-soft: rgba(136, 136, 136, 0.16);
+}
+
+/* Home feature icons: scoped SFC beats plain selectors — !important keeps orange accent */
+html.dark .VPFeature .icon {
+  background-color: rgba(231, 111, 72, 0.12) !important;
+  color: var(--pr32-orange-fire) !important;
+}
