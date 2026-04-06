@@ -45,7 +45,7 @@ export default defineConfig({
   ],
 
   themeConfig: {
-    logo: assetUrl('public/logo.png'),
+    logo: assetUrl('logo.png'),
     
     nav: [
       { text: 'Guide', link: '/guide/getting-started' },
