@@ -28,7 +28,7 @@ Nintendo Entertainment System inspired palette.
 
 Game Boy inspired palette (4 greens).
 
-![Game Boy palette swatches](../../piblic/palettes/palette_GB.png)
+![Game Boy palette swatches](../../public/palettes/palette_GB.png)
 
 #### `GBC`
 
