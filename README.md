@@ -129,6 +129,21 @@ The documentation can be deployed to:
 Build command: `npm run docs:build`
 Output directory: `.vitepress/dist`
 
+### GitHub Pages (GitHub Actions)
+
+The workflow [`.github/workflows/documentation.yml`](.github/workflows/documentation.yml) builds on pushes and pull requests to `main` / `develop` (when documentation paths change), runs `npm run docs:build`, and deploys to Pages from `main` only.
+
+**Repository settings**
+
+1. **Settings → Pages → Build and deployment:** set **Source** to **GitHub Actions** (not “Deploy from a branch”).
+2. The first deploy may ask to approve the `github-pages` environment; complete that if prompted.
+
+**Base URL (`VITEPRESS_BASE`)**
+
+For the usual **project site** URL `https://<owner>.github.io/<repository>/`, the workflow sets `VITEPRESS_BASE` to `/<repository>/` so assets and routing work.
+
+If you publish at the **root** of the domain (for example a `username.github.io` repository or a custom domain without a subpath), add a repository variable **Settings → Secrets and variables → Actions → Variables** named `VITEPRESS_BASE` with value `/` so the build uses base `/` instead of the default derived path.
+
 ## License
 
 MIT License - See PixelRoot32 main repository

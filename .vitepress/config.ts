@@ -1,6 +1,25 @@
 import { defineConfig } from 'vitepress'
 
+/** Deploy base: `/` locally; CI sets VITEPRESS_BASE (e.g. `/RepoName/` for GitHub project pages). */
+function siteBase(): string {
+  const raw = process.env.VITEPRESS_BASE?.trim()
+  if (!raw || raw === '/') return '/'
+  return raw.endsWith('/') ? raw : `${raw}/`
+}
+
+/** Absolute URL path under base (favicon, theme logo). */
+function assetUrl(path: string): string {
+  const p = path.startsWith('/') ? path.slice(1) : path
+  const b = siteBase()
+  if (b === '/') return `/${p}`
+  return `${b}${p}`
+}
+
+const base = siteBase()
+
 export default defineConfig({
+  base,
+
   title: 'PixelRoot32 Doc',
   description: 'A lightweight, modular 2D game engine for ESP32 and PC',
 
@@ -8,7 +27,7 @@ export default defineConfig({
   srcExclude: ['README.md'],
 
   head: [
-    ['link', { rel: 'icon', href: '/favicon.ico'}],
+    ['link', { rel: 'icon', href: assetUrl('favicon.ico') }],
     [
       'link',
       {
@@ -23,7 +42,7 @@ export default defineConfig({
   ],
 
   themeConfig: {
-    logo: '/public/logo.png',
+    logo: assetUrl('public/logo.png'),
     
     nav: [
       { text: 'Guide', link: '/guide/getting-started' },
