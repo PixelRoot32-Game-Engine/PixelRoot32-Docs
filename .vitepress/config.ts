@@ -20,6 +20,9 @@ const base = siteBase()
 export default defineConfig({
   base,
 
+  /** Extension-less links; GitHub Pages resolves `/path` → `/path.html` (see VitePress routing docs). */
+  cleanUrls: true,
+
   title: 'PixelRoot32 Doc',
   description: 'A lightweight, modular 2D game engine for ESP32 and PC',
 

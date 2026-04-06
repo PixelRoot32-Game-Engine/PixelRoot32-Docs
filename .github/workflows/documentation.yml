@@ -60,8 +60,8 @@ jobs:
 
       - name: Build documentation
         env:
-          # GitHub project pages: https://<owner>.github.io/<repo>/
-          # Override with repo variable VITEPRESS_BASE (e.g. `/` for user/org site at domain root).
+          # Default: GitHub project pages https://<owner>.github.io/<repo>/
+          # Custom domain on the repo root (e.g. docs.example.org): set repo variable VITEPRESS_BASE to /
           VITEPRESS_BASE: ${{ vars.VITEPRESS_BASE || format('/{0}/', github.event.repository.name) }}
         run: npm run docs:build
 
