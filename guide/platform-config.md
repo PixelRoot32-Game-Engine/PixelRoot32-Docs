@@ -8,8 +8,6 @@
 
 This document provides detailed information about PixelRoot32 Game Engine compatibility across different ESP32 variants and platforms. It helps developers understand which features are available on their target hardware.
 
-For the complete platform compatibility guide with optimization tips and troubleshooting, see the [official documentation](https://docs.pixelroot32.org/manual/optimization/platform_compatibility/).
-
 ---
 
 ## Platform Feature Matrix
@@ -89,6 +87,10 @@ build_flags =
 ```
 
 **Audio:** I2S only (external amplifier required)
+
+::: warning ESP32-S3 display DMA and Arduino Core
+SPI/DMA display paths can require pinning **Arduino Core 2.0.14** on ESP32-S3 depending on your toolchain. See [ESP32-S3 DMA and Arduino Core](#esp32-s3-dma-arduino-core) in Troubleshooting below.
+:::
 
 ---
 
@@ -291,8 +293,6 @@ The modular compilation system allows significant memory savings by disabling un
 
 **Example:** ESP32-C3 minimal build (audio+physics disabled) saves ~20KB RAM compared to full build.
 
-For detailed configuration examples, see [Global Configuration](https://docs.pixelroot32.org/api_reference/core/global_config/).
-
 ### Audio Capabilities
 
 - **DAC Output:** 8-bit, direct GPIO drive (PAM8302A recommended)
@@ -327,6 +327,81 @@ For detailed configuration examples, see [Global Configuration](https://docs.pix
 **Symptoms:** Crashes or allocation failures
 **Likely Cause:** Running out of SRAM on constrained platforms
 **Solution:** Use lower logical resolution, reduce entity count
+
+### ESP32-S3 DMA and Arduino Core {#esp32-s3-dma-arduino-core}
+
+**Problem:** On ESP32-S3, Arduino Core versions newer than **2.0.14** can cause DMA-based display transfers to freeze after the first frame. This is a known interaction with the ESP32-S3 GDMA subsystem in ESP-IDF 4.4.7+ (bundled with Arduino Core 2.0.15+).
+
+**Symptoms:**
+
+- Display freezes after the first rendered frame
+- DMA transfer does not complete
+- Crashes during display initialization
+
+**Workaround:** Pin **Arduino Core 2.0.14** (the last release widely used before the relevant GDMA changes).
+
+In PlatformIO, use the `platform_packages` directive:
+
+```ini
+[env:esp32s3]
+platform_packages =
+    framework-arduinoespressif32 @ https://github.com/espressif/arduino-esp32#2.0.14
+```
+
+> The [`hello_world`](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/hello_world) example already includes this for its ESP32-S3 environment. For new projects targeting ESP32-S3 with DMA display output, apply the same when needed.
+
+**Future direction:** A definitive fix may come from migrating display integration from `TFT_eSPI` toward `LovyanGFX` for better alignment with current drivers and improved stability on ESP32-S3.
+
+**Related issues:**
+
+- [espressif/arduino-esp32 #9618](https://github.com/espressif/arduino-esp32/issues/9618) — ESP32-S3 DMA issues with Core newer than 2.0.14
+- [TFT_eSPI #3329](https://github.com/Bodmer/TFT_eSPI/issues/3329)
+- [TFT_eSPI #3367](https://github.com/Bodmer/TFT_eSPI/issues/3367)
+- [ESP32-HUB75-MatrixPanel-DMA #775](https://github.com/mrcodetastic/ESP32-HUB75-MatrixPanel-DMA/issues/775)
+
+### Framework cache and pins_arduino.h {#framework-cache-pins-arduino}
+
+**Problem:** After changing Arduino Core versions (including the [DMA workaround above](#esp32-s3-dma-arduino-core)), the cached `framework-arduinoespressif32` package can become inconsistent. Builds may fail with:
+
+```text
+fatal error: pins_arduino.h: No such file or directory
+```
+
+**Symptoms:**
+
+- Build fails: `pins_arduino.h` not found
+- A project that previously built suddenly fails
+- Often occurs right after changing `platform_packages`
+
+**Solution:**
+
+1. Clean the project build:
+
+   ```bash
+   pio run --target clean
+   ```
+
+2. Remove the framework package directory so PlatformIO reinstalls a clean copy.
+
+   **Windows (Command Prompt):**
+
+   ```bat
+   rmdir /s /q %USERPROFILE%\.platformio\packages\framework-arduinoespressif32
+   ```
+
+   **macOS / Linux:**
+
+   ```bash
+   rm -rf ~/.platformio/packages/framework-arduinoespressif32
+   ```
+
+3. Rebuild (PlatformIO will download the framework again):
+
+   ```bash
+   pio run
+   ```
+
+**Prevention:** After any change to `platform_packages` for the Arduino core, run a clean build so the correct framework is installed.
 
 ---
 
@@ -397,8 +472,8 @@ if (!caps.hasFPU) {
 ## References
 
 - **Official Documentation:** <https://docs.pixelroot32.org/>
-- **Platform Compatibility Guide:** <https://docs.pixelroot32.org/manual/optimization/platform_compatibility/>
-- **API Reference:** <https://docs.pixelroot32.org/api_reference/>
+- **Platform Compatibility Guide:** <https://docs.pixelroot32.org/guide/platform-config.html#pixelroot32-platform-compatibility-guide/>
+- **API Reference:** <https://docs.pixelroot32.org/api/>
 - **ESP32 Arduino Core Documentation:** <https://docs.espressif.com/projects/arduino-esp32/>
 - **PlatformIO ESP32 Platforms:** <https://docs.platformio.org/en/latest/platforms/espressif32.html>
 - **PixelRoot32 Engine Configuration:** See `platforms/PlatformDefaults.h`

@@ -8,8 +8,6 @@
 **Last Updated:** March 2026  
 **Engine Version:** v1.1.0
 
-> **Note:** For the complete memory management guide with optimization strategies, visit the [official documentation](https://docs.pixelroot32.org/manual/optimization/memory_management/).
-
 ## Overview
 
 This guide covers modern memory management practices in PixelRoot32 using C++17 features. The engine has transitioned from manual memory management to smart pointers and RAII (Resource Acquisition Is Initialization) patterns for improved safety and maintainability.

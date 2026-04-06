@@ -30,33 +30,27 @@ The System Layer contains the following major subsystems:
 
 ## System Architecture Diagram
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        System Layer                             │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│   ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐        │
-│   │ Renderer │  │  Input   │  │  Audio   │  │ Physics  │        │
-│   │          │  │ Manager  │  │ Engine   │  │   (Flat  │        │
-│   │          │  │          │  │          │  │  Solver) │        │
-│   └────┬─────┘  └────┬─────┘  └────┬─────┘  └────┬─────┘        │
-│        │             │             │             │              │
-│        └─────────────┴─────────────┴─────────────┘              │
-│                      │                                          │
-│                      ▼                                          │
-│   ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐        │
-│   │   UI     │  │ Particle │  │ Camera   │  │   Tile   │        │
-│   │  System  │  │  System  │  │   2D     │  │ Animation│        │
-│   └──────────┘  └──────────┘  └──────────┘  └──────────┘        │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-                    ┌──────────────────┐
-                    │   Scene Layer    │
-                    │  (coordinates    │
-                    │   game objects)  │
-                    └──────────────────┘
+```mermaid
+flowchart TB
+    subgraph systemLayer ["System Layer"]
+        direction TB
+        subgraph primary [Primary systems]
+            direction LR
+            Ren[Renderer]
+            InMgr[Input Manager]
+            Aud[Audio Engine]
+            Phy["Physics (Flat Solver)"]
+        end
+        Ren --> Hub(( ))
+        InMgr --> Hub
+        Aud --> Hub
+        Phy --> Hub
+        Hub --> UIS[UI System]
+        Hub --> Part[Particle System]
+        Hub --> Cam[Camera 2D]
+        Hub --> TileAnim[Tile Animation]
+    end
+    Hub --> SceneLay["Scene Layer (coordinates game objects)"]
 ```
 
 ---
@@ -270,24 +264,15 @@ See [Tile Animation](/architecture/ARCH_TILE_ANIMATION) for animation system det
 
 ### Game Loop Flow
 
-```
-┌──────────┐     ┌──────────────┐     ┌──────────────┐
-│   Init   │────▶│  Game Loop   │────▶│    Exit      │
-└──────────┘     └──────────────┘     └──────────────┘
-                        │
-         ┌──────────────┼──────────────┐
-         ▼              ▼              ▼
-   ┌──────────┐   ┌──────────┐   ┌──────────┐
-   │  Input   │   │  Update  │   │   Draw   │
-   │  Poll    │   │  Logic   │   │  Render  │
-   └──────────┘   └──────────┘   └──────────┘
-                        │
-         ┌──────────────┼──────────────┐
-         ▼              ▼              ▼
-   ┌──────────┐   ┌──────────┐   ┌──────────┐
-   │  Audio   │   │ Physics  │   │   UI     │
-   │ Generate │   │  Update  │   │  Draw    │
-   └──────────┘   └──────────┘   └──────────┘
+```mermaid
+flowchart TB
+    Init[Init] --> GL[Game Loop] --> Exit[Exit]
+    GL --> InPoll["Input Poll"]
+    GL --> Upd["Update Logic"]
+    GL --> Drw["Draw Render"]
+    Upd --> Aud["Audio Generate"]
+    Upd --> Phy["Physics Update"]
+    Upd --> Ui["UI Draw"]
 ```
 
 ### Audio Flow

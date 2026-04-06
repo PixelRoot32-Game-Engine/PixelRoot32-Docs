@@ -25,7 +25,7 @@ The **Tool Suite** adds advanced editor modules. Licensing and downloads are han
 
 ### Tilemap Editor (module 1)
 
-Visual editor for multi-layer tilemaps, tilesets, animations, attributes, and **C++ export** aligned with the engine.
+Coming soon - visual editor for multi-layer tilemaps, tilesets, animations, attributes, and **C++ export** aligned with the engine.
 
 - [Overview](/guide/tools/tilemap-editor/overview)
 - [Installation](/guide/tools/tilemap-editor/installation)
@@ -33,7 +33,7 @@ Visual editor for multi-layer tilemaps, tilesets, animations, attributes, and **
 
 ### Music Editor (module 2)
 
-Coming soon — tracker-style music authoring for PixelRoot32.
+Upcoming - tracker-style music authoring for PixelRoot32.
 
 ---
 

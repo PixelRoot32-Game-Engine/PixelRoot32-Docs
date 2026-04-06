@@ -3,7 +3,10 @@ import { defineConfig } from 'vitepress'
 export default defineConfig({
   title: 'PixelRoot32 Doc',
   description: 'A lightweight, modular 2D game engine for ESP32 and PC',
-  
+
+  /** Repo README: contributor setup only, not public doc pages */
+  srcExclude: ['README.md'],
+
   head: [
     ['link', { rel: 'icon', href: '/favicon.ico'}],
     [
@@ -269,5 +272,27 @@ export default defineConfig({
         return fence(tokens, idx, options, env, self)
       }
     }
-  }
+  },
+
+  vite: {
+    plugins: [
+      {
+        name: 'vitepress-deny-root-readme',
+        enforce: 'pre',
+        configureServer(server) {
+          server.middlewares.use((req, res, next) => {
+            const pathOnly = req.url?.split('?')[0] ?? ''
+            // srcExclude skips the page in build/search, but dev can still resolve README.md — block public URL
+            if (/^\/README(\.html)?\/?$/i.test(pathOnly)) {
+              res.statusCode = 404
+              res.setHeader('Content-Type', 'text/plain; charset=utf-8')
+              res.end('Not Found')
+              return
+            }
+            next()
+          })
+        },
+      },
+    ],
+  },
 })

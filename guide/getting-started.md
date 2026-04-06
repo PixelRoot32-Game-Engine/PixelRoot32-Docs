@@ -184,6 +184,9 @@ flowchart LR
 - Check display pins match your board configuration
 - Verify `TFT_eSPI` setup for your specific display
 
+**Issue**: Display freezes after the first frame on **ESP32-S3**, or build fails with **`pins_arduino.h` not found** after changing Arduino Core versions
+- See [ESP32-S3 DMA and Arduino Core](/guide/platform-config#esp32-s3-dma-arduino-core) and [Framework cache and pins_arduino.h](/guide/platform-config#framework-cache-pins-arduino) on the [Platform Configuration](/guide/platform-config) page
+
 **Issue**: Low FPS on ESP32
 - Reduce logical resolution: `DisplayConfig(128, 128)`
 - Enable tilemap optimization flags
@@ -195,6 +198,7 @@ flowchart LR
 - Optimal performance with FPU support
 - Use float-based `Scalar` for math
 - Full audio capabilities
+- DMA display output may require pinning Arduino Core 2.0.14; see [ESP32-S3 DMA and Arduino Core](/guide/platform-config#esp32-s3-dma-arduino-core)
 
 ### ESP32-C3 / ESP32-C6
 - Fixed-point math automatically selected

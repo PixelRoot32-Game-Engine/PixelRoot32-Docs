@@ -6,27 +6,16 @@
 
 ## System Overview
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                       PIXELROOT32 ENGINE                    │
-│                                                             │
-│  ┌────────────┐      ┌──────────────┐      ┌────────────┐   │
-│  │   Scene    │────▶│   Renderer   │─────▶│  Display   │   │
-│  └────────────┘      └──────────────┘      └────────────┘   │
-│        │                     │                              │
-│        │                     │                              │
-│        ▼                     ▼                              │
-│  ┌────────────┐      ┌──────────────┐                       │
-│  │ Animation  │      │   TileMap    │                       │
-│  │  Manager   │◀────│   Generic    │                       │
-│  └────────────┘      └──────────────┘                       │
-│        │                     │                              │
-│        ▼                     ▼                              │
-│  ┌────────────┐      ┌──────────────┐                       │
-│  │  Lookup    │      │   Tileset    │                       │
-│  │   Table    │      │  (PROGMEM)   │                       │
-│  └────────────┘      └──────────────┘                       │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    subgraph engine ["PIXELROOT32 ENGINE"]
+        S[Scene] --> R[Renderer] --> D[Display]
+        S --> AM["Animation Manager"]
+        R --> TM["TileMap Generic"]
+        TM --> AM
+        AM --> LT["Lookup Table"]
+        TM --> TS["Tileset (PROGMEM)"]
+    end
 ```
 
 ### Component Roles
@@ -67,28 +56,28 @@ Tilemap indices → AnimationManager → Tileset
 # Update Loop (Scene::update)
 
 ```
-┌─────────────────────────────────────────────┐
-│ Scene::update()                             │
-│                                             │
-│   └─▶ animManager.step()                    │
-│        │                                    │
-│        ├─ globalFrameCounter++              │
-│        │                                    │
-│        └─ For each animation:               │
-│             │                               │
-│             ├─ currentFrame =               │
-│             │   (counter / duration) % frames
-│             │                               │
-│             ├─ currentTile =                │
-│             │   baseTile + currentFrame     │
-│             │                               │
-│             └─ Update lookup table:         │
-│                 for f in 0..frameCount-1    │
-│                     lookupTable[base+f] =   │
-│                       currentTile           │
-│                                             │
-│   Return (~3–7 µs)                          │
-└─────────────────────────────────────────────┘
+─────────────────────────────────────────────
+Scene::update()                             
+                                            
+  └─▶ animManager.step()                    
+       │                                    
+       ├─ globalFrameCounter++              
+       │                                    
+       └─ For each animation:               
+            │                               
+            ├─ currentFrame =               
+            │   (counter / duration) % frames
+            │                               
+            ├─ currentTile =                
+            │   baseTile + currentFrame     
+            │                               
+            └─ Update lookup table:         
+                for f in 0..frameCount-1    
+                    lookupTable[base+f] =   
+                      currentTile           
+                                            
+  Return (~3–7 µs)   
+─────────────────────────────────────────────                       
 ```
 
 Key properties:
@@ -102,28 +91,27 @@ Key properties:
 # Render Loop (Scene::draw)
 
 ```
-┌─────────────────────────────────────────────┐
-│ Renderer::drawTileMap(map, x, y)            │
-│                                             │
-│   ├─ Viewport culling                       │
-│   │   (compute visible tiles)               │
-│   │                                         │
-│   └─ For each visible tile:                 │
-│        │                                    │
-│        ├─ index = map.indices[i]            │
-│        │                                    │
-│        ├─ if (map.animManager)              │
-│        │     index =                        │
-│        │       map.animManager              │
-│        │         ->resolveFrame(index)      │
-│        │                                    │
-│        ├─ Resolve palette                   │
-│        │   (for 2bpp / 4bpp modes)          │
-│        │                                    │
-│        └─ drawSprite(                       │
-│             map.tiles[index], x, y)         │
-│                                             │
-└─────────────────────────────────────────────┘
+─────────────────────────────────────────────
+ Renderer::drawTileMap(map, x, y)            
+                                             
+   ├─ Viewport culling                       
+   │   (compute visible tiles)               
+   │                                         
+   └─ For each visible tile:                 
+        │                                    
+        ├─ index = map.indices[i]            
+        │                                    
+        ├─ if (map.animManager)              
+        │     index =                        
+        │       map.animManager              
+        │         ->resolveFrame(index)      
+        │                                    
+        ├─ Resolve palette                   
+        │   (for 2bpp / 4bpp modes)          
+        │                                    
+        └─ drawSprite(                       
+             map.tiles[index], x, y)                                    
+─────────────────────────────────────────────
 ```
 
 Animation integration cost:
