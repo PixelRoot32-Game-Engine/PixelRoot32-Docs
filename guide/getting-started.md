@@ -1,6 +1,22 @@
 # Getting Started
 
-PixelRoot32 is a lightweight, modular 2D game engine designed for ESP32 microcontrollers with PC simulation support. This guide will get you up and running with your first project.
+**PixelRoot32** is a lightweight, modular 2D game engine written in **C++17**, designed primarily for **ESP32 microcontrollers**, with a native simulation layer for **PC (SDL2)** to enable rapid development without hardware.
+
+## Overview
+
+PixelRoot32 follows a **scene-based architecture inspired by Godot Engine**, making it intuitive for developers familiar with modern game development workflows.
+
+**Key Features:**
+
+- **Cross-Platform** — Develop on PC (Windows/Linux/macOS) and deploy on ESP32
+- **Scene-Entity System** — Intuitive management of Scenes, Entities, and Actors
+- **High Performance** — Optimized for ESP32 with DMA transfers and IRAM-cached rendering
+- **Sprite System** — 1bpp/2bpp/4bpp sprites with multi-palette, flipping, rotation, and animation
+- **Tilemap Support** — Optimized rendering with viewport culling, multi-palette, and tile animations
+- **NES-Style Audio** — Built-in 4-channel audio subsystem (Pulse, Triangle, Noise)
+- **AABB Physics** — Godot-style physics with Kinematic/Rigid actors and sensors
+- **Lightweight UI** — Label, Button, Checkbox with automatic layouts
+- **Modular Architecture** — Compile only needed subsystems via `PIXELROOT32_ENABLE_*` flags
 
 ## Prerequisites
 
@@ -13,16 +29,41 @@ Before you begin, ensure you have:
 
 ## Installation
 
-### 1. Clone the Repository
+### Option 1: Add to Existing Project (PlatformIO Registry)
+
+Add the library to your `platformio.ini`:
+
+```ini
+lib_deps =
+    gperez88/PixelRoot32-Game-Engine@^1.2.0
+```
+
+PlatformIO will automatically download and install the library during the next build.
+
+### Option 2: Clone the Repository
+
+For exploring examples and contributing:
 
 ```bash
 git clone https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine.git
 cd PixelRoot32-Game-Engine
 ```
 
-### 2. Open an Example Project
+### Open an Example Project
 
-The engine comes with several example projects, each self-contained with its own `platformio.ini`:
+The engine includes several self-contained examples, each with its own `platformio.ini`:
+
+| Example | Description |
+|---------|-------------|
+| `hello_world` | Minimal setup with basic scene |
+| `snake` | Classic Snake game with audio |
+| `flappy_bird` | Physics and input demo |
+| `metroidvania` | Platformer with tilemaps |
+| `physics` | AABB physics showcase |
+| `animated_tilemap` | Tile animations and caching |
+| `sprites` | Sprite rendering and animation |
+| `camera` | Camera follow and scrolling |
+| `tic_tac_toe` | UI layout system demo |
 
 ```bash
 cd examples/hello_world
@@ -161,6 +202,20 @@ flowchart LR
 | **Draw** | Render to framebuffer | Every frame |
 | **Present** | Send to display (DMA) | Every frame |
 
+## Best Practices
+
+For optimal performance on ESP32:
+
+1. **Use Fixed-Point Math** — Always use `Scalar` instead of `float`. Convert literals with `math::toScalar()`.
+2. **Zero Allocation Policy** — Avoid `new`/`malloc` in the game loop. Use Object Pooling and `std::unique_ptr`.
+3. **Organize by Render Layers** — Use `renderLayer` (0=Bg, 1=Game, 2=UI) to optimize draw order.
+4. **Platform Memory Macros** — Use `PIXELROOT32_FLASH_ATTR` and `PIXELROOT32_READ_*_P` for cross-platform Flash/RAM access.
+5. **Centralized Logging** — Use `log()` from `core/Log.h` instead of `Serial.print`.
+
+::: tip
+See the [Style & Best Practices Guide](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/blob/main/docs/STYLE_GUIDE.md) for detailed rules.
+:::
+
 ## Next Steps
 
 - **[Core Concepts](/guide/core-concepts)** — Learn about scenes, entities, and actors
@@ -169,6 +224,31 @@ flowchart LR
 - **[Examples](/examples/basic-usage)** — Browse complete working examples
 
 ## Troubleshooting
+
+### Known Issues
+
+#### ESP32-S3 DMA Freeze (Arduino Core > 2.0.14)
+
+**Problem**: DMA-based transfers may freeze after the first frame when using ESP32-S3 with Arduino Core versions newer than 2.0.14.
+
+**Workaround**: Pin Arduino Core to 2.0.14 in `platformio.ini`:
+
+```ini
+[env:esp32s3]
+platform_packages =
+    framework-arduinoespressif32 @ https://github.com/espressif/arduino-esp32#2.0.14
+```
+
+> This is already configured in the `hello_world` example for ESP32-S3.
+
+#### Framework Cache Corruption (`pins_arduino.h` not found)
+
+**Problem**: Build fails with `pins_arduino.h: No such file or directory` after changing Arduino Core versions.
+
+**Solution**:
+1. Clean build cache: `pio run --target clean`
+2. Remove corrupted package: `rmdir /s /q %USERPROFILE%\.platformio\packages\framework-arduinoespressif32`
+3. Rebuild: `pio run` — PlatformIO will reinstall the framework.
 
 ### Build Errors
 
@@ -209,3 +289,45 @@ flowchart LR
 - DAC audio available on GPIO 25/26
 - Fixed-point math recommended
 - Original ESP32 support
+
+## Resources
+
+### Documentation
+- **[API Reference](/api/)** — Complete class and function documentation
+- **[Architecture](/architecture/overview)** — System design and patterns
+- **[Platform Configuration](/guide/platform-config)** — Board-specific setup
+
+### External Links
+- **[GitHub Repository](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine)** — Source code and issues
+- **[PlatformIO Registry](https://registry.platformio.org/libraries/gperez88/PixelRoot32-Game-Engine)** — Library releases
+- **[Style Guide](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/blob/main/docs/STYLE_GUIDE.md)** — Coding standards and best practices
+
+## Changelog
+
+### v1.2.0 (Latest)
+
+**Architecture**
+- Physics conditionals refactored to preprocessor macros
+- Namespace cleanup with aliases and selective `using`
+
+**Graphics**
+- ILI9341 display support
+- Static tilemap layer cache for ESP32 fast-path rendering
+- Tile animation fixes
+
+**Math**
+- Deterministic PRNG (Xorshift32) with thread-safe `Random` struct
+
+**Input**
+- Touch pipeline abstraction (XPT2046/GT911)
+- ESP32 CYD gesture system with consume/propagate semantics
+
+**UI**
+- Function pointer callbacks replacing `std::function`
+- Touch UI components: `UITouchButton`, `UITouchCheckbox`, `UITouchSlider`
+
+::: tip Migration Guide
+Upgrading from v1.1.0? See [MIGRATION_v1.2.0](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/blob/main/docs/MIGRATION_v1.2.0.md)
+:::
+
+**Full changelog:** [CHANGELOG.md](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/blob/main/CHANGELOG.md)

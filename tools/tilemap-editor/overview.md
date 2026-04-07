@@ -51,15 +51,15 @@ The Tilemap Editor is part of the **Tool Suite**. Licensing and downloads: [pixe
 4. **Paint** on the canvas.
 5. **Export to C++** and link the generated files into your engine project.
 
-Full UI walkthrough: [Usage guide](/guide/tools/tilemap-editor/usage-guide).
+Full UI walkthrough: [Usage guide](/tools/tilemap-editor/usage-guide).
 
 ## Next steps
 
-- [Installation](/guide/tools/tilemap-editor/installation)
-- [Usage guide](/guide/tools/tilemap-editor/usage-guide)
+- [Installation](/tools/tilemap-editor/installation)
+- [Usage guide](/tools/tilemap-editor/usage-guide)
 
 ## See also
 
-- [Tools overview](/guide/tools/)
+- [Tools overview](/tools/)
 - [Tilemaps](/guide/tilemaps)
 - [ARCH tile animation](/architecture/ARCH_TILE_ANIMATION)

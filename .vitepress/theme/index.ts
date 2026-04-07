@@ -1,7 +1,7 @@
 import DefaultTheme from 'vitepress/theme'
 import './custom.css'
 import type { EnhanceAppContext } from 'vitepress'
-import { inBrowser, withBase } from 'vitepress'
+import { inBrowser } from 'vitepress'
 import { nextTick } from 'vue'
 import mermaid from 'mermaid'
 
@@ -48,36 +48,12 @@ function scheduleMermaid(reset: boolean) {
   void runMermaidDiagrams()
 }
 
-function isDocumentationRoot(href: string, siteBase: string): boolean {
-  const url = new URL(href, 'http://a.com')
-  const path = url.pathname
-  const base = siteBase.replace(/\/$/, '') || ''
-  if (base) {
-    return (
-      path === base ||
-      path === `${base}/` ||
-      path === `${base}/index.html`
-    )
-  }
-  return path === '/' || path === '' || path === '/index.html'
-}
-
 export default {
   extends: DefaultTheme,
   enhanceApp(ctx: EnhanceAppContext) {
     if (!inBrowser) return
 
-    const { router, siteData } = ctx
-
-    const prevBeforeRoute = router.onBeforeRouteChange
-    router.onBeforeRouteChange = async (href) => {
-      if ((await prevBeforeRoute?.(href)) === false) return false
-      if (!isDocumentationRoot(href, siteData.value.base)) return
-      const url = new URL(href, 'http://a.com')
-      const target = `${withBase('/guide/getting-started')}${url.search}${url.hash}`
-      await router.go(target)
-      return false
-    }
+    const { router } = ctx
 
     const prevAfterRoute = router.onAfterRouteChange
     router.onAfterRouteChange = (to) => {

@@ -2,7 +2,7 @@
 
 Complete guide to using the PixelRoot32 Sprite Compiler for converting images to sprite data.
 
-> **Note:** The compiler is used as **`python main.py`** from a [source install](/guide/tools/sprite-compiler/installation) of the repository. There is **no** official Node/npm global package; ignore any older docs that referenced `npm install -g pr32-sprite-compiler`.
+> **Note:** The compiler is used as **`python main.py`** from a [source install](/tools/sprite-compiler/installation) of the repository. There is **no** official Node/npm global package; ignore any older docs that referenced `npm install -g pr32-sprite-compiler`.
 
 ## Basic Usage
 
@@ -401,8 +401,8 @@ Shows all available options and usage.
 
 ## Next Steps
 
-- [Advanced Features](/guide/tools/sprite-compiler/advanced-features) - Explore advanced options
-- [Overview](/guide/tools/sprite-compiler/overview) - Learn more about the compiler
+- [Advanced Features](/tools/sprite-compiler/advanced-features) - Explore advanced options
+- [Overview](/tools/sprite-compiler/overview) - Learn more about the compiler
 - [Manual - Sprites](/guide/rendering) - Using sprites in games
 
 ## See Also

@@ -56,9 +56,9 @@ Packed modes can reduce draw setup when a sprite uses several colors in one arra
 
 ## Next steps
 
-- [Usage guide](/guide/tools/sprite-compiler/usage-guide) — CLI workflow and build integration
-- [Installation](/guide/tools/sprite-compiler/installation)
-- [Overview](/guide/tools/sprite-compiler/overview)
+- [Usage guide](/tools/sprite-compiler/usage-guide) — CLI workflow and build integration
+- [Installation](/tools/sprite-compiler/installation)
+- [Overview](/tools/sprite-compiler/overview)
 
 ## See also
 

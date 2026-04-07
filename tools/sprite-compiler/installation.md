@@ -116,14 +116,14 @@ pip install -r requirements.txt
 
 ### Getting help
 
-- [Usage guide](/guide/tools/sprite-compiler/usage-guide) — CLI patterns (`python main.py …`).
+- [Usage guide](/tools/sprite-compiler/usage-guide) — CLI patterns (`python main.py …`).
 - Open an issue on the [Sprite Compiler](ttps://github.com/PixelRoot32-Game-Engine/PixelRoot32-Sprite-Sheet-Compiler/PixelRoot32-Sprite-Compiler) repository if something fails.
 
 ## Next steps
 
-- [Usage guide](/guide/tools/sprite-compiler/usage-guide)
-- [Advanced features](/guide/tools/sprite-compiler/advanced-features)
+- [Usage guide](/tools/sprite-compiler/usage-guide)
+- [Advanced features](/tools/sprite-compiler/advanced-features)
 
 ## See also
 
-- [Overview](/guide/tools/sprite-compiler/overview)
+- [Overview](/tools/sprite-compiler/overview)

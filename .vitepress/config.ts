@@ -23,8 +23,22 @@ export default defineConfig({
   /** Extension-less links; GitHub Pages resolves `/path` → `/path.html` (see VitePress routing docs). */
   cleanUrls: true,
 
+  /** Map root / to show guide/getting-started content without redirect */
+  rewrites: {
+    'guide/getting-started.md': 'index.md',
+  },
+
+  /** Sitemap generation for SEO */
+  sitemap: {
+    hostname: 'https://docs.pixelroot32.org',
+    lastmodDateOnly: false,
+  },
+
+  /** Enable last updated timestamps for sitemap <lastmod> */
+  lastUpdated: true,
+
   title: 'PixelRoot32 Doc',
-  description: 'A lightweight, modular 2D game engine for ESP32 and PC',
+  description: 'A lightweight, modular 2D game engine written in C++17 and designed specifically for ESP32 microcontrollers.',
 
   /** Repo README: contributor setup only, not public doc pages */
   srcExclude: ['README.md'],
@@ -49,13 +63,62 @@ export default defineConfig({
     
     nav: [
       { text: 'Guide', link: '/guide/getting-started' },
-      { text: 'Tools', link: '/guide/tools/' },
+      { text: 'Tools', link: '/tools/' },
       { text: 'Architecture', link: '/architecture/overview' },
       { text: 'API', link: '/api/' },
       { text: 'Examples', link: '/examples/demos' }
     ],
 
     sidebar: {
+      '/': [
+        {
+          text: 'Introduction',
+          items: [
+            { text: 'Getting Started', link: '/' },
+            { text: 'Core Concepts', link: '/guide/core-concepts' },
+            { text: 'Game Loop', link: '/guide/game-loop' },
+          ]
+        },
+        {
+          text: 'Systems',
+          items: [
+            { text: 'Scenes', link: '/guide/scenes' },
+            { text: 'Entities & Actors', link: '/guide/entities-actors' },
+            { text: 'Rendering', link: '/guide/rendering' },
+            { text: 'Input', link: '/guide/input' },
+            { text: 'Physics', link: '/guide/physics' },
+            { text: 'Audio', link: '/guide/audio' },
+            { text: 'UI System', link: '/guide/ui-system' },
+          ]
+        },
+        {
+          text: 'Advanced',
+          items: [
+            { text: 'Memory Management', link: '/guide/memory' },
+            { text: 'Resolution Scaling', link: '/guide/resolution-scaling' },
+            { text: 'Tilemaps', link: '/guide/tilemaps' },
+            { text: 'Multi-Palette', link: '/guide/multi-palette' },
+            { text: 'Platform Configuration', link: '/guide/platform-config' },
+          ]
+        },
+        {
+          text: 'Migrations',
+          items: [
+            { text: 'Overview', link: '/guide/migrations/overview' },
+            { text: 'v1.0.0', link: '/guide/migrations/v1.0.0' },
+            { text: 'v1.1.0', link: '/guide/migrations/v1.1.0' },
+            { text: 'v1.2.0', link: '/guide/migrations/v1.2.0' },
+          ]
+        },
+        {
+          text: 'Contributing & tooling',
+          items: [
+            { text: 'Testing', link: '/guide/testing' },
+            { text: 'Extending the engine', link: '/guide/extending' },
+            { text: 'Music player', link: '/guide/music-player' },
+          ]
+        }
+      ],
       '/guide/': [
         {
           text: 'Introduction',
@@ -103,28 +166,30 @@ export default defineConfig({
             { text: 'Extending the engine', link: '/guide/extending' },
             { text: 'Music player', link: '/guide/music-player' },
           ]
-        },
+        }
+      ],
+      '/tools/': [
         {
           text: 'Tools',
           items: [
-            { text: 'Overview', link: '/guide/tools/' },
+            { text: 'Overview', link: '/tools/' },
             {
               text: 'Sprite Compiler',
               collapsed: true,
               items: [
-                { text: 'Overview', link: '/guide/tools/sprite-compiler/overview' },
-                { text: 'Installation', link: '/guide/tools/sprite-compiler/installation' },
-                { text: 'Usage guide', link: '/guide/tools/sprite-compiler/usage-guide' },
-                { text: 'Advanced features', link: '/guide/tools/sprite-compiler/advanced-features' },
+                { text: 'Overview', link: '/tools/sprite-compiler/overview' },
+                { text: 'Installation', link: '/tools/sprite-compiler/installation' },
+                { text: 'Usage guide', link: '/tools/sprite-compiler/usage-guide' },
+                { text: 'Advanced features', link: '/tools/sprite-compiler/advanced-features' },
               ]
             },
             {
               text: 'Tilemap Editor',
               collapsed: true,
               items: [
-                { text: 'Overview', link: '/guide/tools/tilemap-editor/overview' },
-                { text: 'Installation', link: '/guide/tools/tilemap-editor/installation' },
-                { text: 'Usage guide', link: '/guide/tools/tilemap-editor/usage-guide' },
+                { text: 'Overview', link: '/tools/tilemap-editor/overview' },
+                { text: 'Installation', link: '/tools/tilemap-editor/installation' },
+                { text: 'Usage guide', link: '/tools/tilemap-editor/usage-guide' },
               ]
             },
           ]

@@ -10,9 +10,9 @@ This editor is part of the **Tool Suite**. Use the official site for licenses an
 
 ## Next steps
 
-- [Overview](/guide/tools/tilemap-editor/overview)
-- [Usage guide](/guide/tools/tilemap-editor/usage-guide)
+- [Overview](/tools/tilemap-editor/overview)
+- [Usage guide](/tools/tilemap-editor/usage-guide)
 
 ## See also
 
-- [Tools overview](/guide/tools/)
+- [Tools overview](/tools/)

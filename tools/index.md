@@ -8,10 +8,10 @@ PixelRoot32 ships optional **workflow tools** alongside the open-source engine. 
 
 Converts **PNG** images into **C headers** with sprite data (layered 1bpp, 2bpp, 4bpp, grid selection, GUI + CLI).
 
-- [Overview](/guide/tools/sprite-compiler/overview)
-- [Installation](/guide/tools/sprite-compiler/installation)
-- [Usage guide](/guide/tools/sprite-compiler/usage-guide)
-- [Advanced features](/guide/tools/sprite-compiler/advanced-features)
+- [Overview](/tools/sprite-compiler/overview)
+- [Installation](/tools/sprite-compiler/installation)
+- [Usage guide](/tools/sprite-compiler/usage-guide)
+- [Advanced features](/tools/sprite-compiler/advanced-features)
 
 ---
 
@@ -27,9 +27,9 @@ The **Tool Suite** adds advanced editor modules. Licensing and downloads are han
 
 Coming soon - visual editor for multi-layer tilemaps, tilesets, animations, attributes, and **C++ export** aligned with the engine.
 
-- [Overview](/guide/tools/tilemap-editor/overview)
-- [Installation](/guide/tools/tilemap-editor/installation)
-- [Usage guide](/guide/tools/tilemap-editor/usage-guide)
+- [Overview](/tools/tilemap-editor/overview)
+- [Installation](/tools/tilemap-editor/installation)
+- [Usage guide](/tools/tilemap-editor/usage-guide)
 
 ### Music Editor (module 2)
 

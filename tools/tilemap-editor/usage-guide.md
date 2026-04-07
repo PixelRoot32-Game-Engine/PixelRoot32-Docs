@@ -1163,7 +1163,7 @@ Scene: "Level 1"
 
 ## See also
 
-- [Tools overview](/guide/tools/)
+- [Tools overview](/tools/)
 - [Tilemaps (engine guide)](/guide/tilemaps)
 - [Tile animation (architecture)](/architecture/ARCH_TILE_ANIMATION)
 - [Animated tilemap example](/examples/animated-tilemap)

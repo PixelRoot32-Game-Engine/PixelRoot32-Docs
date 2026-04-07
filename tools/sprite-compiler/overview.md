@@ -121,7 +121,7 @@ done
 
 ### 3. Sprite sheet processing
 
-Same pattern: define **grid** size and one or more **`--sprite gx,gy,gw,gh`** regions (see [Usage guide](/guide/tools/sprite-compiler/usage-guide)).
+Same pattern: define **grid** size and one or more **`--sprite gx,gy,gw,gh`** regions (see [Usage guide](/tools/sprite-compiler/usage-guide)).
 
 ### 4. Batch asset processing
 
@@ -176,13 +176,13 @@ platformio run
 
 ## Next steps
 
-- [Installation](/guide/tools/sprite-compiler/installation)
-- [Usage guide](/guide/tools/sprite-compiler/usage-guide)
-- [Advanced features](/guide/tools/sprite-compiler/advanced-features)
+- [Installation](/tools/sprite-compiler/installation)
+- [Usage guide](/tools/sprite-compiler/usage-guide)
+- [Advanced features](/tools/sprite-compiler/advanced-features)
 
 ## See also
 
 - [Rendering](/guide/rendering) — using graphics in-game
 - [Sprites example](/examples/sprite-animation) — engine sample project
 - [Sprite (API)](/api/graphics/sprite)
-- [Tools overview](/guide/tools/)
+- [Tools overview](/tools/)
