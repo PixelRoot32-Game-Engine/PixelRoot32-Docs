@@ -62,7 +62,7 @@ export default defineConfig({
     logo: assetUrl('logo.png'),
     
     nav: [
-      { text: 'Guide', link: '/guide/getting-started' },
+      { text: 'Guide', link: '/' },
       { text: 'Tools', link: '/tools/' },
       { text: 'Architecture', link: '/architecture/overview' },
       { text: 'API', link: '/api/' },
@@ -123,7 +123,7 @@ export default defineConfig({
         {
           text: 'Introduction',
           items: [
-            { text: 'Getting Started', link: '/guide/getting-started' },
+            { text: 'Getting Started', link: '/' },
             { text: 'Core Concepts', link: '/guide/core-concepts' },
             { text: 'Game Loop', link: '/guide/game-loop' },
           ]
