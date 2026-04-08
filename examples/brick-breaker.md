@@ -6,6 +6,6 @@ Environments: `native`, `esp32dev`.
 
 Authoritative details: [`examples/brick_breaker/README.md`](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/blob/main/examples/brick_breaker/README.md).
 
-- API: [AudioEngine](/api/audio/audio-engine), [Physics](/api/physics/physics), [Particles](/api/graphics/particles)
+- API: [AudioEngine](/api/audio/audio-engine), [Physics](/api/physics/collision-system), [Particles](/api/modules/configuration)
 
 See the [samples index](./demos).

@@ -6,6 +6,6 @@ Environments: `native`, `esp32dev`, `esp32cyd`.
 
 Authoritative details: [`examples/tic_tac_toe/README.md`](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/blob/main/examples/tic_tac_toe/README.md).
 
-- API: [UI System](/api/ui/ui-system), [AudioEngine](/api/audio/audio-engine)
+- API: [UI System](/api/modules/ui), [AudioEngine](/api/audio/audio-engine)
 
 See the [samples index](./demos).

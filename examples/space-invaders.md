@@ -6,6 +6,6 @@ Environments: `native`, `esp32dev`.
 
 Authoritative details: [`examples/space_invaders/README.md`](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/blob/main/examples/space_invaders/README.md).
 
-- API: [AudioEngine](/api/audio/audio-engine), [Physics](/api/physics/physics)
+- API: [AudioEngine](/api/audio/audio-engine), [Physics](/api/physics/collision-system)
 
 See the [samples index](./demos).
