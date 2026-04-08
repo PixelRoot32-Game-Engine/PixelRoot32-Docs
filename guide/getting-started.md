@@ -35,7 +35,7 @@ Add the library to your `platformio.ini`:
 
 ```ini
 lib_deps =
-    gperez88/PixelRoot32-Game-Engine@^1.2.0
+    gperez88/PixelRoot32-Game-Engine@^1.2.1
 ```
 
 PlatformIO will automatically download and install the library during the next build.
@@ -246,6 +246,7 @@ platform_packages =
 **Problem**: Build fails with `pins_arduino.h: No such file or directory` after changing Arduino Core versions.
 
 **Solution**:
+
 1. Clean build cache: `pio run --target clean`
 2. Remove corrupted package: `rmdir /s /q %USERPROFILE%\.platformio\packages\framework-arduinoespressif32`
 3. Rebuild: `pio run` — PlatformIO will reinstall the framework.
@@ -253,21 +254,26 @@ platform_packages =
 ### Build Errors
 
 **Error**: `unknown type name 'std::optional'`
+
 - **Solution**: Ensure C++17 is enabled in `platformio.ini`
 
 **Error**: `undefined reference to 'SDL_Init'`
+
 - **Solution**: For native builds, ensure SDL2 development libraries are installed
 
 ### Runtime Issues
 
 **Issue**: Blank screen on ESP32
+
 - Check display pins match your board configuration
 - Verify `TFT_eSPI` setup for your specific display
 
 **Issue**: Display freezes after the first frame on **ESP32-S3**, or build fails with **`pins_arduino.h` not found** after changing Arduino Core versions
+
 - See [ESP32-S3 DMA and Arduino Core](/guide/platform-config#esp32-s3-dma-arduino-core) and [Framework cache and pins_arduino.h](/guide/platform-config#framework-cache-pins-arduino) on the [Platform Configuration](/guide/platform-config) page
 
 **Issue**: Low FPS on ESP32
+
 - Reduce logical resolution: `DisplayConfig(128, 128)`
 - Enable tilemap optimization flags
 - Check SPI speed settings
@@ -275,17 +281,20 @@ platform_packages =
 ## Platform-Specific Notes
 
 ### ESP32-S3
+
 - Optimal performance with FPU support
 - Use float-based `Scalar` for math
 - Full audio capabilities
 - DMA display output may require pinning Arduino Core 2.0.14; see [ESP32-S3 DMA and Arduino Core](/guide/platform-config#esp32-s3-dma-arduino-core)
 
 ### ESP32-C3 / ESP32-C6
+
 - Fixed-point math automatically selected
 - No hardware FPU (emulated in software)
 - I2S audio only (no DAC)
 
 ### ESP32 (Classic)
+
 - DAC audio available on GPIO 25/26
 - Fixed-point math recommended
 - Original ESP32 support
@@ -293,36 +302,61 @@ platform_packages =
 ## Resources
 
 ### Documentation
+
 - **[API Reference](/api/)** — Complete class and function documentation
 - **[Architecture](/architecture/overview)** — System design and patterns
 - **[Platform Configuration](/guide/platform-config)** — Board-specific setup
 
 ### External Links
+
 - **[GitHub Repository](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine)** — Source code and issues
 - **[PlatformIO Registry](https://registry.platformio.org/libraries/gperez88/PixelRoot32-Game-Engine)** — Library releases
 - **[Style Guide](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/blob/main/docs/STYLE_GUIDE.md)** — Coding standards and best practices
 
 ## Changelog
 
-### v1.2.0 (Latest)
+## 1.2.1  (Latest)
+
+### 🏀 Physics
+
+- **Fixed Timestep Scheduler**: New `PhysicsScheduler` with accumulator-based 60Hz simulation for stable physics across variable frame rates, especially on ESP32 under WiFi/BT interrupt load.
+- **Scene Integration**: `Scene` now uses the scheduler instead of direct `CollisionSystem::update()` calls.
+- **Physics Optimizations**: Added adaptive step limiting, velocity clamping, damping, and fast reciprocal square root optimizations.
+
+### 🎮 Examples
+
+- **Space Invaders**: Complete sample game with grid-based movement, alien formations, projectile pooling, bunker defenses, swept collision, procedural audio, and native/ESP32 support.
+- **Brick Breaker**: New breakout-style sample with paddle/ball physics, destructible bricks, collision layers, particles, audio, starfield effects, and HUD.
+
+### ⚡ Architecture & QA
+
+- **Build Profiles**: Fixed timestep physics is now enabled by default across build profiles.
+- **Docs & Tests**: Expanded documentation and added comprehensive unit tests for the scheduler and physics behavior.
+
+### v1.2.0 
 
 **Architecture**
+
 - Physics conditionals refactored to preprocessor macros
 - Namespace cleanup with aliases and selective `using`
 
 **Graphics**
+
 - ILI9341 display support
 - Static tilemap layer cache for ESP32 fast-path rendering
 - Tile animation fixes
 
 **Math**
+
 - Deterministic PRNG (Xorshift32) with thread-safe `Random` struct
 
 **Input**
+
 - Touch pipeline abstraction (XPT2046/GT911)
 - ESP32 CYD gesture system with consume/propagate semantics
 
 **UI**
+
 - Function pointer callbacks replacing `std::function`
 - Touch UI components: `UITouchButton`, `UITouchCheckbox`, `UITouchSlider`
 
