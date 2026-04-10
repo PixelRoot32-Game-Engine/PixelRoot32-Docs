@@ -53,8 +53,9 @@ These helpers reduce boilerplate when defining melodies and keep instruments con
 
 **Inherits:** None
 
-High-level sequencer for playing `MusicTrack` instances as background music.
-Music timing is handled internally by the `AudioEngine`.
+High-level helper to enqueue **music** `AudioCommand`s on the **`AudioEngine`**. **Sample-accurate** sequencing (e.g. note timing, tempo) runs inside the **`AudioScheduler`**, not on the game thread.
+
+`MusicPlayer` mirrors **`playing` / `paused` / track** on the game side; if the **command queue** overfills, those flags can **disagree** with the scheduler until the next successful command (see **`AudioEngine`** / ARCH §3.5).
 
 ### Public Methods
 
@@ -105,8 +106,8 @@ static const MusicTrack GAME_MUSIC = {
     0.5f
 };
 
-void MyScene::init() {
-    engine.getMusicPlayer().play(GAME_MUSIC);
+void MyScene::init(pr32::core::Engine& engine) {
+    engine.getMusicPlayer().play(GAME_MUSIC);  // const MusicTrack& — pass track, not pointer
 }
 ```
 
