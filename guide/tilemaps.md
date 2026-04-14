@@ -11,7 +11,7 @@ Tilemaps are efficient for backgrounds and level geometry: the engine stores com
 
 ## Compile-time flags
 
-`PIXELROOT32_ENABLE_TILE_ANIMATIONS`, `PIXELROOT32_ENABLE_TILEMAP_OPTIMIZATION`, and related switches are documented in [Configuration flags](/api/modules/configuration) and the [API overview](/api/).
+`PIXELROOT32_ENABLE_TILE_ANIMATIONS`, `PIXELROOT32_ENABLE_STATIC_TILEMAP_FB_CACHE`, and related switches are documented in [Configuration flags](/api/modules/configuration) and the [API overview](/api/).
 
 ## Samples in the engine repo
 

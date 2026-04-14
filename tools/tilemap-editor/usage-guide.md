@@ -345,7 +345,7 @@ The Animation Panel is dockable and provides complete control over tile animatio
 1. **Name**: Give your animation a descriptive name (e.g., "Water", "Fire", "Coin Spin")
 2. **Base Tile**: The first tile index in your animation sequence
 3. **Frame Count**: Number of tiles in the animation (2-8 recommended)
-4. **Frame Duration**: Speed of animation in engine ticks (8-16 for smooth animation)
+4. **Frame Duration**: How long each animation cell is held, in **60 Hz logical ticks** (1–255; e.g. **8** ≈ **133 ms** per cell). Larger values slow the cycle; this matches the engine’s **`TileAnimation::frameDuration`** (not “main loop iterations”).
 
 **Step 3**: Assign tiles to animation
 1. Use the **Animation Eyedropper Tool** (I) to pick tiles from the canvas
@@ -355,7 +355,7 @@ The Animation Panel is dockable and provides complete control over tile animatio
 **Example**: Water animation with 4 frames
 - Base Tile: 16
 - Frame Count: 4 (uses tiles 16, 17, 18, 19)
-- Frame Duration: 8 (changes frame every 8 engine ticks)
+- Frame Duration: 8 (holds each animation cell for 8 logical ticks at ~60 Hz)
 
 ### 7.4 Linking Animations to Tiles
 
@@ -404,7 +404,7 @@ The system automatically validates animations to prevent errors:
 - **Tile Bounds**: Ensures base_tile + frame_count ≤ tileset size
 - **Overlap Detection**: Prevents animations from using overlapping tile ranges
 - **Memory Constraints**: Validates against ESP32 limits (max 64 animations, 256 total frames)
-- **Frame Duration**: Ensures valid timing values (1-255 ticks)
+- **Frame Duration**: Ensures valid timing values (1–255 logical ticks at ~60 Hz)
 
 **Error Messages**:
 - **"Animation exceeds tileset bounds"**: Reduce frame count or change base tile

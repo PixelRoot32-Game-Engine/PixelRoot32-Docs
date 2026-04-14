@@ -221,28 +221,15 @@ Modular compilation: `PIXELROOT32_ENABLE_PARTICLES`
 
 ---
 
-## Tilemap Optimization System
+## Tilemap rendering
 
-**Files**: `TileCache.h`, `ChunkManager.h`, `TileAnimation.h`
+**Files**: `include/graphics/Renderer.h`, `src/graphics/Renderer.cpp`, `include/graphics/TileAnimation.h`
 
-Optimized tilemap rendering for ESP32 with multiple strategies.
+`Renderer::drawTileMap` performs **viewport culling** (only tiles that can intersect the logical framebuffer), optional **`TileAnimationManager::resolveFrame`**, optional **runtime tile masks** and **per-cell background palettes** on 2bpp/4bpp maps, then rasterizes each visible tile (ESP32: hot paths use `IRAM_ATTR` where applicable).
 
-**Pipeline**:
-```
-drawTileMap()
-    1. Viewport Culling
-    2. DirtyTileTracker
-    3. ChunkManager
-    4. TileCache (LRU)
-    5. drawSpriteInternal with IRAM_ATTR
-```
+For largely static **4bpp** layers when **`DrawSurface::getSpriteBuffer()`** is available, use **`StaticTilemapLayerCache`** and **`PIXELROOT32_ENABLE_STATIC_TILEMAP_FB_CACHE`** (see Graphics API and architecture docs).
 
-**Components**:
-- **TileCache**: LRU cache for pre-rendered tiles (default: 16 tiles)
-- **ChunkManager**: 8x8 tile chunk viewport culling
-- **DirtyTileTracker**: 1-bit per tile change tracking
-
-See [Tile Animation](/architecture/ARCH_TILE_ANIMATION) for animation system details.
+See [Tile Animation](/architecture/ARCH_TILE_ANIMATION) for the animation system.
 
 ---
 
@@ -256,7 +243,7 @@ See [Tile Animation](/architecture/ARCH_TILE_ANIMATION) for animation system det
 | Particles | `PIXELROOT32_ENABLE_PARTICLES` | Enabled |
 | Touch Input | `PIXELROOT32_ENABLE_TOUCH` | Disabled |
 | Tile Animations | `PIXELROOT32_ENABLE_TILE_ANIMATIONS` | Enabled |
-| Tilemap Optimization | `PIXELROOT32_ENABLE_TILEMAP_OPTIMIZATION` | Enabled |
+| Static tilemap framebuffer cache (4bpp) | `PIXELROOT32_ENABLE_STATIC_TILEMAP_FB_CACHE` | Enabled (`PlatformDefaults.h`) |
 
 ---
 

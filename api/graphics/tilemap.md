@@ -42,7 +42,7 @@ The Tile Animation System enables frame-based tile animations (water, lava, fire
 
 - **`uint8_t baseTileIndex`**: First tile in the animation sequence.
 - **`uint8_t frameCount`**: Number of frames in the animation.
-- **`uint8_t frameDuration`**: Number of game frames to display each animation frame.
+- **`uint8_t frameDuration`**: How many **60 Hz logical ticks** each animation cell is held (1–255). Pacing uses **wall time** between `step` calls (see engine `TileAnimationManager`); speed does not follow main-loop iteration count when **`draw`/`present`** are skipped.
 
 ### TileAnimationManager
 
@@ -50,28 +50,21 @@ Manages tile animations for a tilemap.
 
 #### Public Methods
 
-- **`void step()`**  
-  Advances all animations by one step. Call once per frame in `Scene::update()`.
+- **`void step(unsigned long deltaTimeMs)`**  
+  Advances animations from elapsed time. Pass **`Scene::update`**’s **`deltaTime`**. High-resolution pacing between calls keeps speed correct when **`millis()`** delta is often **0** on tight loops.
 
 - **`void reset()`**  
   Resets all animations to frame 0.
 
-- **`uint8_t resolveFrame(uint8_t tileIndex) const`**  
+- **`uint8_t resolveFrame(uint8_t tileIndex)`**  
   Resolves tile index to current animated frame. O(1) lookup.
 
 ---
 
 
-## Tilemap Optimization System
+## Tilemap rendering notes
 
-When `PIXELROOT32_ENABLE_TILEMAP_OPTIMIZATION=1` (default):
-
-| Component | File | Description |
-|-----------|------|-------------|
-| `TileCache` | `graphics/TileCache.h` | LRU cache for pre-rendered tiles |
-| `ChunkManager` | `graphics/ChunkManager.h` | Chunk-based viewport culling |
-| `DirtyTileTracker` | `graphics/TileAnimation.h` | Animation change tracking |
-| `drawTileDirect()` | `graphics/DrawSurface.h` | Direct buffer write (ESP32 only) |
+`Renderer::drawTileMap` always applies **viewport culling** and per-tile rasterization. Optional **`drawTileDirect()`** on `DrawSurface` (when implemented by the driver) can blit pre-packed 8bpp tile rows into the logical sprite buffer. For static **4bpp** layer reuse, use **`StaticTilemapLayerCache`** and **`PIXELROOT32_ENABLE_STATIC_TILEMAP_FB_CACHE`** (see main Graphics / configuration docs).
 
 ---
 

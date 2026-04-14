@@ -275,7 +275,7 @@ platform_packages =
 **Issue**: Low FPS on ESP32
 
 - Reduce logical resolution: `DisplayConfig(128, 128)`
-- Enable tilemap optimization flags
+- Prefer lower logical size and profile **draw** vs **present**; for static **4bpp** layers use `StaticTilemapLayerCache` (see Graphics API) and tune `PIXELROOT32_ENABLE_STATIC_TILEMAP_FB_CACHE` if you need to trade RAM for full redraws.
 - Check SPI speed settings
 
 ## Platform-Specific Notes
