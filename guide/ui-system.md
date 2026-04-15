@@ -1,16 +1,17 @@
 # UI System
 
-PixelRoot32 provides a lightweight UI system with automatic layouts and touch support. Create menus, HUDs, and interactive interfaces with minimal code.
+PixelRoot32 provides a lightweight UI system with automatic layouts and optional touch support. The engine separates **two integration paths**: drawing and updates via the scene **entity list**, and **touch hit-testing** via `UIManager` (only for `UITouchElement` widgets).
 
 ## Architecture
 
 ```mermaid
 flowchart TB
     subgraph Scene["Scene"]
-        U[UIManager]
+        E[Entity list addEntity]
+        U[UIManager touch registry]
     end
     
-    subgraph Layouts["Layout Containers"]
+    subgraph Layouts["Layout containers"]
         V[UIVerticalLayout]
         H[UIHorizontalLayout]
         G[UIGridLayout]
@@ -18,15 +19,26 @@ flowchart TB
         P[UIPanel]
     end
     
-    subgraph Elements["UI Elements"]
+    subgraph ClassicUI["Classic UI entities"]
         L[UILabel]
         B[UIButton]
         C[UICheckBox]
     end
     
-    U --> Layouts
-    Layouts --> Elements
+    subgraph TouchUI["Touch widgets"]
+        TB[UITouchButton]
+        TC[UITouchCheckbox]
+        TS[UITouchSlider]
+    end
+    
+    E --> Layouts
+    Layouts --> ClassicUI
+    E --> TouchUI
+    U --> TouchUI
 ```
+
+- **`addEntity`**: any `UIElement` (labels, layouts, `UIButton`, `UICheckBox`) is an `Entity` and must be added to the scene so `update` / `draw` run.
+- **`getUIManager().addElement`**: only **`UITouchElement`** subclasses (`UITouchButton`, `UITouchCheckbox`, `UITouchSlider`) for touch routing. Register **before** touch events; `UIManager` holds non-owning pointers (max 16). Call `removeElement` before destroying a widget.
 
 ## Enabling UI
 
@@ -36,394 +48,382 @@ build_flags =
     -DPIXELROOT32_ENABLE_UI_SYSTEM=1
 ```
 
+For touch input (hardware + `Scene::processTouchEvents`), also enable:
+
+```cpp
+    -DPIXELROOT32_ENABLE_TOUCH=1
+```
+
+See the engine’s touch architecture doc for calibration and `TouchManager` setup.
+
 ```cpp
 #include <Scene.h>
+#include <graphics/ui/UILabel.h>
+
+using namespace pixelroot32;
 
 class MenuScene : public core::Scene {
 public:
     void init() override {
-        Scene::init();  // Required!
         initUI();
     }
-    
+
     void initUI() override {
-        auto& ui = getUIManager();
-        
-        // Create UI elements here
-        auto* label = new graphics::ui::UILabel("Main Menu");
-        ui.addElement(label);
+        auto* label = new graphics::ui::UILabel(
+            "Main Menu",
+            math::Vector2(math::toScalar(0), math::toScalar(40)),
+            graphics::Color::White,
+            2);
+        addEntity(label);
     }
 };
 ```
 
-::: warning
-Always call `Scene::init()` when overriding if UI is enabled.
-:::
+## Classic UI elements (`addEntity`)
 
-## UI Elements
+Constructors use **plain function pointers** for callbacks (`void(*)()`, `void(*)(bool)`), not `std::function`, to keep memory use small on MCUs. Use **free functions** or static methods; if you need `this`, use a static context pointer (see engine examples).
 
 ### UILabel
 
 ```cpp
-auto* label = new graphics::ui::UILabel("Hello World");
-label->setPosition(80, 50);
-label->setTextColor(graphics::Color::WHITE);
-label->setTextSize(2);
-ui.addElement(label);
+using namespace pixelroot32;
+
+auto* label = new graphics::ui::UILabel(
+    "Hello",
+    math::Vector2(math::toScalar(80), math::toScalar(50)),
+    graphics::Color::White,
+    2);  // text size multiplier (font height ≈ 8 × size)
+addEntity(label);
 ```
 
-### UIButton
+`UILabel` exposes `setText`, `setVisible`, and `centerX`. There is no `setTextColor` / `setTextSize` after construction; choose color and size in the constructor.
+
+### UIButton (keyboard / D-pad)
+
+`UIButton` handles **logical buttons** from `InputManager` when the control is **selected** inside a layout that calls `handleInput`. It does **not** perform touch hit-testing.
 
 ```cpp
-auto* button = new graphics::ui::UIButton("Start Game");
-button->setPosition(80, 100);
-button->setSize(80, 24);
+void onStartClicked() { /* ... */ }
 
-// Click handler
-button->onClick = [this]() {
-    startGame();
-};
-
-ui.addElement(button);
+auto* btn = new graphics::ui::UIButton(
+    "Start Game",
+    0,  // navigation index (matches InputManager button mapping in layout)
+    math::Vector2(math::toScalar(80), math::toScalar(100)),
+    math::Vector2(math::toScalar(80), math::toScalar(24)),
+    onStartClicked);
+btn->setStyle(graphics::Color::White, graphics::Color::Blue, true);
+addEntity(btn);
 ```
 
 ### UICheckBox
 
 ```cpp
-auto* checkbox = new graphics::ui::UICheckBox("Enable Sound");
-checkbox->setPosition(80, 140);
-checkbox->setChecked(true);
+void onSoundToggled(bool enabled) { /* ... */ }
 
-checkbox->onCheckChanged = [this](bool checked) {
-    setSoundEnabled(checked);
-};
-
-ui.addElement(checkbox);
+auto* checkbox = new graphics::ui::UICheckBox(
+    "Enable Sound",
+    0,
+    math::Vector2(math::toScalar(80), math::toScalar(140)),
+    math::Vector2(math::toScalar(80), math::toScalar(20)),
+    true,   // initially checked
+    onSoundToggled);
+addEntity(checkbox);
 ```
 
-## Layout Containers
+## Layout containers
+
+Layouts require a **bounding rectangle** `(x, y, width, height)` — the viewport used for placement and optional scrolling.
 
 ### UIVerticalLayout
 
-Automatic vertical arrangement:
-
 ```cpp
-auto* vlayout = new graphics::ui::UIVerticalLayout();
-vlayout->setPosition(80, 60);
-vlayout->setSpacing(10);  // 10px between elements
+auto* vlayout = new graphics::ui::UIVerticalLayout(
+    math::toScalar(80), math::toScalar(60),
+    200, 120);  // width × height viewport
+vlayout->setSpacing(10);
 
-vlayout->addElement(new graphics::ui::UILabel("Option 1"));
-vlayout->addElement(new graphics::ui::UILabel("Option 2"));
-vlayout->addElement(new graphics::ui::UILabel("Option 3"));
+vlayout->addElement(new graphics::ui::UILabel(
+    "Option 1",
+    math::Vector2(math::toScalar(0), math::toScalar(0)),
+    graphics::Color::White,
+    1));
+// ... more rows
 
-ui.addElement(vlayout);
+addEntity(vlayout);
 ```
+
+Call **`vlayout->handleInput(engine.getInputManager())`** from your scene `update` (or equivalent) when you rely on D-pad navigation inside the layout.
 
 ### UIHorizontalLayout
 
-Horizontal arrangement:
-
 ```cpp
-auto* hlayout = new graphics::ui::UIHorizontalLayout();
-hlayout->setPosition(40, 200);
+auto* hlayout = new graphics::ui::UIHorizontalLayout(
+    math::toScalar(40), math::toScalar(200),
+    240, 32);
 hlayout->setSpacing(20);
-
-hlayout->addElement(new graphics::ui::UIButton("A"));
-hlayout->addElement(new graphics::ui::UIButton("B"));
-hlayout->addElement(new graphics::ui::UIButton("C"));
-
-ui.addElement(hlayout);
+// addElement(UIButton* ...) with proper constructors
+addEntity(hlayout);
 ```
 
 ### UIGridLayout
 
-Grid arrangement:
+Column count and **cell size are derived** from the layout size, padding, and spacing — there is **no** `setCellSize` API.
 
 ```cpp
-auto* grid = new graphics::ui::UIGridLayout();
-grid->setPosition(40, 60);
+auto* grid = new graphics::ui::UIGridLayout(
+    math::toScalar(40), math::toScalar(60),
+    200, 120);
 grid->setColumns(3);
-grid->setCellSize(60, 40);
-grid->setSpacing(10, 10);
+grid->setSpacing(10);  // single spacing value (row and column gap)
 
-// Add 9 buttons in 3x3 grid
-for (int i = 0; i < 9; ++i) {
-    auto* btn = new graphics::ui::UIButton(std::to_string(i + 1));
-    btn->onClick = [i]() { selectNumber(i + 1); };
-    grid->addElement(btn);
-}
+void onCell0() { selectNumber(1); }
+// ... register buttons with constructors + callbacks
 
-ui.addElement(grid);
+addEntity(grid);
 ```
 
 ### UIAnchorLayout
 
-Fixed-position elements (for HUD):
+Anchors use **`addElement(element, Anchor)`** only — **no per-edge pixel offsets** in `addElement`. Use a full-screen layout at `(0,0)` with logical width/height, or wrap content and adjust the layout’s position/size for margins.
 
 ```cpp
-auto* anchors = new graphics::ui::UIAnchorLayout();
-anchors->setFixedPosition(true);  // Ignore camera offset
+constexpr int SW = 320;
+constexpr int SH = 240;
 
-// Top-left: Score
-auto* score = new graphics::ui::UILabel("Score: 0");
-anchors->addElement(score, graphics::ui::Anchor::TopLeft, 
-                    10, 10);  // x=10, y=10 offset
+auto* anchors = new graphics::ui::UIAnchorLayout(
+    math::toScalar(0), math::toScalar(0), SW, SH);
+anchors->setFixedPosition(true);
+anchors->setScreenSize(SW, SH);
 
-// Top-right: Health
-auto* health = new graphics::ui::UILabel("HP: 100");
-anchors->addElement(health, graphics::ui::Anchor::TopRight, 
-                    -10, 10);  // -10 from right
+auto* score = new graphics::ui::UILabel(
+    "Score: 0",
+    math::Vector2(math::toScalar(0), math::toScalar(0)),
+    graphics::Color::Yellow,
+    1);
+anchors->addElement(score, graphics::ui::Anchor::TOP_LEFT);
 
-// Bottom-center: Message
-auto* message = new graphics::ui::UILabel("");
-anchors->addElement(message, graphics::ui::Anchor::BottomCenter, 
-                    0, -10);
-
-ui.addElement(anchors);
+addEntity(anchors);
 ```
+
+Enum values are `Anchor::TOP_LEFT`, `TOP_RIGHT`, `BOTTOM_RIGHT`, etc.
 
 ### UIPanel
 
-Container with background:
+`UIPanel` holds **one** child via **`setChild`**. Use a nested `UILayout` for multiple rows.
 
 ```cpp
-auto* panel = new graphics::ui::UIPanel();
-panel->setPosition(60, 80);
-panel->setSize(120, 100);
-panel->setBackgroundColor(graphics::Color::DARK_GRAY);
-panel->setBorderColor(graphics::Color::WHITE);
+auto* panel = new graphics::ui::UIPanel(
+    math::toScalar(60), math::toScalar(80), 120, 100);
+panel->setBackgroundColor(graphics::Color::DarkGray);
+panel->setBorderColor(graphics::Color::White);
+panel->setBorderWidth(1);
 
-// Add elements to panel
-panel->addElement(new graphics::ui::UILabel("Settings"));
-panel->addElement(new graphics::ui::UICheckBox("Option 1"));
-panel->addElement(new graphics::ui::UICheckBox("Option 2"));
+auto* inner = new graphics::ui::UIVerticalLayout(
+    math::toScalar(0), math::toScalar(0), 110, 90);
+// inner->addElement(...);
+panel->setChild(inner);
 
-ui.addElement(panel);
+addEntity(panel);
 ```
 
-## Complete Menu Example
+## Touch widgets (`UIManager` + `addEntity`)
+
+Touch events flow through **`Scene::processTouchEvents`** → `UIManager::processEvents` → `UITouchElement::processEvent`. Register widgets with **`getUIManager().addElement`**, and also **`addEntity`** so they draw and update.
 
 ```cpp
-class MainMenuScene : public core::Scene {
-    graphics::ui::UILabel* statusLabel;
-    
-public:
-    void init() override {
-        Scene::init();
-        initUI();
-    }
-    
-    void initUI() override {
-        auto& ui = getUIManager();
-        
-        // Title
-        auto* title = new graphics::ui::UILabel("PIXEL GAME");
-        title->setPosition(60, 30);
-        title->setTextSize(3);
-        title->setTextColor(graphics::Color::YELLOW);
-        ui.addElement(title);
-        
-        // Button container
-        auto* vlayout = new graphics::ui::UIVerticalLayout();
-        vlayout->setPosition(80, 80);
-        vlayout->setSpacing(15);
-        
-        // Start button
-        auto* startBtn = new graphics::ui::UIButton("Start Game");
-        startBtn->setSize(80, 24);
-        startBtn->onClick = [this]() {
-            engine->setScene(new GameScene());
-        };
-        vlayout->addElement(startBtn);
-        
-        // Options button
-        auto* optionsBtn = new graphics::ui::UIButton("Options");
-        optionsBtn->setSize(80, 24);
-        optionsBtn->onClick = [this]() {
-            showOptions();
-        };
-        vlayout->addElement(optionsBtn);
-        
-        // Sound checkbox
-        auto* soundCheck = new graphics::ui::UICheckBox("Sound");
-        soundCheck->setChecked(true);
-        soundCheck->onCheckChanged = [this](bool checked) {
-            setSoundEnabled(checked);
-        };
-        vlayout->addElement(soundCheck);
-        
-        // Quit button
-        auto* quitBtn = new graphics::ui::UIButton("Quit");
-        quitBtn->setSize(80, 24);
-        quitBtn->onClick = [this]() {
-            quitGame();
-        };
-        vlayout->addElement(quitBtn);
-        
-        ui.addElement(vlayout);
-        
-        // Status bar at bottom
-        statusLabel = new graphics::ui::UILabel("Ready");
-        statusLabel->setPosition(10, 220);
-        statusLabel->setTextColor(graphics::Color::GRAY);
-        ui.addElement(statusLabel);
-    }
-    
-    void setStatus(const std::string& text) {
-        statusLabel->setText(text);
-    }
-    
-private:
-    void showOptions() {
-        setStatus("Options not implemented");
-    }
-    
-    void setSoundEnabled(bool enabled) {
-        #if PIXELROOT32_ENABLE_AUDIO
-        engine->getAudioEngine().setMasterVolume(enabled ? 0.8f : 0.0f);
-        #endif
-        setStatus(enabled ? "Sound ON" : "Sound OFF");
-    }
-    
-    void quitGame() {
-        // On ESP32, could go to deep sleep
-        // On PC, exit application
-        setStatus("Goodbye!");
-    }
-};
-```
+#include <graphics/ui/UITouchButton.h>
 
-## HUD Example
+void onOk() { /* ... */ }
 
-```cpp
-class GameHUD : public core::Scene {
-    graphics::ui::UILabel* scoreLabel;
-    graphics::ui::UILabel* healthLabel;
-    graphics::ui::UILabel* ammoLabel;
-    int score = 0;
-    int health = 100;
-    int ammo = 30;
-    
-public:
-    void init() override {
-        Scene::init();
-        initUI();
-    }
-    
-    void initUI() override {
-        auto& ui = getUIManager();
-        
-        // Fixed position HUD (ignores camera)
-        auto* hud = new graphics::ui::UIAnchorLayout();
-        hud->setFixedPosition(true);
-        
-        // Score - Top Left
-        scoreLabel = new graphics::ui::UILabel("Score: 0");
-        scoreLabel->setTextColor(graphics::Color::YELLOW);
-        hud->addElement(scoreLabel, graphics::ui::Anchor::TopLeft, 10, 10);
-        
-        // Health - Top Right
-        healthLabel = new graphics::ui::UILabel("HP: 100");
-        healthLabel->setTextColor(graphics::Color::GREEN);
-        hud->addElement(healthLabel, graphics::ui::Anchor::TopRight, -10, 10);
-        
-        // Ammo - Bottom Right
-        ammoLabel = new graphics::ui::UILabel("Ammo: 30");
-        ammoLabel->setTextColor(graphics::Color::WHITE);
-        hud->addElement(ammoLabel, graphics::ui::Anchor::BottomRight, -10, -10);
-        
-        ui.addElement(hud);
-    }
-    
-    void addScore(int points) {
-        score += points;
-        scoreLabel->setText("Score: " + std::to_string(score));
-    }
-    
-    void setHealth(int hp) {
-        health = hp;
-        healthLabel->setText("HP: " + std::to_string(health));
-        
-        // Change color based on health
-        if (health > 60) {
-            healthLabel->setTextColor(graphics::Color::GREEN);
-        } else if (health > 30) {
-            healthLabel->setTextColor(graphics::Color::YELLOW);
-        } else {
-            healthLabel->setTextColor(graphics::Color::RED);
-        }
-    }
-    
-    void setAmmo(int count) {
-        ammo = count;
-        ammoLabel->setText("Ammo: " + std::to_string(ammo));
-        
-        if (ammo < 5) {
-            ammoLabel->setTextColor(graphics::Color::RED);
-        } else {
-            ammoLabel->setTextColor(graphics::Color::WHITE);
-        }
-    }
-};
-```
-
-## Touch Integration
-
-UI automatically handles touch events:
-
-```cpp
-void GameScene::processTouchEvents(input::TouchEvent* events, uint8_t count) {
-    // UI processes first - marks consumed events
-    Scene::processTouchEvents(events, count);
-    
-    // Unconsumed events go to game
-    // (Handled by onUnconsumedTouchEvent)
+void MyScene::initUI() {
+    auto& ui = getUIManager();
+    okButton = std::make_unique<graphics::ui::UITouchButton>(
+        "OK",
+        math::Vector2(math::toScalar(50), math::toScalar(100)),
+        math::Vector2(math::toScalar(120), math::toScalar(40)),
+        onOk);
+    ui.addElement(okButton.get());
+    addEntity(okButton.get());
 }
 ```
 
-Touch targets:
-- Buttons trigger on release within bounds
-- Checkboxes toggle on tap
-- Layouts handle scrolling (if content overflows)
+`UITouchCheckbox` uses **`setOnChanged`**; `UITouchSlider` uses **`setOnValueChanged`**. Before destroying a widget, call **`removeElement`** on the manager.
+
+## Complete menu example (sketch)
+
+```cpp
+using namespace pixelroot32;
+
+class MainMenuScene : public core::Scene {
+    graphics::ui::UILabel* statusLabel = nullptr;
+
+    static void startStatic() { /* engine->setScene(...); */ }
+    static void optionsStatic() { /* ... */ }
+    static void quitStatic() { /* ... */ }
+    static void soundStatic(bool on) { (void)on; /* ... */ }
+
+public:
+    void init() override {
+        initUI();
+    }
+
+    void initUI() override {
+        auto* title = new graphics::ui::UILabel(
+            "PIXEL GAME",
+            math::Vector2(math::toScalar(60), math::toScalar(30)),
+            graphics::Color::Yellow,
+            3);
+
+        auto* vlayout = new graphics::ui::UIVerticalLayout(
+            math::toScalar(80), math::toScalar(80), 120, 100);
+        vlayout->setSpacing(15);
+
+        vlayout->addElement(new graphics::ui::UIButton(
+            "Start", 0,
+            math::Vector2(math::toScalar(0), math::toScalar(0)),
+            math::Vector2(math::toScalar(80), math::toScalar(24)),
+            startStatic));
+
+        vlayout->addElement(new graphics::ui::UIButton(
+            "Options", 1,
+            math::Vector2(math::toScalar(0), math::toScalar(0)),
+            math::Vector2(math::toScalar(80), math::toScalar(24)),
+            optionsStatic));
+
+        vlayout->addElement(new graphics::ui::UICheckBox(
+            "Sound", 2,
+            math::Vector2(math::toScalar(0), math::toScalar(0)),
+            math::Vector2(math::toScalar(80), math::toScalar(20)),
+            true,
+            soundStatic));
+
+        vlayout->addElement(new graphics::ui::UIButton(
+            "Quit", 3,
+            math::Vector2(math::toScalar(0), math::toScalar(0)),
+            math::Vector2(math::toScalar(80), math::toScalar(24)),
+            quitStatic));
+
+        statusLabel = new graphics::ui::UILabel(
+            "Ready",
+            math::Vector2(math::toScalar(10), math::toScalar(220)),
+            graphics::Color::Gray,
+            1);
+
+        addEntity(title);
+        addEntity(vlayout);
+        addEntity(statusLabel);
+    }
+
+    void setStatus(const char* text) {
+        if (statusLabel) {
+            statusLabel->setText(text);
+        }
+    }
+};
+```
+
+Wire **`vlayout->handleInput(engine.getInputManager())`** in `update` if you use D-pad navigation. Replace static stubs with functions that reach your `Engine` / scene instance as in the engine samples.
+
+## HUD example
+
+`UILabel` does not support changing color after construction; keep colors fixed or rebuild labels if you need dynamic palette changes.
+
+```cpp
+#include <string>
+
+using namespace pixelroot32;
+
+class GameHUD : public core::Scene {
+    graphics::ui::UILabel* scoreLabel = nullptr;
+    graphics::ui::UILabel* healthLabel = nullptr;
+    int score = 0;
+    int health = 100;
+
+public:
+    void init() override {
+        constexpr int SW = 320;
+        constexpr int SH = 240;
+
+        auto* hud = new graphics::ui::UIAnchorLayout(
+            math::toScalar(0), math::toScalar(0), SW, SH);
+        hud->setFixedPosition(true);
+        hud->setScreenSize(SW, SH);
+
+        scoreLabel = new graphics::ui::UILabel(
+            "Score: 0",
+            math::Vector2(math::toScalar(0), math::toScalar(0)),
+            graphics::Color::Yellow,
+            1);
+        hud->addElement(scoreLabel, graphics::ui::Anchor::TOP_LEFT);
+
+        healthLabel = new graphics::ui::UILabel(
+            "HP: 100",
+            math::Vector2(math::toScalar(0), math::toScalar(0)),
+            graphics::Color::Green,
+            1);
+        hud->addElement(healthLabel, graphics::ui::Anchor::TOP_RIGHT);
+
+        addEntity(hud);
+    }
+
+    void addScore(int points) {
+        score += points;
+        if (scoreLabel) {
+            std::string s = "Score: " + std::to_string(score);
+            scoreLabel->setText(s);
+        }
+    }
+};
+```
+
+## Touch integration
+
+`Scene::processTouchEvents` runs **`UIManager::processEvents` first (when UI is enabled), marks consumed events, then** calls **`onUnconsumedTouchEvent`** for the rest.
+
+```cpp
+void GameScene::processTouchEvents(input::TouchEvent* events, uint8_t count) {
+    Scene::processTouchEvents(events, count);
+}
+```
+
+- **`UITouchButton` / `UITouchCheckbox` / `UITouchSlider`**: touch hits and gestures via `processEvent`.
+- **`UIButton` / `UICheckBox`**: not driven by the touch dispatcher; use **`UITouch*`** variants on touch devices, or drive classic widgets with **D-pad / keyboard** through `handleInput`.
 
 ## Styling
 
 ```cpp
-// Button styling
-button->setBackgroundColor(graphics::Color::BLUE);
-button->setTextColor(graphics::Color::WHITE);
-button->setBorderColor(graphics::Color::WHITE);
-button->setBorderWidth(2);
+// UIButton / UICheckBox — use setStyle(...)
+button->setStyle(graphics::Color::White, graphics::Color::Blue, true);
+checkbox->setStyle(graphics::Color::White, graphics::Color::Black, false);
 
-// Label styling
-label->setTextSize(2);
-label->setTextColor(graphics::Color::YELLOW);
+// UITouchButton — setColors(normal, pressed, disabled)
+// touchButton->setColors(graphics::Color::White, graphics::Color::Cyan, graphics::Color::Gray);
 ```
 
-## Performance Tips
+`UIPanel` supports `setBackgroundColor`, `setBorderColor`, and `setBorderWidth`.
 
-1. **Minimize UI updates**: Only change text when needed
-2. **Use fixed position for HUD**: Avoids camera transform cost
-3. **Pool UI elements**: Reuse instead of recreate
-4. **Limit nested layouts**: Each level adds overhead
+## Performance tips
 
-## Best Practices
+1. **Minimize UI updates**: change text only when values change.
+2. **Use `fixedPosition` + anchor layouts** for HUDs to avoid camera scroll work.
+3. **Reuse widgets** instead of allocating every frame.
+4. **Limit deep layout nesting** — each level has layout cost.
+
+## Best practices
 
 ### Do
 
-- ✅ Group related UI in containers
-- ✅ Use anchor layouts for HUD elements
-- ✅ Provide visual feedback (hover, pressed states)
-- ✅ Handle different screen sizes with relative positioning
+- Register **`UITouchElement`** instances with `getUIManager` **and** `addEntity` when using touch.
+- Call **`removeElement`** before destroying a touch widget.
+- Call **`handleInput`** on layouts when you need focus / D-pad navigation.
 
-### Don't
+### Don’t
 
-- ❌ Update UI text every frame
-- ❌ Create UI elements in update loop
-- ❌ Mix game camera with UI camera without `fixedPosition`
-- ❌ Forget to call `Scene::init()` when overriding
+- Pass **`UILabel` / `UIButton` / `UILayout`** to **`UIManager::addElement`** — they are not `UITouchElement`.
+- Update label text every frame without need.
+- Create UI entities inside the per-frame `update` loop.
 
-## Next Steps
+## Next steps
 
 - **[Input](/guide/input)** — Touch and button handling
-- **[Examples/Hello World](/examples/hello-world)** — Complete UI example
+- **[Examples/Hello World](/examples/hello-world)** — Sample projects
