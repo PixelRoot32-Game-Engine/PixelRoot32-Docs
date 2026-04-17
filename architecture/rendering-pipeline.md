@@ -77,11 +77,13 @@ High-level rendering system that abstracts graphics operations.
 The engine supports multiple palettes for 2bpp/4bpp sprites through a sprite palette slot bank.
 
 **Data Flow**:
+
 ```
 sprite.paletteSlot → getSpritePaletteSlot() → resolveColorWithPalette() → drawSpriteInternal
 ```
 
 **API Example**:
+
 ```cpp
 class Renderer {
     void beginFrame();
@@ -128,6 +130,7 @@ Input management from physical buttons or keyboard (PC), plus optional touch eve
 NES-style 4-channel audio system. See [Audio Subsystem Reference](/architecture/audio-architecture) for complete details.
 
 **Quick Overview**:
+
 - 2 PULSE channels (square wave)
 - 1 TRIANGLE channel
 - 1 NOISE channel
@@ -143,6 +146,7 @@ NES-style 4-channel audio system. See [Audio Subsystem Reference](/architecture/
 High-performance physics solver optimized for ESP32 microcontrollers.
 
 **Simulation Pipeline**:
+
 ```
 1. Detect Collisions    → Dual-layer spatial grid
 2. Solve Velocity       → Impulse-based response
@@ -199,6 +203,7 @@ Scene owns widgets; UIManager only routes events.
 Visual effects system with configurable emitters.
 
 **Components**:
+
 - `Particle`: Individual particle with position, velocity, life
 - `ParticleEmitter`: Configurable emitter with presets
 - `ParticleConfig`: Emission configuration
@@ -214,6 +219,7 @@ Modular compilation: `PIXELROOT32_ENABLE_PARTICLES`
 2D camera with viewport transformations.
 
 **Features**:
+
 - Position and zoom control
 - Automatic offset for Renderer
 - Support for fixed-position UI elements
@@ -297,6 +303,54 @@ AudioBackend
 | Audio | [Audio Subsystem](/architecture/audio-architecture) |
 | Physics | [Physics Subsystem](/architecture/physics-system) |
 | Touch Input | [Touch Input](/architecture/ARCH_TOUCH_INPUT) |
+
+---
+
+## Framebuffer Optimization (v1.2.2+)
+
+The engine includes rendering optimizations to reduce unnecessary framebuffer updates:
+
+### `shouldRedrawFramebuffer()` in Scene
+
+**Purpose:** Conditionally skips `draw()` and `present()` calls when visual state hasn't changed, reducing CPU and memory bandwidth usage.
+
+**Behavior:**
+
+- Returns `true` if the visual state has changed (entities moved, animations updated, etc.)
+- Returns `false` if the scene is visually identical to the previous frame
+- Use in the game loop to determine if rendering should occur:
+
+```cpp
+void GameScene::update(unsigned long deltaTime) {
+    // Update logic
+    // ...
+    
+    // Only render if visual state changed
+    if (shouldRedrawFramebuffer()) {
+        engine.draw();
+        engine.present();
+    }
+}
+```
+
+**Use Case:** Particularly useful on ESP32 when static backgrounds are cached and only dynamic elements change.
+
+### `getVisualSignature()` Visual Computation
+
+**Purpose:** Efficient hash-based computation that represents the current visual state of the scene.
+
+**Implementation Details:**
+
+- Computes a signature based on entity positions, animation frames, camera position, and other visual state
+- Uses efficient integer operations (no floating-point)
+- Comparable in O(1) time to detect framebuffer changes
+
+**Integration:** Used internally by `shouldRedrawFramebuffer()` to determine if a redraw is necessary. The signature changes when:
+
+- Entities move or change state
+- Tile animations advance
+- Camera position changes
+- UI elements update
 | Tile Animation | [Tile Animation](/architecture/ARCH_TILE_ANIMATION) |
 | Resolution Scaling | [Resolution Scaling](/architecture/ARCH_RESOLUTION_SCALING) |
 | Memory | [Memory System](/architecture/memory-system) |
