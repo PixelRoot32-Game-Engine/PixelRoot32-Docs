@@ -6,7 +6,7 @@
 
 ## Overview
 
-The `MusicPlayer` class provides a simple yet powerful way to add background music and melodies to your PixelRoot32 games. It integrates seamlessly with NES-style audio system and supports tempo control, looping, and dynamic music switching.
+The `MusicPlayer` class provides a simple way to add background music and melodies. It integrates with the NES-style audio stack (**`ApuCore`** tick sequencer), supports **tempo** and **BPM**, **looping**, and **multi-track** playback (**main** `MusicTrack` plus optional **`secondVoice`**, **`thirdVoice`**, **`percussion`**). For a complete reference sketch, open the engine’s **[`music_demo`](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/music_demo)** sample.
 
 **Modular Compilation:** The MusicPlayer is only compiled when `PIXELROOT32_ENABLE_AUDIO=1`. When disabled, all music-related functionality is excluded from the build, saving both firmware size and RAM usage.
 
@@ -37,7 +37,10 @@ static const MusicTrack SIMPLE_TRACK = {
     sizeof(SIMPLE_MELODY) / sizeof(MusicNote),
     true,                    // Loop enabled
     WaveType::PULSE,         // Use pulse wave
-    0.5f                     // 50% duty cycle
+    0.5f,                    // 50% duty cycle
+    nullptr,                 // secondVoice (optional)
+    nullptr,                 // thirdVoice (optional)
+    nullptr,                 // percussion (optional)
 };
 
 // In your scene's init() method
@@ -65,19 +68,29 @@ struct MusicTrack {
     bool loop;                   // Whether to loop the track
     WaveType channelType;        // Wave type (PULSE, TRIANGLE, NOISE)
     float duty;                  // Duty cycle for pulse waves (0.0-1.0)
+    const MusicTrack* secondVoice = nullptr;
+    const MusicTrack* thirdVoice = nullptr;
+    const MusicTrack* percussion = nullptr;
 };
 ```
+
+Up to **`MAX_MUSIC_TRACKS` (4)** layers run together: one **root** track plus any non-null pointers. `MusicPlayer::getActiveTrackCount()` returns how many layers were enabled on the last `play()` (1–4).
 
 ### MusicNote Definition
 
 ```cpp
 struct MusicNote {
-    Note note;                   // Musical note (C, D, E, etc.)
+    Note note;                   // Musical note (C, D, E, etc.) or Rest
     uint8_t octave;              // Octave number (0-8)
     float duration;              // Duration in seconds
     float volume;                // Volume (0.0-1.0)
+    const InstrumentPreset* preset = nullptr;  // from makeNote(), or nullptr
 };
 ```
+
+### InstrumentPreset (header)
+
+Authoritative definitions live in **`AudioMusicTypes.h`** (`constexpr` presets such as **`INSTR_PULSE_LEAD`**, **`INSTR_TRIANGLE_BASS`**, **`INSTR_KICK`**, **`INSTR_SNARE`**, **`INSTR_HIHAT`**). Percussion presets use **`duty == 0`** and optional **`defaultDuration`** / **`noisePeriod`** for noise hits—do not redefine them locally unless you are experimenting.
 
 ---
 
@@ -96,12 +109,6 @@ makeNote(INSTR_PULSE_LEAD, Note::C, 5, 0.25f);
 
 // Rest (silence)
 makeRest(0.5f);
-
-// Using predefined instruments
-static const InstrumentPreset INSTR_PULSE_LEAD = {
-    0.8f,    // Base volume
-    0.5f     // Duty cycle
-};
 ```
 
 ### Musical Notes and Octaves
@@ -132,7 +139,9 @@ enum class Note : uint8_t {
 
 ## Advanced Music Patterns
 
-### 1. Tempo Control
+### 1. Tempo control (factor + BPM)
+
+**`setTempoFactor` / `getTempoFactor`** scale playback speed (relative). **`setBPM` / `getBPM`** set absolute beats per minute (engine default **150**; clamped in **`MusicPlayer`**). Tick scheduling in **`ApuCore`** uses BPM together with the tempo factor.
 
 ```cpp
 #if PIXELROOT32_ENABLE_AUDIO
@@ -155,6 +164,9 @@ public:
             currentTempo -= 0.02f;
             musicPlayer.setTempoFactor(currentTempo);
         }
+
+        // Example: hard switch to 128 BPM for a calmer section
+        // musicPlayer.setBPM(128.0f);
     }
 };
 #endif
@@ -180,33 +192,52 @@ void GameScene::switchToBattleMusic() {
 }
 ```
 
-### 3. Layered Music System
+### 3. Layered music (multi-track)
+
+Wire extra `MusicTrack` instances from the **root** track. `MusicPlayer::play` copies non-null pointers into `AudioCommand::subTracks` in order: **secondVoice → thirdVoice → percussion**.
 
 ```cpp
-// Background layer (bass line)
+// Bass on triangle
 static const MusicNote BASS_LINE[] = {
-    makeNote(INSTR_PULSE_BASS, Note::C, 2, 0.5f),
-    makeNote(INSTR_PULSE_BASS, Note::G, 2, 0.5f),
-    makeNote(INSTR_PULSE_BASS, Note::A, 2, 0.5f),
-    makeNote(INSTR_PULSE_BASS, Note::F, 2, 0.5f),
+    makeNote(INSTR_TRIANGLE_BASS, Note::C, 2, 0.5f),
+    makeNote(INSTR_TRIANGLE_BASS, Note::G, 2, 0.5f),
+    makeNote(INSTR_TRIANGLE_BASS, Note::A, 2, 0.5f),
+    makeNote(INSTR_TRIANGLE_BASS, Note::F, 2, 0.5f),
+};
+static const MusicTrack BASS_TRACK = {
+    BASS_LINE, sizeof(BASS_LINE)/sizeof(MusicNote), true, WaveType::TRIANGLE, 0.5f,
 };
 
-// Melody layer (lead)
+// Lead on pulse
 static const MusicNote MELODY[] = {
     makeNote(INSTR_PULSE_LEAD, Note::C, 4, 0.25f),
     makeNote(INSTR_PULSE_LEAD, Note::E, 4, 0.25f),
     makeNote(INSTR_PULSE_LEAD, Note::G, 4, 0.25f),
     makeNote(INSTR_PULSE_LEAD, Note::C, 5, 0.25f),
 };
-
-// Use different wave types for variety
-static const MusicTrack BASS_TRACK = {
-    BASS_LINE, sizeof(BASS_LINE)/sizeof(MusicNote), true, WaveType::PULSE, 0.25f
-};
-
 static const MusicTrack MELODY_TRACK = {
-    MELODY, sizeof(MELODY)/sizeof(MusicNote), true, WaveType::PULSE, 0.75f
+    MELODY, sizeof(MELODY)/sizeof(MusicNote), true, WaveType::PULSE, 0.5f,
 };
+
+// Optional: simple drum loop on NOISE (see INSTR_KICK / SNARE / HIHAT)
+static const MusicNote DRUM_LINE[] = {
+    makeNote(INSTR_KICK, Note::C, 0.12f),
+    makeRest(0.12f),
+    makeNote(INSTR_SNARE, Note::C, 0.15f),
+    makeRest(0.13f),
+};
+static const MusicTrack DRUM_TRACK = {
+    DRUM_LINE, sizeof(DRUM_LINE)/sizeof(MusicNote), true, WaveType::NOISE, 0.0f,
+};
+
+// Root: lead + bass + drums → getActiveTrackCount() == 3 (add thirdVoice for four)
+static const MusicTrack LAYERED = {
+    MELODY, sizeof(MELODY)/sizeof(MusicNote), true, WaveType::PULSE, 0.5f,
+    &BASS_TRACK,
+    nullptr,
+    &DRUM_TRACK,
+};
+// musicPlayer.play(LAYERED);
 ```
 
 ### 4. Adaptive Soundtrack
@@ -386,28 +417,30 @@ static const MusicNote BLUES_PROGRESSION[] = {
 
 ```cpp
 static const MusicNote ARPEGGIO[] = {
-    makeNote(INSTR_TRIANGLE, Note::C, 4, 0.25f),
-    makeNote(INSTR_TRIANGLE, Note::E, 4, 0.25f),
-    makeNote(INSTR_TRIANGLE, Note::G, 4, 0.25f),
-    makeNote(INSTR_TRIANGLE, Note::C, 5, 0.25f),
-    makeNote(INSTR_TRIANGLE, Note::G, 4, 0.25f),
-    makeNote(INSTR_TRIANGLE, Note::E, 4, 0.25f),
-    makeNote(INSTR_TRIANGLE, Note::C, 4, 0.25f),
+    makeNote(INSTR_TRIANGLE_BASS, Note::C, 4, 0.25f),
+    makeNote(INSTR_TRIANGLE_BASS, Note::E, 4, 0.25f),
+    makeNote(INSTR_TRIANGLE_BASS, Note::G, 4, 0.25f),
+    makeNote(INSTR_TRIANGLE_BASS, Note::C, 5, 0.25f),
+    makeNote(INSTR_TRIANGLE_BASS, Note::G, 4, 0.25f),
+    makeNote(INSTR_TRIANGLE_BASS, Note::E, 4, 0.25f),
+    makeNote(INSTR_TRIANGLE_BASS, Note::C, 4, 0.25f),
     makeRest(0.25f),
 };
 ```
 
-### Percussive Rhythm
+### Percussive rhythm
+
+Use **`INSTR_KICK`**, **`INSTR_SNARE`**, **`INSTR_HIHAT`** (or your own **`InstrumentPreset`** with **`duty == 0`**) on a track with **`WaveType::NOISE`**, often linked as **`percussion`** from the main `MusicTrack`:
 
 ```cpp
 static const MusicNote DRUM_PATTERN[] = {
-    makeNote(INSTR_NOISE, Note::Rest, 0, 0.125f),  // Kick
+    makeNote(INSTR_KICK, Note::C, 0.12f),
     makeRest(0.125f),
-    makeNote(INSTR_NOISE, Note::Rest, 0, 0.125f),  // Kick
+    makeNote(INSTR_KICK, Note::C, 0.12f),
     makeRest(0.125f),
-    makeNote(INSTR_NOISE, Note::Rest, 0, 0.25f),   // Snare
+    makeNote(INSTR_SNARE, Note::C, 0.15f),
     makeRest(0.125f),
-    makeNote(INSTR_NOISE, Note::Rest, 0, 0.125f),  // Kick
+    makeNote(INSTR_KICK, Note::C, 0.12f),
     makeRest(0.125f),
 };
 ```
@@ -622,4 +655,4 @@ private:
 
 **Note:** Music timing is sample-accurate and independent of frame rate, ensuring consistent playback across different hardware platforms and performance conditions.
 
-**Performance Note (v1.2.2+):** When the audio clock jumps ahead significantly (e.g., after a frame drop or heavy computation), the music sequencer processes notes with a catch-up mechanism. The scheduler limits processing to `MAX_NOTES_PER_FRAME = 8` notes per audio quantum to prevent CPU spikes. During heavy catch-up scenarios, some notes may be skipped to bound CPU usage. This behavior is designed to maintain audio stability at the cost of occasional dropped notes during extreme lag conditions.
+**Performance note:** The music sequencer runs inside **`ApuCore`**. If the audio consumer does not run for a long time (e.g. debugger break), the next **`generateSamples`** may advance **many musical ticks in one block**, which can cost more CPU in that step. There is **no** fixed per-quantum cap such as `MAX_NOTES_PER_FRAME` in the current engine.

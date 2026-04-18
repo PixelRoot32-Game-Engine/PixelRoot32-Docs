@@ -206,8 +206,8 @@ flowchart TB
 
 ```mermaid
 flowchart LR
-    A[Game Code] -->|Commands| B[AudioCommandQueue]
-    B -->|SPSC| C[AudioScheduler]
+    A[Game Code] -->|Commands| B[AudioCommandQueue in ApuCore]
+    B -->|SPSC| C[AudioScheduler -> ApuCore]
     C -->|Mix| D[Channels]
     D -->|Output| E[Hardware]
 ```

@@ -118,7 +118,7 @@ Platform-specific hardware abstraction that bridges the gap between hardware and
 | `U8G2_Drawer` | `drivers/esp32/U8G2_Drawer.cpp` | Monochrome OLED driver (SSD1306, SH1106) |
 | `ESP32_I2S_AudioBackend` | `drivers/esp32/ESP32_I2S_AudioBackend.cpp` | I2S audio backend for external DACs |
 | `ESP32_DAC_AudioBackend` | `drivers/esp32/ESP32_DAC_AudioBackend.cpp` | Internal DAC audio backend |
-| `ESP32AudioScheduler` | `audio/ESP32AudioScheduler.cpp` | Multi-core audio scheduler (FreeRTOS task) |
+| `ESP32AudioScheduler` | `src/audio/ESP32AudioScheduler.cpp` | ESP32 scheduler (delegates to **`ApuCore`**; FreeRTOS task lives in backend) |
 
 ### TFT_eSPI Driver
 
@@ -174,9 +174,9 @@ ESP32_DAC_AudioBackend audioBackend(25, 11025);
 ```
 
 **Features**:
-- 8-bit resolution
-- Software-based sample pushing
-- 0.7x attenuation to prevent saturation
+- 8-bit effective resolution (internal DAC)
+- **I2S `DAC_BUILT_IN`** + **`i2s_write`** (DMA), not per-sample **`dacWrite()`**
+- ~0.7× headroom before DAC write (e.g. PAM8302A)
 
 ---
 
@@ -351,8 +351,9 @@ public:
 ```
 
 **Implementations**:
-- `ESP32AudioScheduler` - FreeRTOS task on Core 0
-- `NativeAudioScheduler` - POSIX thread (PC)
+- `ESP32AudioScheduler` - delegates to **`ApuCore`** (backend owns FreeRTOS task)
+- `NativeAudioScheduler` - **`std::thread`** + ring buffer → SDL2 (delegates to **`ApuCore`**)
+- `DefaultAudioScheduler` - tests / same-thread **`ApuCore`**
 
 ---
 
@@ -590,13 +591,13 @@ Input management from physical buttons or keyboard (PC), plus optional touch eve
 
 **Files**: `include/audio/AudioEngine.h`, `src/audio/AudioEngine.cpp`
 
-NES-style 4-channel audio system. See [Audio Subsystem Reference](/architecture/audio-architecture) for complete details.
+NES-style 4-channel audio system; synthesis and mixing live in **`ApuCore`**. See [Audio Subsystem](/architecture/audio-architecture).
 
 **Quick Overview**:
 - 2 PULSE channels (square wave)
 - 1 TRIANGLE channel
 - 1 NOISE channel
-- Sample-accurate timing via AudioScheduler
+- Sample-accurate timing via **`ApuCore`** (invoked from the active **`AudioScheduler`**)
 - Modular compilation: `PIXELROOT32_ENABLE_AUDIO`
 
 ---
@@ -733,10 +734,10 @@ flowchart TB
 Game Code
     │
     ▼ (submitCommand)
-AudioCommandQueue (Thread-Safe)
+AudioCommandQueue (SPSC, in ApuCore)
     │
     ▼ (processCommands)
-AudioScheduler
+AudioScheduler → ApuCore
     │
     ├──▶ Pulse Channel
     ├──▶ Triangle Channel

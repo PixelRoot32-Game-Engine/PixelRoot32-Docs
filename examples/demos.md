@@ -23,6 +23,7 @@ The engine revision for each sample is pinned in **`lib_deps`** in that folder�
 | [`sprites`](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/sprites) | 2bpp / 4bpp sprites and animation | `native`, `esp32dev` |
 | [`snake`](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/snake) | Grid game, segment pool, `AudioEngine` + platform audio backends | `native`, `esp32dev` |
 | [`brick_breaker`](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/brick_breaker) | Classic Breakout: paddle, ball physics, bricks, particles, `AudioEngine` + `MusicPlayer` | `native`, `esp32dev` |
+| [`music_demo`](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/music_demo) | **`MusicPlayer`** **multi-track** (main + sub-tracks), **tick / BPM** timing, **`InstrumentPreset`** melodies + **percussion** presets | `native`, `esp32dev` |
 | [`space_invaders`](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/space_invaders) | Classic Space Invaders: alien formation, shooting, bunkers, score system, `AudioEngine` | `native`, `esp32dev` |
 | [`physics`](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/physics) | `RigidActor` / `KinematicActor` / `StaticActor`, touch, optional touch UI (CYD) | `native`, `esp32dev`, `esp32cyd` |
 | [`metroidvania`](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/metroidvania) | 4bpp tilemaps, `StaticTilemapLayerCache`, platformer player | `native`, `esp32dev` |
@@ -36,7 +37,7 @@ The engine revision for each sample is pinned in **`lib_deps`** in that folder�
 2. **`sprites`** or **`dual_palette`** — graphics and color models.
 3. **`camera`** or **`metroidvania`** / **`animated_tilemap`** — scrolling, tilemaps, caching (read **`animated_tilemap`** for the fullest tilemap write-up).
 4. **`physics`** — bodies, sensors, touch.
-5. **`snake`** / **`tic_tac_toe`** / **`brick_breaker`** / **`space_invaders`** — small games with **audio** (events vs music). **`flappy_bird`** — physics + OLED, no audio subsystem.
+5. **`snake`** / **`tic_tac_toe`** / **`brick_breaker`** / **`music_demo`** / **`space_invaders`** — **audio** (events, single-track music, or **multi-track** reference). **`flappy_bird`** — physics + OLED, no audio subsystem.
 
 ## README template in the repo
 
@@ -48,7 +49,7 @@ These pages explain topics and point at real folders above; they are **not** gua
 
 - [Entities & scene tutorial](./basic-usage) — didactic composite; **not** a folder under `examples/`.
 - [Hello World](./hello-world) — aligns with **`hello_world`** (minimal sample).
-- Topic pointers: [Sprites](./sprite-animation), [Physics](./physics-demo), [Tilemaps](./tilemap-scene), [Audio](./audio-playback) (`snake` + `tic_tac_toe` + `brick_breaker`), [UI](./ui-layout) (`tic_tac_toe`), [Flappy Bird](./flappy-bird) (physics, no audio).
+- Topic pointers: [Sprites](./sprite-animation), [Physics](./physics-demo), [Tilemaps](./tilemap-scene), [Audio](./audio-playback) (`snake`, `tic_tac_toe`, `brick_breaker`, **`music_demo`**), [UI](./ui-layout) (`tic_tac_toe`), [Flappy Bird](./flappy-bird) (physics, no audio).
 - Full Game walkthroughs: [Brick Breaker](./brick-breaker), [Space Invaders](./space-invaders), [Tic Tac Toe](./tic-tac-toe).
 
 ## Engine documentation on this site

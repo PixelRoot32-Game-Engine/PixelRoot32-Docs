@@ -19,9 +19,9 @@ flowchart TB
     end
 
     subgraph Audio["Audio consumer context"]
-        D -->|dequeue| E[AudioScheduler]
-        E -->|mix| F[Pulse x2 + Triangle + Noise]
-        F --> G[Non-linear mixer FPU or LUT]
+        D -->|dequeue| E[AudioScheduler thin wrapper]
+        E -->|ApuCore::generateSamples| F[Pulse x2 + Triangle + Noise + music]
+        F --> G[Non-linear mixer FPU or LUT + optional HPF]
     end
 
     subgraph Output["Hardware"]
@@ -30,7 +30,7 @@ flowchart TB
     end
 ```
 
-- **`AudioEngine`** forwards commands to the active **`AudioScheduler`** and delegates **`generateSamples`** to it; mixing and channel state live in the scheduler, not in the engine class itself.
+- **`AudioEngine`** forwards commands and **`generateSamples`** to the active **`AudioScheduler`**, which delegates to **`ApuCore`**: SPSC queue, four channels, music sequencer, mixing, and (on the FPU path) a one-pole output HPF. Synthesis is not duplicated across three scheduler copies.
 - On **ESP32**, core affinity and task priority are applied when the **backend** creates its FreeRTOS task (`PlatformCapabilities`), not inside `ESP32AudioScheduler` construction arguments (those parameters are reserved for API stability).
 
 ## Key Features
@@ -42,6 +42,10 @@ flowchart TB
 | **Schedulers** | `NativeAudioScheduler` (PC), `ESP32AudioScheduler` (firmware), `DefaultAudioScheduler` (tests / callback-driven) |
 | **Command path** | Lock-free **SPSC** ring buffer, **128** entries; one producer / one consumer |
 | **Mixer** | Soft saturation (FPU) or **LUT** (no-FPU, e.g. ESP32-C3) |
+| **Multi-track music** | Up to **`MAX_MUSIC_TRACKS` (4)**: main `MusicTrack` + optional **`secondVoice`**, **`thirdVoice`**, **`percussion`**; `MusicPlayer::play` packs them into **`AudioCommand::subTracks`** |
+| **NES-style timing** | Sequencer in **`ApuCore`** uses **tick** steps derived from **sample time** and **BPM** (default **150** BPM, **4 ticks per beat**); not tied to render FPS |
+| **BPM & tempo** | **`MusicPlayer::setBPM` / `getBPM`** and **`setTempoFactor`** → `MUSIC_SET_BPM` / `MUSIC_SET_TEMPO` |
+| **Percussion presets** | **`INSTR_KICK`**, **`INSTR_SNARE`**, **`INSTR_HIHAT`** (`duty == 0`, **`WaveType::NOISE`**, `noisePeriod` / `defaultDuration` in **`InstrumentPreset`**) |
 
 ## Quick start: sound effects
 
@@ -74,9 +78,8 @@ void playCoin(pr32::core::Engine& engine) {
 
 ### Noise channel semantics
 
-- **`frequency`** on a **NOISE** event does **not** set musical pitch for firmware mixing on **ESP32**. It sets how often the **15-bit LFSR** advances (**noise clock**): period in samples is `sample_rate / max(frequency, 1 Hz)`. Lower values → coarser / more “hit-like”; higher values → denser noise.
-- **Native (SDL2)** noise uses a different implementation (`rand()`-based in `NativeAudioScheduler`); timbre may differ from ESP32 for the same `AudioEvent`.
-- **Tests / `DefaultAudioScheduler`** may advance the LFSR **every output sample** (full-rate noise).
+- **`frequency`** on a **NOISE** event does **not** set musical pitch in **`ApuCore`**. It drives the **noise clock**: default period in samples is `sample_rate / max(frequency, 1 Hz)` when `noisePeriod == 0`. Lower values → coarser / more “hit-like”; higher values → denser noise. Use **`noisePeriod`** for fixed percussion periods.
+- **All platforms** share the same **15-bit NES-style LFSR** inside **`ApuCore`**; step rate follows `noisePeriodSamples` / `noiseCountdown` (and `AudioEvent`), not `rand()`.
 
 ### Master volume
 
@@ -89,7 +92,15 @@ Per-channel volume is set per **`AudioEvent::volume`**; there are no separate `s
 
 ## Music (`MusicPlayer`)
 
-Sequencing is **sample-accurate** in the scheduler. **`MusicPlayer`** only **enqueues** commands; see **[Music Player API](/api/audio/music-player)**.
+Sequencing is **sample-accurate** and **tick-based** inside **`ApuCore`**. **`MusicPlayer`** only **enqueues** `AudioCommand`s (`MUSIC_PLAY`, tempo/BPM, pause/resume, stop). See **[Music Player API](/api/audio/music-player)** and the long-form **[Music player guide](/guide/music-player)**.
+
+### Multi-track layout
+
+Point optional **`MusicTrack`** pointers from the **main** track: **`secondVoice`**, **`thirdVoice`**, **`percussion`**. Each sub-track has its own `notes`, `loop`, `channelType`, and `duty` (e.g. melody on **PULSE**, drums on **NOISE**). **`MusicPlayer::getActiveTrackCount()`** returns how many layers were requested on the last **`play()`** (1–4).
+
+### Example project
+
+The engine’s **`music_demo`** sample showcases **multi-track** arrangements, **instrument presets**, and melodies: [`examples/music_demo`](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/music_demo) (PlatformIO). Also see **`tic_tac_toe`** / **`brick_breaker`** for lighter music use ([Audio samples](/examples/audio-playback)).
 
 ```cpp
 #include <audio/MusicPlayer.h>
@@ -116,12 +127,12 @@ void MyScene::init(pr32::core::Engine& engine) {
 }
 ```
 
-On **`NativeAudioScheduler`**, the music sequencer does not use the same **per-frame note cap** as ESP32/`DefaultAudioScheduler`; very large catch-up can mean more work in one audio step on PC.
+The music sequencer lives in **`ApuCore`**. If the audio consumer stops running for a long time (debugger, host suspend), the next **`generateSamples`** may advance **many ticks in one block** (more CPU in that step; there is no fixed per-quantum note cap).
 
 ## Command queue and thread safety
 
 - Only **one thread** should call **`playEvent`**, **`setMasterVolume`**, **`MusicPlayer`**, and **`submitCommand`** (SPSC contract).
-- If the queue is **full**, the newest command is **dropped**. On **ESP32**, drops are counted internally and a **throttled warning** may appear when **`PIXELROOT32_DEBUG_MODE`** is defined. Avoid enqueue storms (many events in one frame without consuming audio).
+- If the queue is **full**, the newest command is **dropped**. **`ApuCore`** increments an atomic drop counter and may emit a **throttled** warning when **`PIXELROOT32_DEBUG_MODE`** is defined. Avoid enqueue storms without the audio thread draining the queue.
 
 ## Audio configuration
 
@@ -147,18 +158,19 @@ See **[AudioEngine](/api/audio/audio-engine)** for **`AudioConfig`** fields and 
 |----------|--------|-----------------|-----------------|
 | **ESP32 (FPU)** | Float + soft clip | Clocked LFSR | Backend task; core from `PlatformCapabilities` |
 | **ESP32-C3 (no FPU)** | LUT | Clocked LFSR | Same; integer LUT mix |
-| **PC (native)** | Float + soft clip | `rand()` in `NativeAudioScheduler` | Dedicated thread + ring buffer |
+| **PC (native)** | Float + soft clip + HPF | Same LFSR as firmware | `std::thread` + ring buffer → SDL2 callback |
 
 ## Best practices
 
 - Keep SFX **`duration`** short when possible; only **four** logical channels exist, with **voice stealing** among channels of the same `WaveType`.
-- Use **NOISE** `frequency` on ESP32 to shape **percussion vs hiss** (see above).
+- Use **NOISE** **`frequency`** / **`noisePeriod`** to shape **percussion vs hiss** (see above); for authored drums prefer **`INSTR_*`** presets on a **`percussion`** sub-track.
 - Do **not** rely on multiple threads calling **`playEvent`** without a different queue design.
 - Test on **real hardware**; buffer sizes and backend (I2S vs DAC) affect latency.
 
 ## Next steps
 
-- **[Audio architecture](/architecture/audio-architecture)** — Longevity architecture narrative (synced from the engine repo where applicable)
-- **[AudioEngine & types](/api/audio/audio-engine)** — Methods, `AudioEvent`, `AudioCommand`, `AudioConfig`
-- **[AudioScheduler](/api/audio/audio-scheduler)** — Scheduler roles and wiring
-- **[MusicPlayer](/api/audio/music-player)** — Tracks, presets, tempo
+- **[Audio architecture](/architecture/audio-architecture)** — Subsystem narrative (kept in sync with the engine; see also engine [`ARCH_AUDIO_SUBSYSTEM.md`](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/blob/main/docs/architecture/ARCH_AUDIO_SUBSYSTEM.md))
+- **[AudioEngine & types](/api/audio/audio-engine)** — Methods, `AudioEvent`, `AudioCommand`, `AudioConfig`, music transport queries
+- **[AudioScheduler](/api/audio/audio-scheduler)** — Schedulers vs **`ApuCore`**
+- **[MusicPlayer](/api/audio/music-player)** — Tracks, presets, tempo/BPM
+- **Engine source:** [`ApuCore.h` / `ApuCore.cpp`](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/include/audio) — authoritative implementation
