@@ -79,6 +79,7 @@ audio.playEvent(evt);
 - **`float volume`** — **[0, 1]**.
 - **`float duty`** — Pulse duty **[0, 1]**; unused for triangle/noise.
 - **`uint8_t noisePeriod`** — For **NOISE**: **`0`** = derive period from **`frequency`**; **`> 0`** = fixed LFSR period in samples (percussion presets).
+- **`const struct InstrumentPreset* preset`** — Optional pointer to instrument preset for ADSR/LFO/waveform parameters. When nullptr, falls back to legacy behavior. Must point to static/constexpr/global instance.
 
 ### `AudioChannel` (struct, scheduler-owned)
 

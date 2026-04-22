@@ -198,14 +198,14 @@ Wire extra `MusicTrack` instances from the **root** track. `MusicPlayer::play` c
 
 ```cpp
 // Bass on triangle
-static const MusicNote BASS_LINE[] = {
+static const MusicNote BASS_NOTES[] = {
     makeNote(INSTR_TRIANGLE_BASS, Note::C, 2, 0.5f),
     makeNote(INSTR_TRIANGLE_BASS, Note::G, 2, 0.5f),
     makeNote(INSTR_TRIANGLE_BASS, Note::A, 2, 0.5f),
     makeNote(INSTR_TRIANGLE_BASS, Note::F, 2, 0.5f),
 };
 static const MusicTrack BASS_TRACK = {
-    BASS_LINE, sizeof(BASS_LINE)/sizeof(MusicNote), true, WaveType::TRIANGLE, 0.5f,
+    BASS_NOTES, sizeof(BASS_NOTES)/sizeof(MusicNote), true, WaveType::TRIANGLE, 0.5f,
 };
 
 // Lead on pulse

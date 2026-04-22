@@ -407,15 +407,32 @@ float current = audio.getMasterVolume(); // Query current setting
 
 ### 6.3 Designing NES-like effects
 
-Since there are no complex envelopes yet, effects are built by combining:
+Effects are built by combining basic parameters and optional ADSR envelopes:
 
+**Basic Parameters**
 - `frequency`: lower or higher pitch.
 - `duration`: effect length (seconds).
 - `volume`: 0.0–1.0.
 - `duty` (pulse only):
   - 0.125: thinner, sharper timbre.
-  - 0.25: classic “NES lead”.
-  - 0.5: symmetric square, “fatter” sound.
+  - 0.25: classic "NES lead".
+  - 0.5: symmetric square, "fatter" sound.
+
+**ADSR Envelope (via `InstrumentPreset`)**
+- `attackTime`: how quickly the sound reaches peak volume (0.0 = instant).
+- `decayTime`: how quickly it drops to sustain level after attack.
+- `sustainLevel`: volume maintained during the sustain phase (0.0-1.0).
+- `releaseTime`: how quickly the sound fades after duration ends.
+
+Use an `InstrumentPreset` with an `AudioEvent` to apply envelopes:
+```cpp
+AudioEvent evt{};
+evt.type = WaveType::PULSE;
+evt.frequency = 1500.0f;
+evt.duration = 0.12f;
+evt.preset = &INSTR_PULSE_LEAD;  // Uses built-in ADSR envelope
+audio.playEvent(evt);
+```
 
 ---
 
@@ -450,10 +467,10 @@ Melodies are sequences of `MusicNote` elements:
 ```cpp
 struct MusicNote {
     Note note;
-    uint8_t octave;
-    float duration; // seconds
-    float volume;   // 0.0 - 1.0
-    const InstrumentPreset* preset = nullptr;
+    uint8_t octave;               // 0-8 (for percussion: 1=Kick, 2=Snare, 3+=Hi-HAT)
+    float duration;               // seconds
+    float volume;                 // 0.0 - 1.0
+    const InstrumentPreset* preset = nullptr;  // Optional preset for ADSR/LFO per-note
 };
 ```
 
@@ -476,11 +493,28 @@ For convenience there are **instrument** presets (melodic and **percussion**) an
 
 ```cpp
 struct InstrumentPreset {
+    // Basic parameters
     float baseVolume;
-    float duty;
+    float duty;           // 0.0 = NOISE (percussion), >0 = PULSE/TRIANGLE
     uint8_t defaultOctave;
-    float defaultDuration = 0.0f; // 0 = use note duration; >0 fixed hit (drums)
-    uint8_t noisePeriod = 0;      // NOISE: 0 = from frequency, >0 LFSR period
+    float defaultDuration = 0.0f;  // 0.0 = use note.duration, >0 = fixed (percussion)
+    uint8_t noisePeriod = 0;        // 0 = calc from freq, >0 = direct LFSR period
+    
+    // ADSR Envelope
+    float attackTime = 0.002f;      // Attack time in seconds
+    float decayTime = 0.0f;         // Decay time in seconds
+    float sustainLevel = 1.0f;      // Sustain level (0.0-1.0)
+    float releaseTime = 0.005f;     // Release time in seconds
+    
+    // LFO Modulation
+    LfoTarget lfoTarget = LfoTarget::NONE;  // NONE, PITCH, or VOLUME
+    float lfoFrequency = 0.0f;      // LFO frequency in Hz
+    float lfoDepth = 0.0f;          // Modulation depth
+    float lfoDelay = 0.0f;          // Delay before LFO starts
+    
+    // Waveform refinements
+    bool noiseShortMode = false;    // Metallic 93-step LFSR for NOISE
+    float dutySweep = 0.0f;         // Duty cycle change per second (PWM)
 };
 
 inline constexpr InstrumentPreset INSTR_PULSE_LEAD{0.35f, 0.5f, 4};
@@ -576,7 +610,8 @@ With the **Multi-Core Architecture (v0.7.0-dev)**, many previous limitations wer
 - **Decoupled Execution**: Audio logic is completely isolated from the game's frame rate, preventing audio stuttering during heavy CPU load.
 - **Music tempo control**: real-time changes via **`MUSIC_SET_TEMPO`** and absolute **`MUSIC_SET_BPM`**.
 - **Multi-track music**: up to **four** parallel layers (main + three pointers), carried in **`AudioCommand::subTracks`**.
-- **Simple volume envelopes**: linear **`volumeDelta`** ramp plus a short **attack fade** on **`PLAY_EVENT`**, implemented in **`ApuCore`**.
+- **ADSR Envelopes**: Full Attack-Decay-Sustain-Release envelopes implemented via `InstrumentPreset` for expressive note articulation and click-free playback.
+- **LFO Modulation**: Low-frequency oscillators for vibrato (pitch) and tremolo (volume) effects.
 
 ### 8.2 Remaining Limitations
 
