@@ -69,7 +69,7 @@ audio.playEvent(evt);
 
 - **`PULSE`** — Square wave; **`AudioEvent::duty`** active.
 - **`TRIANGLE`** — Triangle wave.
-- **`NOISE`** — LFSR-based noise; **`frequency`** meaning depends on scheduler (see below).
+- **`NOISE`** — LFSR-based noise in **`ApuCore`** (same polynomial on every platform). **`frequency`** / **`noisePeriod`** semantics are those of the **`AudioEvent`** fields below (noise **clock**, not musical pitch). Schedulers only control **when** `generateSamples` runs, not how noise is clocked.
 
 ### `AudioEvent` (struct)
 
@@ -83,10 +83,10 @@ audio.playEvent(evt);
 
 ### `AudioChannel` (struct, scheduler-owned)
 
-Relevant fields for noise on ESP32 (see engine `AudioTypes.h`):
+Relevant noise fields on **all** platforms (see engine `AudioTypes.h`):
 
 - **`lfsrState`** — 15-bit NES-style LFSR.
-- **`noisePeriodSamples`**, **`noiseCountdown`** — Clock the LFSR on **ESP32** (sub-sample-rate stepping for percussion-like noise).
+- **`noisePeriodSamples`**, **`noiseCountdown`** — Step the LFSR at sub-sample-rate intervals for percussion-like noise (deterministic; no `rand()` in the audio path).
 
 ### `AudioConfig` (struct)
 

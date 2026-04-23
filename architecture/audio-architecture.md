@@ -85,6 +85,7 @@ struct AudioEvent {
     float volume;   // 0.0 - 1.0
     float duty;     // only for PULSE
     uint8_t noisePeriod = 0; // NOISE: 0 = from frequency, >0 = fixed LFSR period
+    const struct InstrumentPreset* preset = nullptr; // static/constexpr/global; nullptr = legacy ADSR
 };
 ```
 
@@ -116,7 +117,7 @@ The audio system no longer uses `deltaTime` or frame-based updates. Instead, it 
 
 - **Audio Time**: Internal unit is samples (e.g., 1 second = 44100 samples at 44.1kHz).
 - **Decoupled Logic**: The `AudioScheduler` runs in a separate thread (SDL2) or core (ESP32).
-- **Lifetime**: For each active `AudioChannel`, the scheduler subtracts 1 from `remainingSamples` for every sample generated.
+- **Lifetime**: For each active `AudioChannel`, **`ApuCore::generateSamples`** subtracts 1 from `remainingSamples` for every PCM sample produced (whichever thread/task invokes **`AudioEngine::generateSamples`** through the scheduler).
 - When `remainingSamples` reaches 0, the channel is automatically disabled.
 
 Important:
@@ -127,7 +128,7 @@ Important:
 
 ### 3.3 Per-channel sample generation
 
-Oscillators and per-channel volume ramps are implemented in **`ApuCore::generateSampleForChannel`** (float path) and in an **integer inner loop** inside **`ApuCore::generateSamples`** on no-FPU ESP32 builds. **`NOISE`** uses the same **15-bit LFSR** everywhere, clocked with **`noisePeriodSamples`** / **`noiseCountdown`**.
+Oscillators are implemented in **`ApuCore::generateSampleForChannel`** (float path) and in an **integer inner loop** inside **`ApuCore::generateSamples`** on no-FPU ESP32 builds. After the raw waveform sample, the **float path** applies an **ADSR envelope** (from **`InstrumentPreset`** when **`AudioEvent::preset`** is set, else short legacy attack/release), then **LFO** modulation on pitch or volume when enabled. **`NOISE`** uses the same **15-bit LFSR** everywhere, clocked with **`noisePeriodSamples`** / **`noiseCountdown`**.
 
 Per-channel samples are scaled by **`MIXER_SCALE` (0.4)** before the global **compressor** `mixed = sum / (1 + |sum| * 0.5)` (FPU) or the equivalent **`audio_mixer_lut`** path (C3). **Master volume** applies after that. The old **`12000.0f`** scaling is **not** used in current code.
 
@@ -211,12 +212,13 @@ The audio system behavior can be customized via `platforms/PlatformDefaults.h` o
 
 #### 4.2.2 Build Flags
 
-| Flag | Description |
-|------|-------------|
-| `PIXELROOT32_NO_DAC_AUDIO` | Disables the Internal DAC backend on classic ESP32. |
-| `PIXELROOT32_NO_I2S_AUDIO` | Disables the I2S audio backend. |
-| `PIXELROOT32_USE_U8G2` | Enables support for the U8G2 display driver (future support). |
-| `PIXELROOT32_NO_TFT_ESPI` | Disables the default TFT_eSPI display driver. |
+| Flag | Default | Description |
+|------|---------|-------------|
+| `PIXELROOT32_ENABLE_AUDIO` | `1` | Master switch: when `0`, the whole audio subsystem (engine APIs, **`ApuCore`**, backends used by audio) is excluded from the build. |
+| `PIXELROOT32_NO_DAC_AUDIO` | — | Disables the internal DAC backend on classic ESP32. |
+| `PIXELROOT32_NO_I2S_AUDIO` | — | Disables the I2S audio backend. |
+
+Display-related compile flags (e.g. U8G2, TFT_eSPI) live with platform docs: [Platform configuration](../guide/platform-config.md).
 
 ### 4.3 Audio Backends (interface)
 
@@ -517,17 +519,12 @@ struct InstrumentPreset {
     float dutySweep = 0.0f;         // Duty cycle change per second (PWM)
 };
 
-inline constexpr InstrumentPreset INSTR_PULSE_LEAD{0.35f, 0.5f, 4};
-inline constexpr InstrumentPreset INSTR_PULSE_HARMONY{0.22f, 0.125f, 5};
-inline constexpr InstrumentPreset INSTR_TRIANGLE_BASS{0.30f, 0.5f, 3};
-inline constexpr InstrumentPreset INSTR_KICK{0.40f, 0.0f, 1, 0.12f, 25};
-inline constexpr InstrumentPreset INSTR_SNARE{0.30f, 0.0f, 2, 0.15f, 50};
-inline constexpr InstrumentPreset INSTR_HIHAT{0.20f, 0.0f, 3, 0.05f, 12};
-
 inline MusicNote makeNote(const InstrumentPreset& preset, Note note, float duration);
 inline MusicNote makeNote(const InstrumentPreset& preset, Note note, uint8_t octave, float duration);
 inline MusicNote makeRest(float duration);
 ```
+
+**Built-in `constexpr` presets** — full initializer lists live only in the header (do not rely on abbreviated copies). Melodic: **`INSTR_PULSE_LEAD`**, **`INSTR_PULSE_HARMONY`**, **`INSTR_PULSE_PAD`**, **`INSTR_PULSE_BASS`**, **`INSTR_TRIANGLE_LEAD`**, **`INSTR_TRIANGLE_PAD`**, **`INSTR_TRIANGLE_BASS`**. Percussion (use with **`WaveType::NOISE`**, **`duty == 0`**): **`INSTR_KICK`**, **`INSTR_SNARE`**, **`INSTR_HIHAT`**. See [`AudioMusicTypes.h`](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/blob/main/include/audio/AudioMusicTypes.h) and the engine [API audio reference](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/blob/main/docs/api/API_AUDIO.md#predefined-presets) for roles and parameters.
 
 These helpers reduce boilerplate when defining tracks and keep note volumes and octaves consistent per instrument.
 
