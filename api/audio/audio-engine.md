@@ -4,7 +4,7 @@
 
 ## Role
 
-**`AudioEngine`** is a **facade**: it enqueues **`AudioCommand`**s for the active **`AudioScheduler`** (`playEvent`, `setMasterVolume`, `submitCommand`) and forwards **`generateSamples`** to that scheduler. **Mixing**, **channel state**, and **music sequencing** run inside the scheduler implementation, not inside `AudioEngine` itself.
+**`AudioEngine`** is a **facade**: it enqueues **`AudioCommand`**s for the active **`AudioScheduler`** (`playEvent`, `setMasterVolume`, `submitCommand`) and forwards **`generateSamples`** to that scheduler. Stock schedulers delegate to **`ApuCore`**, which owns **mixing**, **channel state**, the **SPSC queue**, and **music sequencing** — not the `AudioEngine` class itself.
 
 ---
 
@@ -38,7 +38,10 @@
   Returns cached value from the game thread side; actual mix uses the scheduler after commands are processed.
 
 - **`void submitCommand(const AudioCommand& cmd)`**  
-  Low-level enqueue (music, stop channel, tempo, etc.).
+  Low-level enqueue (music, stop channel, tempo, BPM, etc.).
+
+- **`bool isMusicPlaying() const`** / **`bool isMusicPaused() const`**  
+  Read transport flags maintained by **`ApuCore`** (atomics). Use with **`MusicPlayer::isPlaying()`** semantics or custom UI.
 
 - **`void setScheduler(std::unique_ptr<AudioScheduler> scheduler)`**  
   Replaces the scheduler (advanced). Takes **`std::unique_ptr`**, not `shared_ptr`.
@@ -71,10 +74,12 @@ audio.playEvent(evt);
 ### `AudioEvent` (struct)
 
 - **`WaveType type`**
-- **`float frequency`** — For **PULSE** / **TRIANGLE**: pitch (Hz). For **NOISE** on **ESP32**: **noise LFSR clock rate** (Hz-ish); controls how often the LFSR steps (coarser vs finer noise), not a melodic pitch. On **native**, noise path may interpret differently (`NativeAudioScheduler`).
+- **`float frequency`** — For **PULSE** / **TRIANGLE**: pitch (Hz). For **NOISE**: drives the **LFSR step rate** when **`noisePeriod == 0`** (not a musical pitch).
 - **`float duration`** — Seconds.
 - **`float volume`** — **[0, 1]**.
 - **`float duty`** — Pulse duty **[0, 1]**; unused for triangle/noise.
+- **`uint8_t noisePeriod`** — For **NOISE**: **`0`** = derive period from **`frequency`**; **`> 0`** = fixed LFSR period in samples (percussion presets).
+- **`const struct InstrumentPreset* preset`** — Optional pointer to instrument preset for ADSR/LFO/waveform parameters. When nullptr, falls back to legacy behavior. Must point to static/constexpr/global instance.
 
 ### `AudioChannel` (struct, scheduler-owned)
 
@@ -90,7 +95,7 @@ Relevant fields for noise on ESP32 (see engine `AudioTypes.h`):
 
 ### Command queue (SPSC)
 
-Commands go through **`AudioCommandQueue`**: **128** slots, **single producer / single consumer**. If full, **`enqueue`** fails and the **newest** command is dropped. On **ESP32**, the scheduler counts drops and may log throttled warnings when **`PIXELROOT32_DEBUG_MODE`** is defined.
+Commands go through **`AudioCommandQueue`** inside **`ApuCore`**: **128** slots, **single producer / single consumer**. If full, **`enqueue`** fails and the **newest** command is dropped. **`ApuCore::getDroppedCommands()`** counts drops; throttled warnings may appear when **`PIXELROOT32_DEBUG_MODE`** is defined.
 
 ---
 
