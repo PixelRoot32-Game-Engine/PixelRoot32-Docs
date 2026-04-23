@@ -16,7 +16,7 @@ Defined in **[`AudioMusicTypes.h`](https://github.com/PixelRoot32-Game-Engine/Pi
 - **`uint8_t octave`**: octave (0–8). For authored percussion without a per-note preset, octave can act as a drum selector; prefer **`InstrumentPreset`** on the note when possible.
 - **`float duration`**: length in **seconds** (unless a percussion preset fixes duration via **`defaultDuration`**).
 - **`float volume`**: 0.0–1.0.
-- **`const InstrumentPreset* preset`**: optional; **`nullptr`** uses the parent track’s defaults / legacy path. When set, **`makeNote`** stores the preset pointer on each note.
+- **`const InstrumentPreset* preset`**: optional; **`nullptr`** uses the **`MusicTrack`** layer’s **`channelType`** / **`duty`** with legacy envelope behavior (no per-note preset). When set, **`makeNote`** stores the pointer and the sequencer uses that preset’s ADSR/LFO/wave options; for **percussion** (**`duty == 0`**), the preset drives hit duration (**`defaultDuration`**), **`noisePeriod`**, and the frequency passed into the noise path via **`instrumentToFrequency`**.
 
 ### `MusicTrack`
 
@@ -55,19 +55,32 @@ Complete instrument preset with ADSR envelope, LFO modulation, and waveform refi
 
 #### Built-in presets
 
+**Melodic**
+
 | Preset | Role |
 |--------|------|
-| **`INSTR_PULSE_LEAD`** | Lead pulse |
-| **`INSTR_PULSE_HARMONY`** | Thinner / higher pulse |
-| **`INSTR_TRIANGLE_BASS`** | Triangle bass |
-| **`INSTR_KICK`**, **`INSTR_SNARE`**, **`INSTR_HIHAT`** | Short noise hits with tuned **`defaultDuration`** / **`noisePeriod`** |
+| **`INSTR_PULSE_LEAD`** | Main lead pulse, octave 4, duty 0.5 |
+| **`INSTR_PULSE_HARMONY`** | Harmony pulse, octave 5, duty 0.125 |
+| **`INSTR_PULSE_PAD`** | Atmospheric pad pulse, octave 4, duty 0.25, slow pitch drift |
+| **`INSTR_PULSE_BASS`** | Punchy bass pulse, octave 2, duty 0.25 |
+| **`INSTR_TRIANGLE_LEAD`** | Smooth triangle lead, octave 5, gentle vibrato |
+| **`INSTR_TRIANGLE_PAD`** | Soft atmospheric triangle pad, octave 4, tremolo |
+| **`INSTR_TRIANGLE_BASS`** | Triangle bass, octave 3, duty 0.5 |
+
+**Percussion** (use with **`WaveType::NOISE`**; tuned **`defaultDuration`** / **`noisePeriod`**)
+
+| Preset | Role |
+|--------|------|
+| **`INSTR_KICK`** | Kick: defaultOctave 1, duration 0.12s, noisePeriod 25 |
+| **`INSTR_SNARE`** | Snare: defaultOctave 2, duration 0.15s, noisePeriod 50 |
+| **`INSTR_HIHAT`** | Hi-hat: defaultOctave 3, duration 0.05s, noisePeriod 12 |
 
 #### Helpers
 
 - **`MusicNote makeNote(const InstrumentPreset& preset, Note note, float duration)`**
 - **`MusicNote makeNote(const InstrumentPreset& preset, Note note, uint8_t octave, float duration)`**
 - **`MusicNote makeRest(float duration)`**
-- **`float instrumentToFrequency(const InstrumentPreset& preset, Note, uint8_t)`** — melodic vs percussion routing.
+- **`float instrumentToFrequency(const InstrumentPreset& preset, Note, uint8_t)`** — If **`preset.duty == 0`** (percussion), returns a **fixed noise-clock rate in Hz** for the NOISE channel (**Kick ≈ 80**, **Snare ≈ 150**, **Hi-hat ≈ 3000** from **`defaultOctave`** 1 / 2 / 3+); these control **density/brightness**, not musical pitch like **`noteToFrequency`**. **`Note`** / **`octave`** are ignored for that path. If **`duty > 0`**, the helper is not used for normal melodic sequencing (implementation falls back to **440 Hz**; melodic pitch comes from **`noteToFrequency`** in the music path).
 
 ### `AudioCommand` (multi-track)
 
@@ -163,6 +176,8 @@ static const MusicTrack FULL = {
 // musicPlayer.play(FULL);
 // size_t layers = musicPlayer.getActiveTrackCount(); // 3
 ```
+
+On **`DRUMS`**, **`Note::C`** is only a placeholder; **`Note::Rest`** is equally valid for percussion presets—the noise clock comes from **`instrumentToFrequency`** and the preset.
 
 For a full sample project, see **[`examples/music_demo`](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/music_demo)**.
 

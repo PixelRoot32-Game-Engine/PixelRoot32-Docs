@@ -92,6 +92,8 @@ struct MusicNote {
 
 Authoritative definitions live in **`AudioMusicTypes.h`** (`constexpr` presets such as **`INSTR_PULSE_LEAD`**, **`INSTR_TRIANGLE_BASS`**, **`INSTR_KICK`**, **`INSTR_SNARE`**, **`INSTR_HIHAT`**). Percussion presets use **`duty == 0`** and optional **`defaultDuration`** / **`noisePeriod`** for noise hits—do not redefine them locally unless you are experimenting.
 
+For **drum rows** authored with those percussion presets, **`Note::C`** (as in examples below) and **`Note::Rest`** (as in the engine’s **`MUSIC_PLAYER_GUIDE.md`**) are both valid placeholders: pitch is driven by **`instrumentToFrequency`** and the preset, not by the nominal note name.
+
 ---
 
 ## Creating Music
