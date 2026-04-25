@@ -18,13 +18,8 @@
 
 ### ⏱️ Step 1: Open the Editor (30 seconds)
 
-```bash
-# From PixelRoot32 Suite launcher
-python main.py
-
-# Or run directly
-python -m modules.tilemap_editor
-```
+1. Launch **PixelRoot32 Tool Suite** from your applications menu
+2. Click **Launch** on the **Tilemap Editor** card
 
 When starting without a project, you see the **Welcome Screen** with:
 - **Create New Project**: Create a new project from scratch
