@@ -27,7 +27,7 @@ Uses **`GameConstants.h`** button IDs: **Up / Down / Left / Right** and **Jump**
 
 ## How this scene uses the tilemap cache
 
-Like the animated tilemap sample, drawing goes through **`StaticTilemapLayerCache`**: allocate for the renderer when layers are ready, draw static groups with camera offsets, and **`invalidate()`** when static tile data or relevant animators change. See [Animated Tilemap README](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/animated_tilemap) for the detailed invalidation table and [Architecture — static tilemap cache](/architecture/overview).
+Like the animated tilemap sample, drawing goes through **`StaticTilemapLayerCache`**: allocate for the renderer when layers are ready, draw static groups with camera offsets, and **`invalidate()`** when static tile data or relevant animators change. See [Animated Tilemap README](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/animated_tilemap) for the detailed invalidation table and [Architecture — static tilemap cache](/architecture/architecture-index).
 
 ## Features
 
@@ -39,7 +39,7 @@ Like the animated tilemap sample, drawing goes through **`StaticTilemapLayerCach
 ## Documentation links
 
 - [Graphics — tilemaps & `StaticTilemapLayerCache`](/api/graphics#multi-layer-4bpp-tilemap-framebuffer-snapshot-statictilemaplayercache)
-- [Architecture — ESP32 rendering / tilemap caching](/architecture/overview.md#esp32-rendering-pipeline-and-tilemap-caching)
+- [Architecture — ESP32 rendering / tilemap caching](/architecture/architecture-index.md#esp32-rendering-pipeline-and-tilemap-caching)
 - [Physics API](/api/physics)
 - [Core API](/api/core)
 

@@ -319,10 +319,10 @@ public:
 
 | Document | Topic |
 |----------|-------|
-| [UI_GUIDELINES.md](UI_GUIDELINES.md) | Layouts, panels, HUDs |
-| [performance/ESP32_PERFORMANCE.md](performance/ESP32_PERFORMANCE.md) | Hot paths, optimization |
+| [UI Guidelines](ui-guidelines.md) | Layouts, panels, HUDs |
+| [Performance](performance/esp32-performance.md) | Hot paths, optimization |
 | [Tile animation](../architecture/tile-animation.md) | Animation system deep dive |
-| [api/API_GRAPHICS.md](api/API_GRAPHICS.md) | Complete graphics API |
+| [API Graphics](../api/graphics.md) | Complete graphics API |
 
 ---
 

@@ -38,6 +38,7 @@
 ### Single-Core Resource Contention (ESP32-C3)
 
 Single-core architectures (like the ESP32-C3) run the game logic, display transfers, and audio synthesis on a single core.
+
 - **Priority Inversion**: Heavy display transfers (like full-screen U8G2 refreshes) can block the audio task, causing buffer underruns and audio glitches. The engine dynamically detects single-core platforms and elevates the audio task priority (e.g., to `18`) to protect audio streams.
 - **Context Thrashing**: An audio priority that is *too* high (e.g., `24`) will preempt the display transfer constantly to synthesize audio, fragmenting the hardware SPI transaction and ballooning draw times (up to 4x). The engine mitigates this by balancing priority, reducing audio buffer block sizes to `128` samples, and using `taskYIELD()` for cooperative multitasking.
 - **Float Operations**: Soft-float emulation on the ESP32-C3 is extremely slow. The engine provides integer Q15 implementations for performance-critical inner loops (like `tickEnvelopeQ15` and audio mixer LUTs). Avoid introducing new float-based calculations inside per-sample audio loops or per-pixel drawing loops.
@@ -145,10 +146,28 @@ build_flags =
 
 ---
 
+## 📐 Resolution Scaling
+
+PixelRoot32 separates **logical** resolution (what your game draws at) from **physical** resolution (the actual display), so you can target low pixel counts for performance while filling modern panels.
+
+### When to Use
+
+- Ship gameplay at 128×128 or 160×144 but drive a 240×240 TFT
+- Keep UI and physics in logical space; only the final blit scales up
+
+### Configure DisplayConfig
+
+Set `logicalWidth` / `logicalHeight` for the render buffer and `physicalWidth` / `physicalHeight` for the panel. The renderer and input pipeline map between the two.
+
+See [DisplayConfig / Engine](../../api/core.md#engine) and the architecture deep dive [Resolution Scaling](../../architecture/resolution-scaling.md) for implementation details, ESP32 considerations, and coordinate mapping.
+
+---
+
 ## 📚 Related Documentation
 
 | Document | Description |
 |----------|-------------|
 | [Memory Management Guide](../../architecture/memory-system.md) | Complete C++17 memory guide with smart pointers |
 | [Platform Compatibility](../platform-compatibility.md) | Hardware matrix and feature support |
-| [Architecture Overview](../../architecture/overview.md) | Layer architecture and subsystem navigation |
+| [Architecture Index](../../architecture/architecture-index.md) | Layer architecture and subsystem navigation |
+| [Rendering Guide](../rendering.md) | Core rendering pipeline |

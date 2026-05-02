@@ -45,7 +45,7 @@ The engine revision for each example is defined in **`lib_deps`** inside that ex
 ## Engine documentation
 
 - [API reference index](/api/)  
-- [Architecture](/architecture/overview.md)  
+- [Architecture](/architecture/architecture-index.md)  
 - Module docs under [`docs/api/`](/api/) (Graphics, Physics, UI, Input, Audio, Core, …)
 
 ## Format reference for per-example READMEs

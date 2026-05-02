@@ -280,4 +280,4 @@ build_flags =
 - **[Game Loop](./game-loop.md)** — Deep dive into the update/render cycle
 - **[Scenes](./scenes.md)** — Scene management and transitions
 - **[Entities & Actors](./entities-actors.md)** — Creating game objects
-- **[Architecture Overview](../architecture/overview.md)** — Engine design patterns
+- **[Architecture Index](../architecture/architecture-index.md)** — Engine design patterns

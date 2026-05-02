@@ -125,7 +125,7 @@ See [Game loop](./game-loop.md) for detail.
 3. **Render layers** — background / world / UI ordering.
 4. Use **`log()`** from `core/Log.h` instead of ad-hoc `Serial` spam.
 
-See [Style guide](./style-guide.md) and [Memory system](../architecture/memory-system.md).
+See [Coding style](./coding-style.md) and [Memory system](../architecture/memory-system.md).
 
 ## Next steps
 

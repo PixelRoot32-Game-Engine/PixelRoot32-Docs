@@ -64,10 +64,10 @@ export default defineConfig({
 
   themeConfig: {
     logo: assetUrl('logo.png'),
-    
+
     nav: [
       { text: 'Guide', link: '/' },
-      { text: 'Architecture', link: '/architecture/overview' },
+      { text: 'Architecture', link: '/architecture/' },
       { text: 'API', link: '/api/' },
       { text: 'Migration', link: '/migration/' },
       { text: 'Philosophy', link: '/philosophy/' },
@@ -102,10 +102,8 @@ export default defineConfig({
           text: 'Advanced',
           items: [
             { text: 'Memory', link: '/guide/memory' },
-            { text: 'Resolution scaling', link: '/guide/performance/resolution-scaling' },
-            { text: 'Tilemaps', link: '/guide/tilemaps' },
-            { text: 'Multi-Palette', link: '/guide/multi-palette' },
-            { text: 'Platform Configuration', link: '/guide/platform-config' },
+            { text: 'ESP32 Performance', link: '/guide/performance/esp32-performance' },
+            { text: 'Graphics Techniques', link: '/guide/graphics-techniques' },
           ],
         },
         {
@@ -122,11 +120,9 @@ export default defineConfig({
           text: 'Standards & compatibility',
           items: [
             { text: 'Coding style', link: '/guide/coding-style' },
-            { text: 'Style guide', link: '/guide/style-guide' },
             { text: 'Graphics guidelines', link: '/guide/graphics-guidelines' },
             { text: 'UI guidelines', link: '/guide/ui-guidelines' },
             { text: 'Platform compatibility', link: '/guide/platform-compatibility' },
-            { text: 'Performance hub', link: '/guide/performance/' },
           ],
         },
       ],
@@ -156,10 +152,8 @@ export default defineConfig({
           text: 'Advanced',
           items: [
             { text: 'Memory', link: '/guide/memory' },
-            { text: 'Resolution scaling', link: '/guide/performance/resolution-scaling' },
-            { text: 'Tilemaps', link: '/guide/tilemaps' },
-            { text: 'Multi-Palette', link: '/guide/multi-palette' },
-            { text: 'Platform Configuration', link: '/guide/platform-config' },
+            { text: 'ESP32 Performance', link: '/guide/performance/esp32-performance' },
+            { text: 'Graphics Techniques', link: '/guide/graphics-techniques' },
           ],
         },
         {
@@ -176,11 +170,9 @@ export default defineConfig({
           text: 'Standards & compatibility',
           items: [
             { text: 'Coding style', link: '/guide/coding-style' },
-            { text: 'Style guide', link: '/guide/style-guide' },
             { text: 'Graphics guidelines', link: '/guide/graphics-guidelines' },
             { text: 'UI guidelines', link: '/guide/ui-guidelines' },
             { text: 'Platform compatibility', link: '/guide/platform-compatibility' },
-            { text: 'Performance hub', link: '/guide/performance/' },
           ],
         },
       ],
@@ -218,9 +210,7 @@ export default defineConfig({
         {
           text: 'Architecture',
           items: [
-            { text: 'Index', link: '/architecture/' },
-            { text: 'Overview', link: '/architecture/overview' },
-            { text: 'Layer overview', link: '/architecture/layers-overview' },
+            { text: 'Overview', link: '/architecture/' },
           ],
         },
         {
@@ -273,7 +263,7 @@ export default defineConfig({
         {
           text: 'Philosophy',
           items: [
-            { text: 'Index', link: '/philosophy/' },
+            { text: 'Overview', link: '/philosophy/' },
             { text: 'Engine philosophy', link: '/philosophy/engine-philosophy' },
           ],
         },
@@ -293,7 +283,7 @@ export default defineConfig({
         {
           text: 'Examples',
           items: [
-            { text: 'Samples index (repo catalogue)', link: '/examples/demos' },
+            { text: 'Samples (repo catalogue)', link: '/examples/demos' },
             { text: 'Hello World', link: '/examples/hello-world' },
             { text: 'Camera', link: '/examples/camera' },
             { text: 'Dual Palette', link: '/examples/dual-palette' },

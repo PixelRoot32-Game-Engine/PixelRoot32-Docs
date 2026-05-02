@@ -1,5 +1,7 @@
 # Coding Style Guide - PixelRoot32
 
+> **Note:** This document supersedes `style-guide.md`. The old file is retained for backward compatibility but now redirects here.
+
 **Scope:** C++ coding conventions and style rules.  
 **For other topics:** See [Memory](./memory.md), [Gameplay Guidelines](./gameplay-guidelines.md), [UI Guidelines](./ui-guidelines.md), [Graphics Guidelines](./graphics-guidelines.md), [ESP32 Performance](./performance/esp32-performance.md).
 

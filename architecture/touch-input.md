@@ -261,6 +261,6 @@ On Native (PC), `SDL2_Drawer` automatically converts mouse events to touch event
 
 ## 11. Related documentation
 
-- [API Reference — Touch Input](API_REFERENCE.md#touch-input-overview)
-- [Architecture — InputManager](ARCHITECTURE.md) (subsection documents touch parallel path)
+- [API Reference — Touch Input](../api/input.md)
+- [Architecture Index](architecture-index.md) (system layer documentation)
 - `include/core/Engine.h` — documented touch loop contract in class comment

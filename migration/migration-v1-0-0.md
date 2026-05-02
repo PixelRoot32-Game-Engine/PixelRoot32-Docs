@@ -809,4 +809,4 @@ actor->setRadius(toScalar(radius));  // Critical for circles!
 - [Fixed-Point Arithmetic (Wikipedia)](https://en.wikipedia.org/wiki/Fixed-point_arithmetic) - Theory behind Q format and integer math.
 - [Q (number format)](https://en.wikipedia.org/wiki/Q_(number_format)) - Understanding the Q16.16 format used in PixelRoot32.
 - [Physics System Reference](../architecture/physics-subsystem.md) - Complete Flat Solver documentation
-- [API Reference](API_REFERENCE.md) - CollisionSystem API
+- [API Reference](../api/physics.md) - CollisionSystem API

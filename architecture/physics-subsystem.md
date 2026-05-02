@@ -39,85 +39,43 @@ This order is critical:
 - **Position integration happens before penetration correction** (allows proper separation)
 - **Callbacks happen last** (gameplay can inspect final state)
 
-### 1.3 Diagrams (broadphase, grid, layers, solver)
+### 1.3 Physics Pipeline Overview
 
-```mermaid
-flowchart TB
-    subgraph Broadphase["Broadphase: Spatial Grid"]
-        A[Actor Insertion] --> B[Grid Cell Assignment]
-        B --> C[Query Optimization]
-    end
-
-    subgraph Narrowphase["Narrowphase: AABB"]
-        D[Potential Pairs] --> E[AABB Intersection]
-        E --> F[Contact Generation]
-    end
-
-    subgraph Solver["Flat Solver"]
-        F --> G[Position Correction]
-        G --> H[Velocity Updates]
-        H --> I[Collision Callbacks]
-    end
-
-    subgraph Actors["Actor Types"]
-        J[StaticActor]
-        K[KinematicActor]
-        L[RigidActor]
-        M[SensorActor]
-    end
-
-    Actors --> Broadphase
+```
+CollisionSystem::update()
+        │
+        ▼
+Broadphase (Spatial Grid)
+        │
+        ▼ (candidate pairs)
+Narrowphase (AABB / Circle tests)
+        │
+        ▼ (contacts)
+Contact Solver
+        │
+        ├──▶ Velocity Solve (Impulse response)
+        │         └─ Bounce & friction
+        │
+        ├──▶ Position Integrate (p += v·dt)
+        │
+        └──▶ Penetration Correct (Baumgarte)
+        │
+        ▼
+Collision Events
+        │
+        ▼ (dispatch)
+onCollision Callbacks
 ```
 
-```mermaid
-flowchart TB
-    subgraph Grid["32px Grid Cells"]
-        A[Cell 0,0]
-        B[Cell 1,0]
-        C[Cell 0,1]
-        D[Cell 1,1]
-    end
+> **Key insight:** Steps 1-2 run per-frame. Steps 3-6 run inside the fixed timestep loop (1/60s).
 
-    P1[Player] -->|"Spans cells"| A
-    P1 -->|"Spans cells"| B
-    P1 -->|"Spans cells"| C
-    P1 -->|"Spans cells"| D
-
-    E1[Enemy] -->|"In cell"| B
-```
-
-```mermaid
-flowchart LR
-    subgraph Player["Player"]
-        PL[layer: PLAYER]
-        PM["mask: ENVIRONMENT | ITEM"]
-    end
-
-    subgraph Wall["Wall"]
-        WL[layer: ENVIRONMENT]
-        WM["mask: PLAYER | ENEMY | PROJECTILE"]
-    end
-
-    subgraph Coin["Coin"]
-        CL[layer: ITEM]
-        CM[mask: PLAYER]
-    end
-
-    Player -->|"PLAYER intersects Wall mask"| Wall
-    Player -->|"ITEM intersects Coin mask"| Coin
-    Wall -->|"ENVIRONMENT vs Coin: no response"| Coin
-```
-
-```mermaid
-flowchart TB
-    A[Find all collisions] --> B[Sort by penetration depth]
-    B --> C[Resolve highest priority]
-    C --> D[Update positions]
-    D --> E{"Iterations < Max?"}
-    E -->|Yes| F[Re-check collisions]
-    E -->|No| G[Final velocity update]
-    F --> B
-```
+> **Quick Reference:** The simulation runs in `CollisionSystem::update()`:
+> 1. **Detect** → find overlapping pairs (grid → AABB/circle checks)
+> 2. **Integrate Velocity** → `v = v + a·dt`
+> 3. **Solve Velocity** → impulse-based response
+> 4. **Integrate Position** → `p = p + v·FIXED_DT`
+> 5. **Solve Penetration** → Baumgarte stabilization
+> 6. **Callbacks** → `onCollision()` events
 
 ---
 
@@ -685,6 +643,6 @@ void RigidActor::update(unsigned long deltaTime) {
 
 ## References
 
-- [API Reference](API_REFERENCE.md) - Class documentation
-- [Architecture](ARCHITECTURE.md) - System design
-- [Migration Guide v1.2.0](MIGRATION_v1.2.0.md) - PhysicsActor flags packing changes
+- [API Reference](../api/physics.md) - Class documentation
+- [Architecture Index](architecture-index.md) - System design
+- [Migration Guide v1.2.0](../migration/migration-v1-2-0.md) - PhysicsActor flags packing changes

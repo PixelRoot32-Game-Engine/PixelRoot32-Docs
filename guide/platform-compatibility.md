@@ -1,6 +1,6 @@
 # PixelRoot32 Platform Compatibility Guide
 
-**Canonical doc:** this file is the single source for the platform matrix, `build_flags`, and PlatformIO examples. The [Platform configuration](./platform-config.md) page is a short entry and links here.
+**Canonical doc:** this file is the single source for the platform matrix, `build_flags`, and PlatformIO examples.
 
 ## Overview
 
@@ -401,8 +401,6 @@ if (!caps.hasFPU) {
 - **PlatformIO ESP32 Platforms:** <https://docs.platformio.org/en/latest/platforms/espressif32.html>
 - **PixelRoot32 Engine Configuration:** See `platforms/PlatformDefaults.h`
 - **Audio Backend Configuration:** See `audio/AudioConfig.h`
-
----
 
 ---
 

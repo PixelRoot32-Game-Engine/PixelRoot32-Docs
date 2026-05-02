@@ -449,4 +449,4 @@ See [Memory System](memory-system.md) for optimization strategies.
 - [Physics Subsystem](physics-subsystem.md) - Actor physics details
 - [Touch Input](touch-input.md) - Scene touch handling
 - [Memory System](memory-system.md) - Entity memory management
-- [API Reference - Core](../api/API_CORE.md) - Class-level API
+- [API Reference - Core](../api/core.md) - Class-level API
