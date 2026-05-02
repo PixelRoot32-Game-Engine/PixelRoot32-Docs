@@ -506,6 +506,6 @@ for (int i = 0; i < 100; ++i) {
 
 ## Next Steps
 
-- **[Resolution Scaling](/guide/resolution-scaling)** — Deep dive into logical/physical resolution
-- **[Tilemaps](/guide/tilemaps)** — Advanced tilemap techniques
-- **[Multi-Palette](/guide/multi-palette)** — Palette management
+- **[Resolution Scaling](./resolution-scaling.md)** — Deep dive into logical/physical resolution
+- **[Tilemaps](./tilemaps.md)** — Advanced tilemap techniques
+- **[Multi-Palette](./multi-palette.md)** — Palette management

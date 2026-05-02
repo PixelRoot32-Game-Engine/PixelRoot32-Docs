@@ -1,0 +1,21 @@
+---
+description: Public prose/API doc trees are synced from PixelRoot32-Game-Engine; edit the engine then npm run sync-docs.
+globs: tools/**,examples/**,guide/**,api/**,architecture/**,reference/**,philosophy/**,migration/**,scripts/sync-docs-from-engine.mjs
+---
+
+# Generated documentation
+
+Do **not** hand-edit synced trees except by running `npm run sync-docs` (or `node scripts/sync-docs-from-engine.mjs --engine <path>`) after changing sources in **PixelRoot32-Game-Engine**:
+
+| Site | Engine (`docs/` unless noted) |
+|------|-------------------------------|
+| `tools/` | `tools/` |
+| `examples/*.md` | `examples/` READMEs + `guide/entities-scene-tutorial.md` |
+| `guide/` | `guide/` |
+| `api/` | `api/` |
+| `architecture/` | `architecture/` |
+| `reference/` | `reference/` |
+| `philosophy/` | `philosophy/` |
+| `migration/` | `migration/` |
+
+See [CONTRIBUTING.md](../../CONTRIBUTING.md) at the repo root.

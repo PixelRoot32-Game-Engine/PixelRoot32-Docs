@@ -8,7 +8,7 @@ The compiler can detect when all colors in a sprite match one of the engine’s 
 
 ### Predefined engine palettes
 
-The engine exposes five built-in palette types (see [Color (API)](/api/graphics/color)):
+The engine exposes five built-in palette types (see [Color (API)](/api/graphics)):
 
 - `PR32` — default PixelRoot32 palette
 - `NES`

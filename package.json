@@ -4,6 +4,7 @@
   "type": "module",
   "description": "PixelRoot32 Game Engine Documentation",
   "scripts": {
+    "sync-docs": "node scripts/sync-docs-from-engine.mjs",
     "docs:dev": "vitepress dev",
     "docs:build": "vitepress build",
     "docs:preview": "vitepress preview"

@@ -80,4 +80,4 @@ For detailed walkthrough, see the [Quick Start Guide](/tools/tilemap-editor/quic
 
 - [Tools overview](/tools/)
 - [Tilemaps](/guide/tilemaps)
-- [Tile animation](/architecture/ARCH_TILE_ANIMATION)
+- [Tile animation](../../architecture/tile-animation.md)

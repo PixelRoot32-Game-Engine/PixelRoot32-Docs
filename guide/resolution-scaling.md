@@ -11,9 +11,9 @@ PixelRoot32 separates **logical** resolution (what your game draws at) from **ph
 
 Set `logicalWidth` / `logicalHeight` for the render buffer and `physicalWidth` / `physicalHeight` for the panel. The renderer and input pipeline map between the two according to your driver setup.
 
-See [DisplayConfig / Engine](/api/core/engine) and the architecture deep dive [Resolution scaling](/architecture/ARCH_RESOLUTION_SCALING) for implementation details, ESP32 considerations, and coordinate mapping.
+See [DisplayConfig / Engine](../api/core.md#engine) and the architecture deep dive [Resolution scaling](../architecture/resolution-scaling.md) for implementation details, ESP32 considerations, and coordinate mapping.
 
 ## Related
 
-- [Rendering guide](/guide/rendering)
-- [Platform configuration](/guide/platform-config)
+- [Rendering guide](./rendering.md)
+- [Platform configuration](./platform-config.md)

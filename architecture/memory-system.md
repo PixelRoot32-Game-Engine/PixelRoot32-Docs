@@ -1,16 +1,38 @@
-# Memory system
-
-> **Source:** Ported from the [PixelRoot32 Game Engine](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine) repository. Cross-links were adjusted for this site.
-
 # Memory Management Guide - PixelRoot32 C++17
 
-**Document Version:** 1.1  
-**Last Updated:** March 2026  
-**Engine Version:** v1.1.0
+> **Note:** For the complete memory management guide with optimization strategies, visit the [official documentation](https://docs.pixelroot32.org/manual/optimization/memory_management/).
 
 ## Overview
 
 This guide covers modern memory management practices in PixelRoot32 using C++17 features. The engine has transitioned from manual memory management to smart pointers and RAII (Resource Acquisition Is Initialization) patterns for improved safety and maintainability.
+
+### Memory regions (ESP32-oriented overview)
+
+```mermaid
+flowchart TB
+    subgraph Flash["Flash / PROGMEM (4MB+)"]
+        F1[Program Code]
+        F2[Sprite Data]
+        F3[Tilemaps]
+        F4[Constant Data]
+    end
+
+    subgraph DRAM["DRAM (520KB total)"]
+        D1[Heap ~300KB]
+        D2[Stack]
+        D3[Static Variables]
+    end
+
+    subgraph IRAM["IRAM (128KB)"]
+        I1[Critical Functions]
+        I2[ISR Handlers]
+    end
+
+    subgraph DMA["DMA-Capable (160KB)"]
+        M1[Frame Buffers]
+        M2[Audio Buffers]
+    end
+```
 
 ---
 

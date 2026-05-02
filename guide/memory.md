@@ -397,5 +397,5 @@ log("Stack free: %d words", watermark);
 
 ## Next Steps
 
-- **[Platform Configuration](/guide/platform-config)** — Build flags and optimization
-- **[Resolution scaling](/guide/resolution-scaling)** — Logical vs physical framebuffer trade-offs
+- **[Platform Configuration](./platform-config.md)** — Build flags and optimization
+- **[Resolution scaling](./resolution-scaling.md)** — Logical vs physical framebuffer trade-offs

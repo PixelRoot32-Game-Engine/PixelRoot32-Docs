@@ -1,11 +1,57 @@
-# Space Invaders (`space_invaders`)
+# Space Invaders Example
 
-Sample project: **[`examples/space_invaders/`](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/space_invaders)** — classic Space Invaders: alien formation, shooting mechanics, bunkers, score system, and **`AudioEngine`**.
+Classic **Space Invaders** arcade game: alien formation with synchronized movement, player ship with shooting mechanics, bunkers for protection, enemy projectiles, score system, and **procedural audio** through the engine **`AudioEngine`**.
 
-Environments: `native`, `esp32dev`.
+## Requirements (build flags)
 
-Authoritative details: [`examples/space_invaders/README.md`](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/blob/main/examples/space_invaders/README.md).
+- **`PIXELROOT32_ENABLE_AUDIO=1`** — set in [`lib/platformio.ini`](lib/platformio.ini) `base` template so all environments inherit it.
+- **`PIXELROOT32_ENABLE_PHYSICS=1`** — required for projectile collision detection.
 
-- API: [AudioEngine](/api/audio/audio-engine), [Physics](/api/physics/collision-system)
+Display size is **240×240** in the project `platformio.ini` (see **`PHYSICAL_DISPLAY_*`**).
 
-See the [samples index](./demos).
+## Platforms
+
+| Environment | Display | Audio backend |
+|-------------|---------|----------------|
+| **`native`** | SDL2, 240×240 | **`SDL2_AudioBackend`** in [`src/platforms/native.h`](src/platforms/native.h) |
+| **`esp32dev`** | **ST7789** 240×240 | Default: **`ESP32_I2S_AudioBackend`** (comment in `esp32_dev.h` documents optional internal **DAC** backend instead) |
+
+Pin choices for I2S / DAC are in **`src/platforms/esp32_dev.h`** (edit there if your wiring differs).
+
+## Controls
+
+- **Arrow keys** (or GPIO D-pad mapped in your platform input config) to move left/right.
+- **Space** to fire (max 4 simultaneous bullets with 150ms cooldown).
+- Destroy all aliens to win; if aliens reach the player's level, game over.
+
+## How audio is triggered
+
+[`SpaceInvadersScene.cpp`](src/SpaceInvadersScene.cpp) builds **`pixelroot32::audio::AudioEvent`** values (player shoot, enemy shoot, explosion, BGM tempo changes) and calls **`engine.getAudioEngine().playEvent(...)`**. Wave types (pulse, triangle) are lightweight beeps suited for embedded output.
+
+## Features
+
+- **Scene** with pooled **`ProjectileActor`**, **`AlienActor`**, **`BunkerActor`**, **`PlayerActor`**
+- **4-player bullet limit** with fire rate cooldown (150ms)
+- **Alien formation** with step-based movement and tempo-based BGM
+- **Audio** subsystem integration (`AudioEngine`, platform backends)
+
+## Documentation links
+
+- [Audio API](/api/audio)
+- [Core API](/api/core)
+- [Input API](/api/input)
+
+## Build
+
+From **`examples/space_invaders`**:
+
+```bash
+pio run -e native
+pio run -e esp32dev
+```
+
+## Upload (ESP32)
+
+```bash
+pio run -e esp32dev --target upload
+```

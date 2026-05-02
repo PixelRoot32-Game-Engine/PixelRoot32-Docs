@@ -5,15 +5,15 @@ Sprites and tile layers use **indexed** pixel data plus **palette** tables. You 
 ## Modes
 
 - **1bpp** — smallest footprint; one bit per pixel selects between two colors from a palette.
-- **2bpp / 4bpp** — optional; enable with `PIXELROOT32_ENABLE_2BPP_SPRITES` / `PIXELROOT32_ENABLE_4BPP_SPRITES` (see [Configuration](/api/modules/configuration)).
+- **2bpp / 4bpp** — optional; enable with `PIXELROOT32_ENABLE_2BPP_SPRITES` / `PIXELROOT32_ENABLE_4BPP_SPRITES` (see [Configuration](../api/config.md)).
 
-Built-in palette presets (PR32, NES, Game Boy, PICO-8, etc.) are described in the [Color / graphics API](/api/graphics/color).
+Built-in palette presets (PR32, NES, Game Boy, PICO-8, etc.) are described in the [Color / graphics API](../api/graphics.md#color-and-palettes).
 
 ## Workflow
 
 1. Store art as indices (and optional per-tile attributes).
 2. Assign a `PaletteType` or custom colors when drawing sprites or tile layers.
-3. Use multi-palette tile attributes where supported (see tile attribute section in [TileMap API](/api/graphics/tilemap)).
+3. Use multi-palette tile attributes where supported (see tile attribute section in [TileMap API](../api/graphics.md#tilemaps)).
 
 ## Example project
 
@@ -21,5 +21,5 @@ The `examples/dual_palette` sample in the engine repository demonstrates switchi
 
 ## Related
 
-- [Rendering](/guide/rendering)
-- [Tilemaps](/guide/tilemaps)
+- [Rendering](./rendering.md)
+- [Tilemaps](./tilemaps.md)

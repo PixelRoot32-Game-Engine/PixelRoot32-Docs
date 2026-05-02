@@ -1,12 +1,59 @@
-# Metroidvania-style map (`metroidvania`)
+# Metroidvania-Style Example
 
-Sample project: **[`examples/metroidvania/`](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/metroidvania)** — 4bpp tilemaps, **`StaticTilemapLayerCache`**, platformer-style player.
+A compact **platformer** sample with **4bpp tilemap layers** (background, platforms, decorative tiles), **`StaticTilemapLayerCache`** for the ESP32 fast path when available, and a **`KinematicActor`**-based player with climbing and jump rules tailored to the sample map.
 
-Environments: `native`, `esp32dev`.
+**Requires `PIXELROOT32_ENABLE_4BPP_SPRITES`** — the scene is guarded in [`src/MetroidvaniaScene.h`](src/MetroidvaniaScene.h).
 
-Authoritative details: [`examples/metroidvania/README.md`](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/blob/main/examples/metroidvania/README.md).
+## Requirements (build flags)
 
-- Guide: [Tilemaps](/guide/tilemaps)
-- API: [TileMap](/api/graphics/tilemap)
+- **`PIXELROOT32_ENABLE_4BPP_SPRITES`**
+- **`PIXELROOT32_ENABLE_2BPP_SPRITES`** (enabled alongside 4bpp in this example’s `platformio.ini`)
+- **`PIXELROOT32_ENABLE_SCENE_ARENA`**
 
-See also [animated_tilemap](./animated-tilemap) and the [tilemap overview](./tilemap-scene).
+See **`platformio.ini`** for **`native`** and **`esp32dev`** presets (no `esp32cyd` environment in this project).
+
+**`extern pixelroot32::core::Engine engine`** is wired in the platform headers under `src/platforms/`.
+
+## Platforms
+
+| Environment | Display |
+|-------------|---------|
+| **`native`** | SDL2, 240×240 |
+| **`esp32dev`** | **ST7789** 240×240 |
+
+## Controls
+
+Uses **`GameConstants.h`** button IDs: **Up / Down / Left / Right** and **Jump** (`BTN_UP` … `BTN_JUMP`). Map these to your `InputManager` / GPIO / keyboard mapping for the platform file you use.
+
+## How this scene uses the tilemap cache
+
+Like the animated tilemap sample, drawing goes through **`StaticTilemapLayerCache`**: allocate for the renderer when layers are ready, draw static groups with camera offsets, and **`invalidate()`** when static tile data or relevant animators change. See [Animated Tilemap README](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/animated_tilemap) for the detailed invalidation table and [Architecture — static tilemap cache](/architecture/overview).
+
+## Features
+
+- **4bpp tilemaps** and layered level data
+- **`StaticTilemapLayerCache`** snapshot path when the driver exposes a logical framebuffer
+- **Player actor** with gravity, stairs/climb behavior, and map collision
+- **Scene arena** + owned layer entities
+
+## Documentation links
+
+- [Graphics — tilemaps & `StaticTilemapLayerCache`](/api/graphics#multi-layer-4bpp-tilemap-framebuffer-snapshot-statictilemaplayercache)
+- [Architecture — ESP32 rendering / tilemap caching](/architecture/overview.md#esp32-rendering-pipeline-and-tilemap-caching)
+- [Physics API](/api/physics)
+- [Core API](/api/core)
+
+## Build
+
+From **`examples/metroidvania`**:
+
+```bash
+pio run -e native
+pio run -e esp32dev
+```
+
+## Upload (ESP32)
+
+```bash
+pio run -e esp32dev --target upload
+```

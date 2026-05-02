@@ -1,449 +1,148 @@
-# Architecture Overview
+# Architecture Document - PixelRoot32 Game Engine
 
-> **See also:** [Layer hierarchy](/architecture/layers), [Modules](/architecture/modules), [Memory system](/architecture/memory-system)
+## Quick Navigation
 
-PixelRoot32 is architected as a layered system, abstracting hardware specifics while providing high-level game development patterns. Understanding these layers helps you extend the engine and debug issues effectively.
+The architecture documentation is organized into **layers** (hardware to game code) and **subsystem deep dives**.
 
-## Layer Hierarchy
+### Layer Architecture
 
-The engine is organized into five distinct layers, from hardware to game code. A visual stack diagram lives in the [Layer hierarchy](/architecture/layers) page and in the Mermaid diagram below.
+| Layer | Document | Description |
+|-------|----------|-------------|
+| **Overview** | [Architecture Overview](./layers-overview.md) | Executive summary, design philosophy, layer diagram |
+| **Layer 0** | [Hardware Layer](./layer-hardware.md) | ESP32, displays, audio hardware, PC simulation |
+| **Layer 1** | [Driver Layer](./layer-drivers.md) | TFT_eSPI, U8G2, SDL2, AudioBackends |
+| **Layer 2** | [Abstraction Layer](./layer-abstraction.md) | DrawSurface, PlatformMemory, Logging, Math |
+| **Layer 3** | [System Layer](./layer-systems.md) | Renderer, Audio, Physics, UI subsystems |
+| **Layer 4** | [Scene Layer](./layer-scene.md) | Engine, SceneManager, Entity, Actor hierarchy |
 
-## Design Philosophy
+### Subsystem Deep Dives
 
-### Modularity Through Compilation
+| Subsystem | Document | Description |
+|-----------|----------|-------------|
+| **Audio NES** | [Audio Subsystem](./audio-subsystem.md) | 4-channel NES-style: shared **`ApuCore`**, `AudioScheduler`, backends — see [Music player guide](../guide/music-player-guide.md), [API Audio](../api/audio.md) |
+| **Physics** | [Physics Subsystem](./physics-subsystem.md) | Flat Solver, collisions, CCD (ex-PHYSICS_*) |
+| **Memory** | [Memory System](./memory-system.md) | Smart pointers, RAII, ESP32 DRAM (ex-MEMORY_*) |
+| **Resolution Scaling** | [Resolution Scaling](./resolution-scaling.md) | Logical vs physical resolution (ex-RESOLUTION_*) |
+| **Tile Animation** | [Tile Animation](./tile-animation.md) | Lookup tables, O(1) resolve; see also static layer cache in [ESP32 rendering](#esp32-rendering-pipeline-and-tilemap-caching) (ex-TILE_ANIMATION_*) |
+| **Touch Input** | [Touch Input](./touch-input.md) | Pipeline, XPT2046, calibration (ex-TOUCH_INPUT) |
+| **Extensibility** | [Extending PixelRoot32](../guide/extending-pixelroot32.md) | Custom drivers, configuration |
 
-Unlike monolithic engines, PixelRoot32 uses **compile-time modularity**:
+### API Reference
 
-```cpp
-// Only include what you need
-#define PIXELROOT32_ENABLE_AUDIO 1
-#define PIXELROOT32_ENABLE_PHYSICS 1
-#define PIXELROOT32_ENABLE_UI_SYSTEM 1
-#define PIXELROOT32_ENABLE_TOUCH 0  // Disabled - saves ~200 bytes
-```
+For class-level API documentation, see `docs/api/`:
 
-Unused subsystems are completely excluded from the binary, not just disabled at runtime.
+| Module | Document |
+|--------|----------|
+| Configuration | [config.md](../api/config.md) |
+| Math | [math.md](../api/math.md) |
+| Core | [core.md](../api/core.md) |
+| Physics | [physics.md](../api/physics.md) |
+| Graphics | [graphics.md](../api/graphics.md) |
+| UI | [ui.md](../api/ui.md) |
+| Audio | [audio.md](../api/audio.md) |
+| Input | [input.md](../api/input.md) |
+| Platform | [platform.md](../api/platform.md) |
 
-### Abstraction Without Overhead
+**Audio (lectura recomendada):** [Arquitectura audio NES](./audio-subsystem.md) (diseño e implementación) → [API Audio](../api/audio.md) (clases y tipos) → [Music player guide](../guide/music-player-guide.md) (melodías y multi-pista).
 
-The engine uses template-based abstraction and the **Bridge Pattern** to eliminate virtual call overhead on hot paths:
+---
 
-```cpp
-// DrawSurface is a pure interface
-template<typename Implementation>
-class DrawSurfaceImpl : public DrawSurface {
-    Implementation impl;
-public:
-    void drawPixel(int x, int y, Color c) override {
-        impl.drawPixel(x, y, c);  // Inlined, no vtable lookup
-    }
-};
-```
+Narrativa ampliada — resumen ejecutivo, filosofía de diseño, tabla de capas, dependencias entre módulos, rendimiento y ficheros de configuración: **[Layer overview](./layers-overview.md)**. En esta página: tablas de navegación rápida, diagrama de **jerarquía de clases**, matriz de flags **`PIXELROOT32_ENABLE_*`**, y la sección **ESP32 / caché de tilemap**.
 
-### Embedded-First Design
+---
 
-Every decision considers ESP32 constraints:
+## Core Class Hierarchy
 
-| Resource | Constraint | Solution |
-|----------|-----------|----------|
-| RAM (520KB) | Limited | Logical/physical resolution decoupling |
-| Flash (4MB+) | Slow access | `IRAM_ATTR` for critical code |
-| CPU (240MHz) | Single-core game loop | DMA for rendering, multi-core audio |
-| No FPU (C3) | Software float slow | Fixed-point `Scalar` abstraction |
+The diagram below complements **Layer 4** (`Entity` → actors and UI). The `DrawSurface` → `BaseDrawSurface` branch sits in the **abstraction / graphics** side (los drawers concretos están en la capa de drivers). Detalle narrativo: [Scene layer](./layer-scene.md), modelo de capas: [Layer overview](./layers-overview.md).
 
-## Layer Deep Dive
-
-### Layer 0: Hardware
-
-The foundation—ESP32 variants and peripherals.
-
-| Component | ESP32 | ESP32-S3 | ESP32-C3 | ESP32-C6 |
-|-----------|-------|----------|----------|----------|
-| CPU | Xtensa LX6 | Xtensa LX7 | RISC-V | RISC-V |
-| FPU | Yes | Yes | No | No |
-| Recommended Math | float | float | Fixed16 | Fixed16 |
-| Audio DAC | ✅ GPIO 25/26 | ❌ | ❌ | ❌ |
-| Audio I2S | ✅ | ✅ | ✅ | ✅ |
-
-### Layer 1: Drivers
-
-Hardware-specific implementations:
-
-```cpp
-// TFT_eSPI_Drawer for color LCDs
-class TFT_eSPI_Drawer : public DrawSurface {
-    TFT_eSPI* tft;
-    uint8_t* dmaBuffer;
-    
-    void present() override {
-        // DMA-accelerated transfer
-        tft->pushImageDMA(...);
-    }
-};
-
-// U8G2_Drawer for monochrome OLEDs
-class U8G2_Drawer : public DrawSurface {
-    U8G2* u8g2;
-    
-    void drawSprite(const Sprite& s, int x, int y, Color c) override {
-        // XBM format for zero-copy rendering
-        u8g2->drawXBM(x, y, s.width, s.height, 
-                      reinterpret_cast<const uint8_t*>(s.data));
-    }
-};
-
-// SDL2_Drawer for PC simulation
-class SDL2_Drawer : public DrawSurface {
-    SDL_Renderer* renderer;
-    SDL_Texture* frameTexture;
-    
-    void present() override {
-        SDL_UpdateTexture(frameTexture, ...);
-        SDL_RenderCopy(renderer, frameTexture, NULL, NULL);
-        SDL_RenderPresent(renderer);
-    }
-};
-```
-
-### Layer 2: Abstraction
-
-Platform-agnostic interfaces:
-
-#### DrawSurface (Bridge Pattern)
-
-```cpp
-class DrawSurface {
-public:
-    virtual void drawPixel(int x, int y, Color c) = 0;
-    virtual void drawSprite(const Sprite& s, int x, int y, Color c) = 0;
-    virtual void present() = 0;
-    
-    // Resolution scaling support
-    virtual void setLogicalSize(int w, int h) = 0;
-    virtual void* getSpriteBuffer() = 0;  // For direct buffer access
-};
-```
-
-#### AudioScheduler (Strategy Pattern)
-
-```cpp
-class AudioScheduler {
-public:
-    virtual void start() = 0;
-    virtual void stop() = 0;
-    virtual void submitCommand(const AudioCommand& cmd) = 0;
-    
-    // Platform-specific implementations:
-    // - ESP32: FreeRTOS task on Core 0
-    // - Native: SDL audio callback thread
-};
-```
-
-#### Math System (Scalar Abstraction)
-
-```cpp
-// Automatically selects float or Fixed16
-#if defined(SOC_CPU_HAS_FPU)
-    using Scalar = float;
-#else
-    using Scalar = Fixed16;  // Q16.16 fixed-point
-#endif
-
-template<typename T>
-T toScalar(T value) { return value; }
-```
-
-### Layer 3: Systems
-
-High-level subsystems that form the engine's capabilities.
-
-#### Rendering Pipeline
+The following diagram shows the inheritance relationships between the main engine types:
 
 ```mermaid
-flowchart LR
-    A[Game Code] -->|draw calls| B[Renderer]
-    B -->|clipping| C[DrawSurface]
-    C -->|transform| D[Driver]
-    D -->|DMA| E[Display]
+flowchart TD
+  Entity --> Actor
+  Actor --> PhysicsActor
+  PhysicsActor --> StaticActor
+  PhysicsActor --> KinematicActor
+  PhysicsActor --> RigidActor
+  StaticActor --> SensorActor
+  Entity --> UIElement
+  UIElement --> UILayout
+  UILayout --> UIAnchorLayout
+  UILayout --> UIGridLayout
+  UILayout --> UIHorizontalLayout
+  UILayout --> UIVerticalLayout
+  UIElement --> UIButton
+  UIElement --> UILabel
+  UIElement --> UICheckBox
+  UIElement --> UIPanel
+  UIElement --> UIPaddingContainer
+  UIElement --> UITouchElement
+  UITouchElement --> UITouchButton
+  UITouchElement --> UITouchCheckbox
+  UITouchElement --> UITouchSlider
+  Entity --> ParticleEmitter
+  DrawSurface --> BaseDrawSurface
 ```
 
-**Renderer responsibilities:**
-- Viewport and camera management
-- Coordinate transformation (world → screen)
-- Batch drawing primitives
-- Resolution scaling (logical → physical)
+---
 
-#### Physics System (Flat Solver)
+## Subsystem Modular Compilation
 
-```mermaid
-flowchart TB
-    subgraph Broadphase["Broadphase (Spatial Grid)"]
-        A[Actor insertion]
-        B[Grid cell lookup]
-        C[Potential pairs]
-    end
-    
-    subgraph Narrowphase["Narrowphase (AABB)"]
-        D[Exact intersection]
-        E[Contact generation]
-    end
-    
-    subgraph Solver["Solver"]
-        F[Position correction]
-        G[Velocity updates]
-    end
-    
-    A --> B --> C --> D --> E --> F --> G
-```
+| Subsystem | Enable Flag | Default |
+|-----------|-------------|---------|
+| Audio | `PIXELROOT32_ENABLE_AUDIO` | Enabled |
+| Physics | `PIXELROOT32_ENABLE_PHYSICS` | Enabled |
+| UI System | `PIXELROOT32_ENABLE_UI_SYSTEM` | Enabled |
+| Particles | `PIXELROOT32_ENABLE_PARTICLES` | Enabled |
+| Touch Input | `PIXELROOT32_ENABLE_TOUCH` | Disabled |
+| Tile Animations | `PIXELROOT32_ENABLE_TILE_ANIMATIONS` | Enabled |
+| Static tilemap FB snapshot (4bpp) | `PIXELROOT32_ENABLE_STATIC_TILEMAP_FB_CACHE` | Enabled (`PlatformDefaults.h`) |
+| Debug Overlay | `PIXELROOT32_ENABLE_DEBUG_OVERLAY` | Disabled |
 
-**CollisionSystem features:**
-- Uniform grid broadphase (32px cells)
-- AABB narrowphase
-- Iterative solver for stability
-- Layer/mask filtering
+---
 
-#### Audio System
+## ESP32 rendering pipeline and tilemap caching
 
-```mermaid
-flowchart LR
-    A[Game Code] -->|Commands| B[AudioCommandQueue in ApuCore]
-    B -->|SPSC| C[AudioScheduler -> ApuCore]
-    C -->|Mix| D[Channels]
-    D -->|Output| E[Hardware]
-```
+On ESP32 with **TFT_eSPI** (`TFT_eSPI_Drawer`), the logical framebuffer is typically an **8-bit color-depth sprite** (`TFT_eSprite`). Each frame:
 
-**Architecture highlights:**
-- Lock-free SPSC queue between game and audio threads
-- Sample-accurate timing (not frame-based)
-- Non-linear mixer with soft clipping
-- LUT-based mixing for no-FPU targets
+1. **`Renderer::beginFrame()`** obtains a pointer to that buffer via **`DrawSurface::getSpriteBuffer()`** (when the driver supports it), clears the buffer, then draws the scene.
+2. **2bpp / 4bpp tilemaps and sprites** can write **directly into that buffer** (matching TFT_eSPI’s 8bpp packing for RGB565), avoiding a virtual `drawPixel` per pixel where possible.
+3. **`present()` / `sendBuffer()`** converts logical 8bpp rows to **RGB565** using a LUT and pushes pixels to the panel via **DMA** (see [Driver Layer](./layer-drivers.md), [System Layer / Renderer](./layer-systems.md)).
 
-### Layer 4: Scene Layer
+### Static tilemap layer cache (engine + scenes)
 
-The object hierarchy:
+The engine provides **`pixelroot32::graphics::StaticTilemapLayerCache`** (`include/graphics/StaticTilemapLayerCache.h`): a **4bpp tilemap** helper that, when **`getSpriteBuffer()`** is non-null, can snapshot the logical framebuffer after drawing a **static** group of **`TileMap4bppDrawSpec`** entries, then on subsequent frames **`memcpy`** that snapshot back and redraw only the **dynamic** group until the **camera sample** (`-getXOffset()`, `-getYOffset()`) changes or **`invalidate()`** runs.
 
-```mermaid
-classDiagram
-    class Engine {
-        +run()
-        +setScene(Scene*)
-        +getRenderer()
-        +getInputManager()
-    }
-    
-    class SceneManager {
-        +getCurrentScene()
-        +changeScene(Scene*)
-    }
-    
-    class Scene {
-        +init()
-        +update(deltaTime)
-        +draw(Renderer&)
-        +addEntity(Entity*)
-        #entities[]
-        #collisionSystem
-    }
-    
-    class Entity {
-        +position: Vector2
-        +update(deltaTime)*
-        +draw(Renderer&)*
-        #renderLayer
-    }
-    
-    class Actor {
-        +layer: CollisionLayer
-        +mask: CollisionLayer
-        +onCollision(Actor*)
-    }
-    
-    Engine --> SceneManager
-    SceneManager --> Scene
-    Scene --> Entity
-    Entity <|-- Actor
-```
+- **Allocation:** **`allocateForLogicalSize`** / **`allocateForRenderer`** in **`Scene::init()`** (about **W×H** bytes via `std::malloc`; not in `draw`/`update`).
+- **Opt-out:** build flag **`PIXELROOT32_ENABLE_STATIC_TILEMAP_FB_CACHE=0`**, or **`setFramebufferCacheEnabled(false)`**.
+- **Reflection in config:** **`pixelroot32::platforms::config::EnableStaticTilemapFbCache`** (`EngineConfig.h`).
 
-### Layer 5: Game Layer
+**Example:** **`examples/animated_tilemap`** — **`AnimatedTilemapScene`** owns a **`StaticTilemapLayerCache`**, registers **background** as **static** and **ground + details** as **dynamic** (any split is possible via spec lists).
 
-Your code lives here, extending engine classes:
+### Present-path savings (optional)
 
-```cpp
-// Your scene
-class Level1 : public Scene {
-    void init() override {
-        // Create entities specific to this level
-    }
-};
+- **Opción A (implementada):** `Scene::shouldRedrawFramebuffer()` — el **`Engine`** omite **`draw()`** + **`present()`** cuando la escena devuelve `false`. **`AnimatedTilemapScene`** usa firmas de **`TileAnimationManager::getVisualSignature()`** y muestras de cámara para detectar frames sin cambio visual (p. ej. entre avances de frame de animación). Con **`PIXELROOT32_ENABLE_DEBUG_OVERLAY`** el motor **siempre** redibuja para mantener el overlay coherente.
+- **Opción B (documentada, no implementada):** **bandas sucias / diff por líneas** dentro de **`TFT_eSPI_Drawer::sendBufferScaled`**: guardar el framebuffer lógico 8 bpp anterior (o comparar por bloques) y emitir **varios** `setAddrWindow` + **`pushPixelsDMA`** solo por bandas que cambiaron. Ahorra SPI cuando una fracción pequeña del panel cambia; coste: RAM extra (~**W×H** bytes para copia) y overhead por múltiples transacciones. Ver [Driver Layer](./layer-drivers.md).
 
-// Your actor
-class Player : public KinematicActor {
-    void update(unsigned long dt) override {
-        // Player-specific logic
-    }
-};
-```
+**Game / scene developer contract**
 
-## Communication Patterns
+- Call **`invalidate()`** (or a scene wrapper like **`invalidateStaticLayerCache()`**) when something inside the **static** group changes visually, e.g. after **`TileAnimationManager::step(deltaTime)`** on a layer in that group, or when mutating **indices** / **palettes** / **`runtimeMask`** on those maps.
+- Layers in the **dynamic** group are drawn every frame on the fast path—no invalidation needed for **`step()`** on **dynamic-only** animators.
+- **Scroll:** cache rebuilds when the camera sample changes; no extra invalidation solely for scroll.
+- **`getSpriteBuffer() == nullptr`:** full redraw of all groups every frame; no snapshot used.
 
-### Engine → Subsystems
+For animation data flow and linking managers to tilemaps, see [Tile Animation](./tile-animation.md). API surface: [API Reference — ESP32 graphics / tilemap cache](../api/graphics.md#multi-layer-4bpp-tilemap-framebuffer-snapshot-statictilemaplayercache).
 
-```cpp
-class Engine {
-    Renderer renderer;      // Direct ownership
-    AudioEngine audio;      // Direct ownership
-    InputManager input;     // Direct ownership
-    SceneManager scenes;    // Direct ownership
-    
-public:
-    Renderer& getRenderer() { return renderer; }
-    AudioEngine& getAudioEngine() { return audio; }
-};
-```
+---
 
-### Scene → Entities
+## Related Documentation
 
-```cpp
-class Scene {
-    Entity* entities[MAX_ENTITIES];  // Fixed array, O(1) access
-    
-    void update(unsigned long dt) {
-        for (int i = 0; i < entityCount; ++i) {
-            entities[i]->update(dt);  // Virtual dispatch
-        }
-    }
-};
-```
-
-### Physics Callbacks
-
-```cpp
-class Actor {
-    virtual void onCollision(Actor* other) = 0;  // Notification only
-};
-
-// System calls this after resolving collision
-void CollisionSystem::notifyCollision(Actor* a, Actor* b) {
-    a->onCollision(b);
-    b->onCollision(a);
-}
-```
-
-## Data Flow
-
-### Render Frame Data Flow
-
-```mermaid
-sequenceDiagram
-    participant Game
-    participant Scene
-    participant Entity
-    participant Renderer
-    participant DrawSurface
-    participant Driver
-    
-    Game->>Scene: draw(renderer)
-    Scene->>Entity: draw(renderer)
-    Entity->>Renderer: drawSprite()
-    Renderer->>Renderer: Apply camera offset
-    Renderer->>Renderer: Clip to viewport
-    Renderer->>DrawSurface: drawSprite()
-    DrawSurface->>Driver: Platform-specific render
-    Driver->>Driver: DMA transfer (async)
-```
-
-### Audio Frame Data Flow
-
-```mermaid
-sequenceDiagram
-    participant Game
-    participant AudioEngine
-    participant CommandQueue
-    participant AudioScheduler
-    participant Mixer
-    participant Hardware
-    
-    Game->>AudioEngine: playSFX(sfx)
-    AudioEngine->>CommandQueue: push(PLAY_CMD)
-    
-    Note over AudioScheduler: Audio thread (Core 0)
-    AudioScheduler->>CommandQueue: pop()
-    AudioScheduler->>Mixer: Add channel
-    Mixer->>Mixer: Mix samples
-    Mixer->>Hardware: Write buffer
-```
-
-## Extension Points
-
-The architecture provides several clean extension points:
-
-### Custom DrawSurface
-
-```cpp
-class MyCustomDrawer : public DrawSurface {
-    void drawPixel(int x, int y, Color c) override;
-    void present() override;
-};
-
-// Use it
-DisplayConfig config(...);
-config.setCustomDrawer(std::make_unique<MyCustomDrawer>());
-Engine engine(std::move(config));
-```
-
-### Custom Actor Types
-
-```cpp
-class Projectile : public KinematicActor {
-    void update(unsigned long dt) override {
-        // Custom movement
-        moveAndSlide(velocity * dt, dt);
-        
-        // Destroy if out of bounds
-        if (position.y < 0) {
-            markForDeletion();
-        }
-    }
-};
-```
-
-### Custom Scene Types
-
-```cpp
-class NetworkedScene : public Scene {
-    void update(unsigned long dt) override {
-        // Custom networked update
-        receiveNetworkUpdates();
-        Scene::update(dt);
-        sendNetworkUpdates();
-    }
-};
-```
-
-## Performance Considerations
-
-| Layer | Hot Path Optimizations |
-|-------|----------------------|
-| Driver | DMA, IRAM_ATTR, LUT-based operations |
-| Abstraction | Template inlining, no virtuals on hot paths |
-| Systems | Spatial partitioning, viewport culling |
-| Scene | Fixed arrays, lazy sorting by layer |
-| Game | Zero-allocation policy, object pooling |
-
-## Design Patterns Used
-
-| Pattern | Usage | Benefit |
-|---------|-------|---------|
-| **Bridge** | `DrawSurface` → Drivers | Platform independence |
-| **Strategy** | `AudioScheduler` implementations | Platform-specific optimization |
-| **Component** | Entity → Actor | Optional physics per object |
-| **Observer** | `onCollision` callbacks | Decoupled collision response |
-| **Object Pool** | Entity arrays, particle pools | Zero allocation in loop |
-| **Command** | Audio command queue | Thread-safe communication |
-
-## Next Steps
-
-- **[Layer Hierarchy](/architecture/layers)** — Detailed layer documentation
-- **[Modules](/architecture/modules)** — Subsystem reference
-- **[Design Patterns](/architecture/patterns)** — Pattern implementation details
-- **[Memory System](/architecture/memory-system)** — Memory management architecture
+| Document | Description |
+|----------|-------------|
+| [API Reference](../api/index.md) | Complete API documentation index |
+| [Getting Started](../guide/getting-started.md) | First steps with the engine |
+| [Style Guide](../reference/style-guide.md) | Coding conventions |
+| [Platform Compatibility](../reference/platform-compatibility.md) | Supported hardware matrix |
+| [Testing Guide](../reference/testing-guide.md) | Unit and integration testing |
+| [Migration Guides](../migration/migration-v1-0-0.md) | Version upgrade guides |
+| [MusicPlayer Guide](../guide/music-player-guide.md) | Música de fondo, multi-pista, tempo/BPM |
