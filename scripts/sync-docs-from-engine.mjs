@@ -10,7 +10,7 @@ const docsTarget = path.join(__dirname, '..');
 
 const sections = ['guide', 'api', 'architecture', 'philosophy', 'migration', 'examples', 'tools'];
 
-const excludedFiles = ['README.md', 'CHANGELOG.md', 'LICENSE', 'assets', 'img', 'images', '.vitepress'];
+const excludedFiles = ['README.md', 'CHANGELOG.md', 'LICENSE', 'assets', 'img', 'images', '.vitepress', '.github'];
 
 function syncDocs() {
   console.log(`Syncing docs from ${enginePath}...`);
@@ -19,7 +19,7 @@ function syncDocs() {
     console.error(`Error: Engine docs not found at ${docsSource}`);
     process.exit(1);
   }
-
+  
   for (const section of sections) {
     const srcDir = path.join(docsSource, section);
     const destDir = path.join(docsTarget, section);
