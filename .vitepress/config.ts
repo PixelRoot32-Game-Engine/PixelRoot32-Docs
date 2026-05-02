@@ -69,7 +69,6 @@ export default defineConfig({
       { text: 'Guide', link: '/' },
       { text: 'Architecture', link: '/architecture/overview' },
       { text: 'API', link: '/api/' },
-      { text: 'Reference', link: '/reference/' },
       { text: 'Migration', link: '/migration/' },
       { text: 'Philosophy', link: '/philosophy/' },
       { text: 'Tools', link: '/tools/' },
@@ -103,7 +102,7 @@ export default defineConfig({
           text: 'Advanced',
           items: [
             { text: 'Memory', link: '/guide/memory' },
-            { text: 'Resolution Scaling', link: '/guide/resolution-scaling' },
+            { text: 'Resolution scaling', link: '/guide/performance/resolution-scaling' },
             { text: 'Tilemaps', link: '/guide/tilemaps' },
             { text: 'Multi-Palette', link: '/guide/multi-palette' },
             { text: 'Platform Configuration', link: '/guide/platform-config' },
@@ -117,6 +116,17 @@ export default defineConfig({
             { text: 'Gameplay guidelines', link: '/guide/gameplay-guidelines' },
             { text: 'Entities tutorial', link: '/guide/entities-scene-tutorial' },
             { text: 'Music player', link: '/guide/music-player-guide' },
+          ],
+        },
+        {
+          text: 'Standards & compatibility',
+          items: [
+            { text: 'Coding style', link: '/guide/coding-style' },
+            { text: 'Style guide', link: '/guide/style-guide' },
+            { text: 'Graphics guidelines', link: '/guide/graphics-guidelines' },
+            { text: 'UI guidelines', link: '/guide/ui-guidelines' },
+            { text: 'Platform compatibility', link: '/guide/platform-compatibility' },
+            { text: 'Performance hub', link: '/guide/performance/' },
           ],
         },
       ],
@@ -146,7 +156,7 @@ export default defineConfig({
           text: 'Advanced',
           items: [
             { text: 'Memory', link: '/guide/memory' },
-            { text: 'Resolution Scaling', link: '/guide/resolution-scaling' },
+            { text: 'Resolution scaling', link: '/guide/performance/resolution-scaling' },
             { text: 'Tilemaps', link: '/guide/tilemaps' },
             { text: 'Multi-Palette', link: '/guide/multi-palette' },
             { text: 'Platform Configuration', link: '/guide/platform-config' },
@@ -160,6 +170,17 @@ export default defineConfig({
             { text: 'Gameplay guidelines', link: '/guide/gameplay-guidelines' },
             { text: 'Entities tutorial', link: '/guide/entities-scene-tutorial' },
             { text: 'Music player', link: '/guide/music-player-guide' },
+          ],
+        },
+        {
+          text: 'Standards & compatibility',
+          items: [
+            { text: 'Coding style', link: '/guide/coding-style' },
+            { text: 'Style guide', link: '/guide/style-guide' },
+            { text: 'Graphics guidelines', link: '/guide/graphics-guidelines' },
+            { text: 'UI guidelines', link: '/guide/ui-guidelines' },
+            { text: 'Platform compatibility', link: '/guide/platform-compatibility' },
+            { text: 'Performance hub', link: '/guide/performance/' },
           ],
         },
       ],
@@ -246,22 +267,6 @@ export default defineConfig({
         {
           text: 'Reference (Auto)',
           items: buildApiGeneratedSidebarItems(),
-        },
-      ],
-      '/reference/': [
-        {
-          text: 'Reference',
-          items: [
-            { text: 'Index', link: '/reference/' },
-            { text: 'Coding style', link: '/reference/coding-style' },
-            { text: 'Style guide', link: '/reference/style-guide' },
-            { text: 'Graphics guidelines', link: '/reference/graphics-guidelines' },
-            { text: 'Memory guidelines', link: '/reference/memory-guidelines' },
-            { text: 'UI guidelines', link: '/reference/ui-guidelines' },
-            { text: 'Testing guide', link: '/reference/testing-guide' },
-            { text: 'Platform compatibility', link: '/reference/platform-compatibility' },
-            { text: 'ESP32 performance', link: '/reference/performance/esp32-performance' },
-          ],
         },
       ],
       '/philosophy/': [

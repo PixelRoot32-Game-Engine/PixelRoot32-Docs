@@ -8,10 +8,9 @@ These paths are **produced from the [PixelRoot32-Game-Engine](https://github.com
 |-----------|----------------|
 | `tools/**` | `docs/tools/` |
 | `examples/*.md` | `examples/*/README.md`, `examples/README.md`, and `docs/guide/entities-scene-tutorial.md` → `basic-usage.md` |
-| `guide/**` | `docs/guide/` |
+| `guide/**` | `docs/guide/` (includes standards: coding style, guidelines, platform compatibility, performance) |
 | `api/**` | `docs/api/` |
 | `architecture/**` | `docs/architecture/` |
-| `reference/**` | `docs/reference/` |
 | `philosophy/**` | `docs/philosophy/` |
 | `migration/**` | `docs/migration/` |
 
@@ -31,7 +30,7 @@ node scripts/sync-docs-from-engine.mjs --engine /path/to/PixelRoot32-Game-Engine
 
 Commit the updated synced trees so CI `git diff` after sync stays clean.
 
-**CI:** the workflow checks out the engine (`ref` from repo variable `ENGINE_DOCS_REF`, default `main`), runs the same sync, and **fails the build** if any of `tools/`, `examples/`, `guide/`, `api/`, `architecture/`, `reference/`, `philosophy/`, or `migration/` differ from the generated output.
+**CI:** the workflow checks out the engine (`ref` from repo variable `ENGINE_DOCS_REF`, default `main`), runs the same sync, and **fails the build** if any of `tools/`, `examples/`, `guide/`, `api/`, `architecture/`, `philosophy/`, or `migration/` differ from the generated output.
 
 ## Site-only files (not synced)
 

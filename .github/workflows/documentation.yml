@@ -7,7 +7,6 @@ on:
       - 'guide/**'
       - 'api/**'
       - 'architecture/**'
-      - 'reference/**'
       - 'philosophy/**'
       - 'migration/**'
       - 'examples/**'
@@ -25,7 +24,6 @@ on:
       - 'guide/**'
       - 'api/**'
       - 'architecture/**'
-      - 'reference/**'
       - 'philosophy/**'
       - 'migration/**'
       - 'examples/**'
@@ -78,7 +76,7 @@ jobs:
       - name: Sync all engine docs, verify no drift
         run: |
           node scripts/sync-docs-from-engine.mjs --engine ./engine
-          git diff --exit-code tools examples guide api architecture reference philosophy migration
+          git diff --exit-code tools examples guide api architecture philosophy migration
 
       - name: Build documentation
         env:
