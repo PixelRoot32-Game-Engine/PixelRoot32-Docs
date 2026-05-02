@@ -117,4 +117,4 @@ void MyScene::init() {
 
 - [API Reference](index.md) - Main index
 - [API Core](core.md) - Engine, Scene
-- [Architecture Overview](../architecture/overview.md)
+- [Architecture Index](../architecture/architecture-index.md)

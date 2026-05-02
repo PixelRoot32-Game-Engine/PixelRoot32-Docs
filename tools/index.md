@@ -48,4 +48,4 @@ Upcoming - tracker-style music authoring for PixelRoot32.
 | Tilemap Editor | Premium (suite) | Coming soon |
 | Music Editor | Premium (suite) | Upcoming |
 
-**Engine docs:** [Tilemaps](../guide/tilemaps.md) · [Multi-palette](../guide/multi-palette.md) · [Rendering](../guide/rendering.md) · [Tile animation (architecture)](../architecture/tile-animation.md)
+**Engine docs:** [Graphics Techniques](../guide/graphics-techniques.md) · [Rendering](../guide/rendering.md) · [Tile animation (architecture)](../architecture/tile-animation.md)

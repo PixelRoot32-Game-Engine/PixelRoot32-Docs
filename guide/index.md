@@ -25,10 +25,9 @@ User guides and how-to documentation for PixelRoot32 Game Engine.
 ## Advanced
 
 - [Memory](./memory.md) — Pools, arenas, embedded constraints
-- [Resolution scaling](./performance/resolution-scaling.md) — Logical vs physical displays
-- [Tilemaps](./tilemaps.md) — Layered maps, animation hooks
-- [Multi-palette](./multi-palette.md) — Indexed color workflows
-- [Platform configuration](./platform-config.md) — `platformio.ini`, feature flags
+- [Performance](./performance/esp32-performance.md) — Hot paths, memory, build profiles, resolution scaling
+- [Graphics Techniques](./graphics-techniques.md) — Tilemaps, palettes, indexed color
+- [Platform Compatibility](./platform-compatibility.md) — `platformio.ini`, feature flags
 
 ## Contributing & tooling
 
@@ -37,7 +36,7 @@ User guides and how-to documentation for PixelRoot32 Game Engine.
 ## Standards & compatibility
 
 - [Coding style](./coding-style.md) — C++ conventions, namespaces, naming
-- [Style guide](./style-guide.md) — Quick entry → coding style
+- [Coding Style](./coding-style.md) — C++ conventions, namespaces, naming
 - [Graphics guidelines](./graphics-guidelines.md) — Sprites, tilemaps, palettes (pipeline: [Rendering](./rendering.md))
 - [UI guidelines](./ui-guidelines.md) — Layout patterns (architecture: [UI system](./ui-system.md))
 - [Platform compatibility](./platform-compatibility.md) — Hardware matrix, ESP32 variants

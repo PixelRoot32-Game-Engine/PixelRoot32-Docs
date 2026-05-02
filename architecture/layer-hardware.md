@@ -73,19 +73,26 @@ struct PlatformCapabilities {
 
 ## Memory Layout (ESP32)
 
-```
-┌─────────────────────────────────────┐
-│           DRAM (520KB)              │
-│  ├─ .dram0.bss (static data)        │
-│  ├─ Heap (dynamic allocations)      │
-│  └─ Stack                           │
-├─────────────────────────────────────┤
-│           IRAM (128KB)              │
-│  └─ Instruction RAM (cached code)   │
-├─────────────────────────────────────┤
-│           Flash (4MB+)              │
-│  └─ Program code and PROGMEM data   │
-└─────────────────────────────────────┘
+```mermaid
+flowchart TB
+    subgraph DRAM["DRAM (520KB)"]
+        direction TB
+        D1[".dram0.bss (static data)"]
+        D2["Heap (dynamic allocations)"]
+        D3["Stack"]
+    end
+
+    subgraph IRAM["IRAM (128KB)"]
+        direction TB
+        I1["Instruction RAM (cached code)"]
+    end
+
+    subgraph FLASH["Flash (4MB+)"]
+        direction TB
+        F1["Program code and PROGMEM data"]
+    end
+
+    DRAM --> IRAM --> FLASH
 ```
 
 ---
@@ -95,4 +102,4 @@ struct PlatformCapabilities {
 - [Driver Layer](layer-drivers.md) - Hardware abstraction drivers
 - [Abstraction Layer](layer-abstraction.md) - PlatformMemory and cross-platform abstractions
 - [Memory System](memory-system.md) - Memory management strategies
-- [Platform Compatibility](../PLATFORM_COMPATIBILITY.md) - Supported hardware matrix
+- [Platform Compatibility](../guide/platform-compatibility.md) - Supported hardware matrix

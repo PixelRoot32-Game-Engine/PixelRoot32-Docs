@@ -266,10 +266,10 @@ void spawnEnemy() {
 
 | Document | Topic |
 |----------|-------|
-| [CODING_STYLE.md](CODING_STYLE.md) | C++ conventions |
-| [MEMORY_GUIDELINES.md](MEMORY_GUIDELINES.md) | Pool patterns, allocation |
-| [UI_GUIDELINES.md](UI_GUIDELINES.md) | UI layouts, HUDs |
-| [performance/ESP32_PERFORMANCE.md](performance/ESP32_PERFORMANCE.md) | Hot paths, optimization |
+| [Coding Style](coding-style.md) | C++ conventions |
+| [Memory](memory.md) | Pool patterns, allocation |
+| [UI Guidelines](ui-guidelines.md) | UI layouts, HUDs |
+| [Performance](performance/esp32-performance.md) | Hot paths, optimization |
 
 ---
 

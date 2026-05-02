@@ -36,7 +36,7 @@ The engine version or Git branch is set in **`lib_deps`** in `platformio.ini`.
 - [Graphics — Camera2D](/api/graphics#camera2d)
 - [Core — Scene / entities](/api/core)
 - [Physics — kinematic & static actors](/api/physics)
-- [Architecture](/architecture/overview.md)
+- [Architecture](/architecture/architecture-index.md)
 
 ## Build
 

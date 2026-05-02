@@ -2,27 +2,36 @@
 
 ## System Overview
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                       PIXELROOT32 ENGINE                    │
-│                                                             │
-│  ┌────────────┐      ┌──────────────┐      ┌────────────┐   │
-│  │   Scene    │────▶│   Renderer   │─────▶│  Display   │   │
-│  └────────────┘      └──────────────┘      └────────────┘   │
-│        │                     │                              │
-│        │                     │                              │
-│        ▼                     ▼                              │
-│  ┌────────────┐      ┌──────────────┐                       │
-│  │ Animation  │      │   TileMap    │                       │
-│  │  Manager   │◀────│   Generic    │                       │
-│  └────────────┘      └──────────────┘                       │
-│        │                     │                              │
-│        ▼                     ▼                              │
-│  ┌────────────┐      ┌──────────────┐                       │
-│  │  Lookup    │      │   Tileset    │                       │
-│  │   Table    │      │  (PROGMEM)   │                       │
-│  └────────────┘      └──────────────┘                       │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    subgraph E["PIXELROOT32 ENGINE"]
+
+        subgraph L1["High Level"]
+            S["Scene"]
+        end
+
+        subgraph L2["Rendering"]
+            R["Renderer"]
+            T["TileMap"]
+        end
+
+        subgraph L3["Data / Systems"]
+            A["Animation Manager"]
+            TS["Tileset (PROGMEM)"]
+            L["Lookup Table"]
+        end
+
+        subgraph L4["Output"]
+            D["Display"]
+        end
+
+        S --> R --> D
+        R --> T
+        T <--> A
+        A --> L
+        T --> TS
+
+    end
 ```
 
 ### Component Roles
@@ -62,34 +71,23 @@ Tilemap indices → AnimationManager → Tileset
 
 # Update Loop (Scene::update)
 
-```
-┌─────────────────────────────────────────────────┐
-│ Scene::update(deltaTime)                        │
-│                                                 │
-│   └─▶ animManager.step(deltaTime)               |
-│        │                                        │
-│        ├─ Wall pacing (~60 Hz max):             │
-│        │   accumulate micros between calls      │
-│        │   (fallback: deltaTime when 0)         │
-│        │   → emit 0..N logical ticks            │
-│        │                                        │
-│        ├─ For each tick: globalFrameCounter++   │
-│        │                                        │
-│        └─ For each animation:                   │
-│             │                                   │
-│             ├─ currentFrame =                   │
-│             │   (counter / duration) % frames   │
-│             │                                   │
-│             ├─ currentTile =                    │
-│             │   baseTile + currentFrame         │
-│             │                                   │
-│             └─ Update lookup table:             │
-│                 for f in 0..frameCount-1        │
-│                     lookupTable[base+f] =       │
-│                       currentTile               │
-│                                                 │
-│   Return O(1) when no tick; else O(A×F)         │
-└─────────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    A["Renderer::drawTileMap(map, x, y)"]
+
+    A --> B["Viewport culling<br/>(compute visible tiles)"]
+    A --> C["For each visible tile"]
+
+    C --> D["index = map.indices[i]"]
+
+    D --> E{"map.animManager ?"}
+    E -- Yes --> F["index = map.animManager->resolveFrame(index)"]
+    E -- No --> G["index unchanged"]
+
+    F --> H["Resolve palette<br/>(2bpp / 4bpp)"]
+    G --> H
+
+    H --> I["drawSprite(map.tiles[index], x, y)"]
 ```
 
 Key properties:
@@ -102,29 +100,29 @@ Key properties:
 
 # Render Loop (Scene::draw)
 
-```
-┌─────────────────────────────────────────────┐
-│ Renderer::drawTileMap(map, x, y)            │
-│                                             │
-│   ├─ Viewport culling                       │
-│   │   (compute visible tiles)               │
-│   │                                         │
-│   └─ For each visible tile:                 │
-│        │                                    │
-│        ├─ index = map.indices[i]            │
-│        │                                    │
-│        ├─ if (map.animManager)              │
-│        │     index =                        │
-│        │       map.animManager              │
-│        │         ->resolveFrame(index)      │
-│        │                                    │
-│        ├─ Resolve palette                   │
-│        │   (for 2bpp / 4bpp modes)          │
-│        │                                    │
-│        └─ drawSprite(                       │
-│             map.tiles[index], x, y)         │
-│                                             │
-└─────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    A["Renderer::drawTileMap(map, x, y)"]
+
+    %% Paso inicial
+    A --> B["Viewport culling<br/>(compute visible tiles)"]
+
+    %% Loop como subgraph vertical
+    B --> C
+
+    subgraph LOOP["For each visible tile"]
+        direction TB
+
+        C["index = map.indices[i]"] --> D{"map.animManager?"}
+
+        D -- Yes --> E["index = resolveFrame(index)"]
+        D -- No --> F["index unchanged"]
+
+        E --> G["Resolve palette<br/>(2bpp / 4bpp)"]
+        F --> G
+
+        G --> H["drawSprite(map.tiles[index], x, y)"]
+    end
 ```
 
 Animation integration cost:
@@ -184,6 +182,7 @@ N + 9 bytes
 ```
 
 **Validación:**
+
 - Compile-time: `static_assert(MAX_TILESET_SIZE >= 64)`
 - Runtime (debug): Verifica `tileCount <= MAX_TILESET_SIZE`
 
@@ -318,39 +317,14 @@ The animation repeats.
 
 # Rendering Pipeline
 
-## Without Animation
+```mermaid
+flowchart TB
+    A["Tilemap index"] --> B{"Animation enabled?"}
 
-```
-Tilemap index
-      │
-      ▼
-Tileset lookup
-      │
-      ▼
-Renderer
-      │
-      ▼
-Display
-```
+    B -- No --> C["Tileset lookup"]
+    B -- Yes --> D["resolveFrame()"] --> C
 
----
-
-## With Animation
-
-```
-Tilemap index
-      │
-      ▼
-AnimationManager.resolveFrame()
-      │
-      ▼
-Tileset lookup
-      │
-      ▼
-Renderer
-      │
-      ▼
-Display
+    C --> E["Renderer"] --> F["Display"]
 ```
 
 ---
@@ -499,7 +473,7 @@ optimized for ESP32-class hardware
 
 ### Framebuffer Optimization (v1.2.2+)
 
-For additional rendering optimizations, see [ARCHITECTURE.md](../ARCHITECTURE.md):
+For additional rendering optimizations, see [Architecture Index](./architecture-index.md):
 
 - **`shouldRedrawFramebuffer()`**: Scene method that conditionally skips `draw()` and `present()` calls when visual state hasn't changed, reducing unnecessary rendering.
 - **`getVisualSignature()`**: Visual signature computation to efficiently detect framebuffer changes and avoid redundant redraws.

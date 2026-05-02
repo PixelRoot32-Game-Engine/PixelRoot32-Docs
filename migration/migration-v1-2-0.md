@@ -281,4 +281,4 @@ After migration, verify:
 ## References
 
 - [Physics System Reference](../architecture/physics-subsystem.md)
-- [API Reference](API_REFERENCE.md)
+- [API Reference](../api/physics.md)

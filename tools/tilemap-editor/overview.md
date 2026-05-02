@@ -79,5 +79,5 @@ For detailed walkthrough, see the [Quick Start Guide](/tools/tilemap-editor/quic
 ## See also
 
 - [Tools overview](/tools/)
-- [Tilemaps](/guide/tilemaps)
+- [Graphics Techniques](/guide/graphics-techniques.md)
 - [Tile animation](../../architecture/tile-animation.md)

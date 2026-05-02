@@ -735,7 +735,7 @@ private:
 - **Audio facade & music transport:** `include/audio/AudioEngine.h` (`isMusicPlaying`, `isMusicPaused`, `setMasterBitcrush`, …)
 - **Engine config & post-mix:** `include/audio/AudioConfig.h`
 - **Shared synthesis, voice pool & sequencer:** `include/audio/ApuCore.h` (`MAX_VOICES`, `NUM_CHANNELS` alias)
-- **API reference (sweep, bitcrush, SINE/SAW, hooks):** [API_AUDIO.md](api/API_AUDIO.md)
+- **API reference (sweep, bitcrush, SINE/SAW, hooks):** [API Audio](../api/audio.md)
 - **Examples:** See game samples under `examples/` for real-world usage.
 
 ---
