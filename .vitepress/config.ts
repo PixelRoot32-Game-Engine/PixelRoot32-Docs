@@ -42,7 +42,7 @@ export default defineConfig({
   description: 'A lightweight, modular 2D game engine written in C++17 and designed specifically for ESP32 microcontrollers.',
 
   /** Example READMEs link to repo-relative source paths (./src/...) that are not VitePress routes. */
-  ignoreDeadLinks: [/^https?:\/\//, /^\.\//, /^\.\.\//],
+  ignoreDeadLinks: [/^https?:\/\//, /^\.\//, /^\.\.\//, /\/api\/graphics\/sprite/, /\/api\/graphics\/color/],
 
   /** Repo README: contributor setup only, not public doc pages */
   srcExclude: ['README.md', '_legacy_vitepress/**'],

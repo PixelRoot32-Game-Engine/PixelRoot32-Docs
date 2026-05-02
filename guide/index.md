@@ -45,7 +45,7 @@ User guides and how-to documentation for PixelRoot32 Game Engine.
 ## Tools & samples
 
 - [Tools (sprite compiler, tilemap editor docs)](../tools/index.md) - Workflow documentation shipped with the engine
-- [Example projects catalog](/examples/demos) - PlatformIO samples under `examples/`
+- [Example projects catalog](../../examples/README.md) - PlatformIO samples under `examples/`
 
 ## Navigation
 

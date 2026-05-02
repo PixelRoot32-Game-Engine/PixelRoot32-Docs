@@ -1,6 +1,6 @@
 # Entities & scene tutorial
 
-> **Not an `examples/` project** — This page is a **didactic walkthrough** (bouncing entities, `Entity` subclass, scene wiring). There is **no** matching folder under [`examples/`](/examples/demos) with this code. For a **real, minimal** PlatformIO project, start with [`hello_world`](/examples/hello-world) and its README.
+> **Not an `examples/` project** — This page is a **didactic walkthrough** (bouncing entities, `Entity` subclass, scene wiring). There is **no** matching folder under [`examples/`](../../examples/README.md) with this code. For a **real, minimal** PlatformIO project, start with [`hello_world`](../../examples/hello_world/) and its README.
 
 The snippets below illustrate fundamentals: scene lifecycle, custom **`Entity`** subclasses, input, and drawing — useful once you have already opened **`hello_world`** in the repo.
 
@@ -348,7 +348,7 @@ void onUnconsumedTouchEvent(const input::TouchEvent& event) override {
 
 ## Next Steps
 
-- **[Samples index](/examples/demos)** — Real folders under `examples/`
-- **[Physics (`physics`)](/examples/physics-demo)** — Collision and actors
-- **[Sprites (`sprites`)](/examples/sprite-animation)** — Sprite graphics
-- **Audio** — See [`snake`](/examples/snake), [`tic_tac_toe`](/examples/tic-tac-toe), [`music_demo`](/examples/music-demo)
+- **[Samples index](../../examples/README.md)** — Real folders under `examples/`
+- **[Physics (`physics`)](../../examples/physics/README.md)** — Collision and actors
+- **[Sprites (`sprites`)](../../examples/sprites/README.md)** — Sprite graphics
+- **Audio** — See [`snake`](../../examples/snake/README.md), [`tic_tac_toe`](../../examples/tic_tac_toe/README.md), [`music_demo`](../../examples/music_demo/README.md)

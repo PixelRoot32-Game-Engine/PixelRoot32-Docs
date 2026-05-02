@@ -31,7 +31,7 @@ PixelRoot32 follows a **scene-based architecture inspired by Godot Engine**, mak
 
 ```ini
 lib_deps =
-    gperez88/PixelRoot32-Game-Engine@^latest
+    gperez88/PixelRoot32-Game-Engine@^1.2.1
 ```
 
 ### Option 2: Clone the repository
@@ -43,7 +43,7 @@ cd PixelRoot32-Game-Engine
 
 ### Open an example
 
-Each example is a self-contained PlatformIO project under [`examples/`](/examples/demos).
+Each example is a self-contained PlatformIO project under [`examples/`](../../examples/README.md).
 
 ```bash
 cd examples/hello_world
@@ -133,4 +133,4 @@ See [Coding style](./coding-style.md) and [Memory system](../architecture/memory
 - [Game loop](./game-loop.md)
 - [Entities tutorial](./entities-scene-tutorial.md) — didactic `Entity` patterns
 - [API index](../api/index.md)
-- [Changelog](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/blob/main/CHANGELOG.md)
+- [Changelog](../../CHANGELOG.md)

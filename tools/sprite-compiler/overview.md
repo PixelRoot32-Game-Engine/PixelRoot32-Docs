@@ -184,5 +184,5 @@ platformio run
 
 - [Rendering](/guide/rendering) — using graphics in-game
 - [Sprites example](/examples/sprite-animation) — engine sample project
-- [Sprite (API)](/api/graphics)
+- [Sprite (API)](/api/graphics/sprite)
 - [Tools overview](/tools/)
