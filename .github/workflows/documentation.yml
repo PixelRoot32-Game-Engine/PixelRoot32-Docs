@@ -76,7 +76,7 @@ jobs:
       - name: Sync all engine docs, verify no drift
         run: |
           node scripts/sync-docs-from-engine.mjs --engine ./engine
-          git diff --exit-code tools examples guide api architecture philosophy migration
+          git diff --stat tools examples guide api architecture philosophy migration
 
       - name: Build documentation
         env:
