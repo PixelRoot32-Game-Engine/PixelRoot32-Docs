@@ -1,8 +1,6 @@
 # Entities & scene tutorial
 
-::: danger Not an `examples/` project
-This page is a **didactic walkthrough** (bouncing entities, `Entity` subclass, scene wiring). There is **no** matching folder under [`examples/`](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples) with this code. For a **real, minimal** PlatformIO project, start with **[`hello_world`](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/hello_world)** and the [Hello World doc](./hello-world).
-:::
+> **Not an `examples/` project** — This page is a **didactic walkthrough** (bouncing entities, `Entity` subclass, scene wiring). There is **no** matching folder under [`examples/`](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples) with this code. For a **real, minimal** PlatformIO project, start with [`hello_world`](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/hello_world) and its README.
 
 The snippets below illustrate fundamentals: scene lifecycle, custom **`Entity`** subclasses, input, and drawing — useful once you have already opened **`hello_world`** in the repo.
 
@@ -350,7 +348,7 @@ void onUnconsumedTouchEvent(const input::TouchEvent& event) override {
 
 ## Next Steps
 
-- **[Samples index](./demos)** — Real folders under `examples/`
-- **[Physics (`physics`)](./physics-demo)** — Collision and actors
-- **[Sprites (`sprites`)](./sprite-animation)** — Sprite graphics
-- **[Audio (`snake`, `tic_tac_toe`)](./audio-playback)** — `AudioEngine` events vs `MusicPlayer` melody
+- **[Samples index](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples)** — Real folders under `examples/`
+- **[Physics (`physics`)](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/physics)** — Collision and actors
+- **[Sprites (`sprites`)](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/sprites)** — Sprite graphics
+- **Audio** — See [`snake`](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/snake), [`tic_tac_toe`](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/tic_tac_toe), [`music_demo`](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/music_demo)

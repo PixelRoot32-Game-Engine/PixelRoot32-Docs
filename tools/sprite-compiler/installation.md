@@ -24,7 +24,7 @@ If Python is missing, install it from [python.org](https://www.python.org/).
 
 ## Installation methods
 
-### Method 1: From source (recommended)
+### Method 1: From source
 
 Run the tool from a clone of the repository; the CLI entry point is **`python main.py`**.
 
@@ -51,7 +51,7 @@ Work from this directory (or call `python` with the full path to `main.py`) when
 
 ### Method 2: Pre-built binaries (no Python)
 
-The **[Releases](ttps://github.com/PixelRoot32-Game-Engine/PixelRoot32-Sprite-Sheet-Compiler/releases)** page may ship standalone builds so you do **not** need to install Python. Exact file names change per release; pick the asset for your OS.
+The **[Releases](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Sprite-Sheet-Compiler/releases)** page may ship standalone builds so you do **not** need to install Python. Exact file names change per release; pick the asset for your OS.
 
 #### Windows
 

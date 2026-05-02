@@ -21,6 +21,26 @@ flowchart LR
 
 Each phase has specific responsibilities and timing constraints.
 
+### Simplified per-frame sequence
+
+```mermaid
+sequenceDiagram
+    participant Engine
+    participant Input
+    participant Scene
+    participant Physics
+    participant Renderer
+
+    loop Every Frame
+        Engine->>Input: Poll buttons/touch
+        Engine->>Scene: update(deltaTime)
+        Scene->>Physics: Process collisions
+        Engine->>Scene: draw(renderer)
+        Scene->>Renderer: Render entities
+        Engine->>Renderer: endFrame() / present()
+    end
+```
+
 ## Phase Breakdown
 
 ### 1. Input Phase
@@ -64,17 +84,15 @@ The update phase runs game logic:
 - **Game state**: Score tracking, timer updates
 - **Movement preparation**: Calculate desired velocity
 
-::: warning Frame Rate Independence
-Always use `deltaTime` for time-based calculations:
-
-```cpp
-// Bad: Frame-rate dependent
-position.x += 5;  // Moves 5px/frame (300px/s at 60fps, 150px/s at 30fps)
-
-// Good: Frame-rate independent  
-position.x += speed * deltaTime / 1000.0f;  // Consistent speed in px/sec
-```
-:::
+> **Frame rate independence** — Always use `deltaTime` for time-based calculations:
+>
+> ```cpp
+> // Bad: Frame-rate dependent
+> position.x += 5;  // Moves 5px/frame (300px/s at 60fps, 150px/s at 30fps)
+>
+> // Good: Frame-rate independent  
+> position.x += speed * deltaTime / 1000.0f;  // Consistent speed in px/sec
+> ```
 
 ### 3. Physics Phase
 
@@ -332,6 +350,6 @@ This displays:
 
 ## Next Steps
 
-- **[Scenes](/guide/scenes)** — Scene management and transitions
-- **[Rendering](/guide/rendering)** — Understanding the graphics pipeline
-- **[Physics](/guide/physics)** — Collision and movement systems
+- [Layer 4 — Scene](../architecture/layer-scene.md) — Scene management and entity hierarchy
+- [Layer 3 — Systems](../architecture/layer-systems.md) — Renderer, physics, UI
+- [Physics subsystem](../architecture/physics-subsystem.md) — Collision and movement

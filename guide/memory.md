@@ -1,8 +1,8 @@
-# Memory Management
+# Memory
 
-PixelRoot32 is designed for memory-constrained embedded systems. Understanding the memory model is crucial for building stable, performant games.
+PixelRoot32 is designed for memory-constrained embedded systems. This page is the **single developer guide** for pools, heaps, and zero-allocation rules in gameplay. For the full **architecture** treatment (arenas, ownership, IRAM/PSRAM policy), see [Memory system](../architecture/memory-system.md).
 
-## Memory Model Overview
+## Memory model overview
 
 ```mermaid
 flowchart TB
@@ -397,5 +397,5 @@ log("Stack free: %d words", watermark);
 
 ## Next Steps
 
-- **[Platform Configuration](/guide/platform-config)** — Build flags and optimization
-- **[Resolution scaling](/guide/resolution-scaling)** — Logical vs physical framebuffer trade-offs
+- **[Platform Compatibility](./platform-compatibility.md)** — Build flags and optimization
+- **[Performance Guide](./performance/esp32-performance.md)** — Logical vs physical framebuffer trade-offs

@@ -277,7 +277,7 @@ build_flags =
 
 ## Next Steps
 
-- **[Game Loop](/guide/game-loop)** — Deep dive into the update/render cycle
-- **[Scenes](/guide/scenes)** — Scene management and transitions
-- **[Entities & Actors](/guide/entities-actors)** — Creating game objects
-- **[Architecture Overview](/architecture/overview)** — Engine design patterns
+- **[Game Loop](./game-loop.md)** — Deep dive into the update/render cycle
+- **[Scenes](./scenes.md)** — Scene management and transitions
+- **[Entities & Actors](./entities-actors.md)** — Creating game objects
+- **[Architecture Index](../architecture/architecture-index.md)** — Engine design patterns

@@ -1,11 +1,64 @@
-# Brick Breaker (`brick_breaker`)
+# Brick Breaker Example
 
-Sample project: **[`examples/brick_breaker/`](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/brick_breaker)** — classic Breakout: paddle, ball physics, destructible brick grid, particles, and **`AudioEngine`** + **`MusicPlayer`**.
+Classic **Breakout** arcade game: paddle with ball physics, destructible brick grid, particle effects on destruction, multiple lives, progressive levels, and **procedural audio** through the engine **`AudioEngine`** and **`MusicPlayer`**.
 
-Environments: `native`, `esp32dev`.
+## Requirements (build flags)
 
-Authoritative details: [`examples/brick_breaker/README.md`](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/blob/main/examples/brick_breaker/README.md).
+- **`PIXELROOT32_ENABLE_AUDIO=1`** — set in [`lib/platformio.ini`](lib/platformio.ini) `base` template so all environments inherit it.
+- **`PIXELROOT32_ENABLE_PHYSICS=1`** — required for ball collision detection.
+- **`PIXELROOT32_ENABLE_PARTICLES=1`** — required for brick destruction effects.
+- **`PIXELROOT32_ENABLE_UI_SYSTEM=1`** — required for score/lives display.
 
-- API: [AudioEngine](/api/audio/audio-engine), [Physics](/api/physics/collision-system), [Particles](/api/modules/configuration)
+Display size is **240×240** in the project `platformio.ini` (see **`PHYSICAL_DISPLAY_*`**).
 
-See the [samples index](./demos).
+## Platforms
+
+| Environment | Display | Audio backend |
+|-------------|---------|---------------|
+| **`native`** | SDL2, 240×240 | **`SDL2_AudioBackend`** in [`src/platforms/native.h`](src/platforms/native.h) |
+| **`esp32dev`** | **ST7789** 240×240 | Default: **`ESP32_I2S_AudioBackend`** (comment in `esp32_dev.h` documents optional internal **DAC** backend instead) |
+
+Pin choices for I2S / DAC are in **`src/platforms/esp32_dev.h`** (edit there if your wiring differs).
+
+## Controls
+
+- **Arrow keys** (or GPIO D-pad mapped in your platform input config) to move paddle left/right.
+- **Start/Enter** to launch ball (from attached position) and start game.
+- **Start/Enter** to restart after game over.
+
+## How audio is triggered
+
+- **SFX**: [`GameConstants.h`](src/GameConstants.h) defines `sfx::` namespace with `AudioEvent` values (paddle hit, wall hit, brick hit, life lost, start game) using pulse wave tones.
+- **BGM**: [`BrickBreakerScene.cpp`](src/BrickBreakerScene.cpp) sets up an Atari-style 4-note melody loop using **`MusicPlayer`** with triangle wave.
+
+## Features
+
+- **Scene** with pooled **`PaddleActor`**, **`BallActor`**, **`BrickActor`**
+- **Ball attaches to paddle** until player launches (Breakout-style)
+- **3 lives** system with visual indicators
+- **Progressive levels** — more rows and HP per brick as level increases
+- **Particle effects** via `ParticleEmitter` (explosion preset)
+- **Audio** — SFX synthesis + BGM loop via `MusicPlayer`
+- **Score** system displayed on screen
+
+## Documentation links
+
+- [Audio API](/api/audio)
+- [Core API](/api/core)
+- [Input API](/api/input)
+- [Particles API](/api/graphics#particle-system)
+
+## Build
+
+From **`examples/brick_breaker`**:
+
+```bash
+pio run -e native
+pio run -e esp32dev
+```
+
+## Upload (ESP32)
+
+```bash
+pio run -e esp32dev --target upload
+```

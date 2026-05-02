@@ -1,4 +1,5 @@
 import { defineConfig } from 'vitepress'
+import { buildApiGeneratedSidebarItems } from './buildApiGeneratedSidebar'
 
 /** Deploy base: `/` locally; CI sets VITEPRESS_BASE (e.g. `/RepoName/` for GitHub project pages). */
 function siteBase(): string {
@@ -40,8 +41,11 @@ export default defineConfig({
   title: 'PixelRoot32 Doc',
   description: 'A lightweight, modular 2D game engine written in C++17 and designed specifically for ESP32 microcontrollers.',
 
+  /** Example READMEs link to repo-relative source paths (./src/...) that are not VitePress routes. */
+  ignoreDeadLinks: [/^https?:\/\//, /^\.\//, /^\.\.\//, /\/api\/graphics\/sprite/, /\/api\/graphics\/color/],
+
   /** Repo README: contributor setup only, not public doc pages */
-  srcExclude: ['README.md'],
+  srcExclude: ['README.md', '_legacy_vitepress/**'],
 
   head: [
     ['link', { rel: 'icon', href: assetUrl('favicon.ico') }],
@@ -60,27 +64,30 @@ export default defineConfig({
 
   themeConfig: {
     logo: assetUrl('logo.png'),
-    
+
     nav: [
       { text: 'Guide', link: '/' },
-      { text: 'Tools', link: '/tools/' },
-      { text: 'Architecture', link: '/architecture/overview' },
+      { text: 'Architecture', link: '/architecture/' },
       { text: 'API', link: '/api/' },
-      { text: 'Examples', link: '/examples/demos' }
+      { text: 'Migration', link: '/migration/' },
+      { text: 'Philosophy', link: '/philosophy/' },
+      { text: 'Tools', link: '/tools/' },
+      { text: 'Examples', link: '/examples/demos' },
     ],
 
     sidebar: {
       '/': [
+        { text: 'Guide home', link: '/guide/' },
         {
           text: 'Introduction',
           items: [
             { text: 'Getting Started', link: '/' },
             { text: 'Core Concepts', link: '/guide/core-concepts' },
             { text: 'Game Loop', link: '/guide/game-loop' },
-          ]
+          ],
         },
         {
-          text: 'Systems',
+          text: 'Game systems',
           items: [
             { text: 'Scenes', link: '/guide/scenes' },
             { text: 'Entities & Actors', link: '/guide/entities-actors' },
@@ -89,47 +96,48 @@ export default defineConfig({
             { text: 'Physics', link: '/guide/physics' },
             { text: 'Audio', link: '/guide/audio' },
             { text: 'UI System', link: '/guide/ui-system' },
-          ]
+          ],
         },
         {
           text: 'Advanced',
           items: [
-            { text: 'Memory Management', link: '/guide/memory' },
-            { text: 'Resolution Scaling', link: '/guide/resolution-scaling' },
-            { text: 'Tilemaps', link: '/guide/tilemaps' },
-            { text: 'Multi-Palette', link: '/guide/multi-palette' },
-            { text: 'Platform Configuration', link: '/guide/platform-config' },
-          ]
+            { text: 'Memory', link: '/guide/memory' },
+            { text: 'ESP32 Performance', link: '/guide/performance/esp32-performance' },
+            { text: 'Graphics Techniques', link: '/guide/graphics-techniques' },
+          ],
         },
         {
-          text: 'Migrations',
-          items: [
-            { text: 'Overview', link: '/guide/migrations/overview' },
-            { text: 'v1.0.0', link: '/guide/migrations/v1.0.0' },
-            { text: 'v1.1.0', link: '/guide/migrations/v1.1.0' },
-            { text: 'v1.2.0', link: '/guide/migrations/v1.2.0' },
-          ]
-        },
-        {
-          text: 'Contributing & tooling',
+          text: 'Contributing & quality',
           items: [
             { text: 'Testing', link: '/guide/testing' },
-            { text: 'Extending the engine', link: '/guide/extending' },
-            { text: 'Music player', link: '/guide/music-player' },
-          ]
-        }
+            { text: 'Extending (drivers & hooks)', link: '/guide/extending-pixelroot32' },
+            { text: 'Gameplay guidelines', link: '/guide/gameplay-guidelines' },
+            { text: 'Entities tutorial', link: '/guide/entities-scene-tutorial' },
+            { text: 'Music player', link: '/guide/music-player-guide' },
+          ],
+        },
+        {
+          text: 'Standards & compatibility',
+          items: [
+            { text: 'Coding style', link: '/guide/coding-style' },
+            { text: 'Graphics guidelines', link: '/guide/graphics-guidelines' },
+            { text: 'UI guidelines', link: '/guide/ui-guidelines' },
+            { text: 'Platform compatibility', link: '/guide/platform-compatibility' },
+          ],
+        },
       ],
       '/guide/': [
+        { text: 'Guide home', link: '/guide/' },
         {
           text: 'Introduction',
           items: [
             { text: 'Getting Started', link: '/' },
             { text: 'Core Concepts', link: '/guide/core-concepts' },
             { text: 'Game Loop', link: '/guide/game-loop' },
-          ]
+          ],
         },
         {
-          text: 'Systems',
+          text: 'Game systems',
           items: [
             { text: 'Scenes', link: '/guide/scenes' },
             { text: 'Entities & Actors', link: '/guide/entities-actors' },
@@ -138,35 +146,35 @@ export default defineConfig({
             { text: 'Physics', link: '/guide/physics' },
             { text: 'Audio', link: '/guide/audio' },
             { text: 'UI System', link: '/guide/ui-system' },
-          ]
+          ],
         },
         {
           text: 'Advanced',
           items: [
-            { text: 'Memory Management', link: '/guide/memory' },
-            { text: 'Resolution Scaling', link: '/guide/resolution-scaling' },
-            { text: 'Tilemaps', link: '/guide/tilemaps' },
-            { text: 'Multi-Palette', link: '/guide/multi-palette' },
-            { text: 'Platform Configuration', link: '/guide/platform-config' },
-          ]
+            { text: 'Memory', link: '/guide/memory' },
+            { text: 'ESP32 Performance', link: '/guide/performance/esp32-performance' },
+            { text: 'Graphics Techniques', link: '/guide/graphics-techniques' },
+          ],
         },
         {
-          text: 'Migrations',
-          items: [
-            { text: 'Overview', link: '/guide/migrations/overview' },
-            { text: 'v1.0.0', link: '/guide/migrations/v1.0.0' },
-            { text: 'v1.1.0', link: '/guide/migrations/v1.1.0' },
-            { text: 'v1.2.0', link: '/guide/migrations/v1.2.0' },
-          ]
-        },
-        {
-          text: 'Contributing & tooling',
+          text: 'Contributing & quality',
           items: [
             { text: 'Testing', link: '/guide/testing' },
-            { text: 'Extending the engine', link: '/guide/extending' },
-            { text: 'Music player', link: '/guide/music-player' },
-          ]
-        }
+            { text: 'Extending (drivers & hooks)', link: '/guide/extending-pixelroot32' },
+            { text: 'Gameplay guidelines', link: '/guide/gameplay-guidelines' },
+            { text: 'Entities tutorial', link: '/guide/entities-scene-tutorial' },
+            { text: 'Music player', link: '/guide/music-player-guide' },
+          ],
+        },
+        {
+          text: 'Standards & compatibility',
+          items: [
+            { text: 'Coding style', link: '/guide/coding-style' },
+            { text: 'Graphics guidelines', link: '/guide/graphics-guidelines' },
+            { text: 'UI guidelines', link: '/guide/ui-guidelines' },
+            { text: 'Platform compatibility', link: '/guide/platform-compatibility' },
+          ],
+        },
       ],
       '/tools/': [
         {
@@ -188,8 +196,11 @@ export default defineConfig({
               collapsed: true,
               items: [
                 { text: 'Overview', link: '/tools/tilemap-editor/overview' },
+                { text: 'Quick start', link: '/tools/tilemap-editor/quick-start' },
                 { text: 'Installation', link: '/tools/tilemap-editor/installation' },
                 { text: 'Usage guide', link: '/tools/tilemap-editor/usage-guide' },
+                { text: 'Advanced guide', link: '/tools/tilemap-editor/advanced-guide' },
+                { text: 'Technical reference', link: '/tools/tilemap-editor/technical-reference' },
               ]
             },
           ]
@@ -199,121 +210,95 @@ export default defineConfig({
         {
           text: 'Architecture',
           items: [
-            { text: 'Overview', link: '/architecture/overview' },
-            { text: 'Layer Hierarchy', link: '/architecture/layers' },
-            { text: 'Modules', link: '/architecture/modules' },
-            { text: 'Design Patterns', link: '/architecture/patterns' },
-          ]
+            { text: 'Overview', link: '/architecture/' },
+          ],
+        },
+        {
+          text: 'Layers',
+          items: [
+            { text: 'Layer 0 — Hardware', link: '/architecture/layer-hardware' },
+            { text: 'Layer 1 — Drivers', link: '/architecture/layer-drivers' },
+            { text: 'Layer 2 — Abstraction', link: '/architecture/layer-abstraction' },
+            { text: 'Layer 3 — Systems', link: '/architecture/layer-systems' },
+            { text: 'Layer 4 — Scene', link: '/architecture/layer-scene' },
+          ],
         },
         {
           text: 'Subsystems',
           items: [
-            { text: 'Rendering Pipeline', link: '/architecture/rendering-pipeline' },
-            { text: 'Physics System', link: '/architecture/physics-system' },
-            { text: 'Audio Architecture', link: '/architecture/audio-architecture' },
-            { text: 'Memory System', link: '/architecture/memory-system' },
-          ]
+            { text: 'Audio subsystem', link: '/architecture/audio-subsystem' },
+            { text: 'Physics subsystem', link: '/architecture/physics-subsystem' },
+            { text: 'Memory system', link: '/architecture/memory-system' },
+            { text: 'Resolution scaling', link: '/architecture/resolution-scaling' },
+            { text: 'Tile animation', link: '/architecture/tile-animation' },
+            { text: 'Touch input', link: '/architecture/touch-input' },
+          ],
         },
-        {
-          text: 'Deep dives',
-          items: [
-            { text: 'Touch input', link: '/architecture/ARCH_TOUCH_INPUT' },
-            { text: 'Resolution scaling', link: '/architecture/ARCH_RESOLUTION_SCALING' },
-            { text: 'Tile animation', link: '/architecture/ARCH_TILE_ANIMATION' },
-          ]
-        }
       ],
       '/api/': [
         {
           text: 'Overview',
-          items: [{ text: 'API home', link: '/api/' }]
+          items: [{ text: 'Overview', link: '/api/' }],
         },
         {
-          text: 'Core',
+          text: 'Modules',
           items: [
-            { text: 'Engine', link: '/api/core/engine' },
-            { text: 'Scene', link: '/api/core/scene' },
-            { text: 'Entity', link: '/api/core/entity' },
-            { text: 'Actor', link: '/api/core/actor' },
-            { text: 'SceneManager', link: '/api/core/scene-manager' },
-          ]
+            { text: 'Configuration', link: '/api/config' },
+            { text: 'Math', link: '/api/math' },
+            { text: 'Core', link: '/api/core' },
+            { text: 'Physics', link: '/api/physics' },
+            { text: 'Graphics', link: '/api/graphics' },
+            { text: 'UI', link: '/api/ui' },
+            { text: 'Audio', link: '/api/audio' },
+            { text: 'Input', link: '/api/input' },
+            { text: 'Platform', link: '/api/platform' },
+          ],
         },
         {
-          text: 'Graphics',
-          items: [
-            { text: 'Renderer', link: '/api/graphics/renderer' },
-            { text: 'DrawSurface', link: '/api/graphics/draw-surface' },
-            { text: 'Sprite', link: '/api/graphics/sprite' },
-            { text: 'TileMap', link: '/api/graphics/tilemap' },
-            { text: 'Color', link: '/api/graphics/color' },
-            { text: 'Font', link: '/api/graphics/font' },
-          ]
+          text: 'Reference (Auto)',
+          items: buildApiGeneratedSidebarItems(),
         },
+      ],
+      '/philosophy/': [
         {
-          text: 'Physics',
+          text: 'Philosophy',
           items: [
-            { text: 'CollisionSystem', link: '/api/physics/collision-system' },
-            { text: 'KinematicActor', link: '/api/physics/kinematic-actor' },
-            { text: 'RigidActor', link: '/api/physics/rigid-actor' },
-            { text: 'StaticActor', link: '/api/physics/static-actor' },
-            { text: 'SensorActor', link: '/api/physics/sensor-actor' },
-          ]
+            { text: 'Overview', link: '/philosophy/' },
+            { text: 'Engine philosophy', link: '/philosophy/engine-philosophy' },
+          ],
         },
+      ],
+      '/migration/': [
         {
-          text: 'Audio',
+          text: 'Migration',
           items: [
-            { text: 'AudioEngine', link: '/api/audio/audio-engine' },
-            { text: 'MusicPlayer', link: '/api/audio/music-player' },
-            { text: 'AudioScheduler', link: '/api/audio/audio-scheduler' },
-          ]
+            { text: 'Overview', link: '/migration/' },
+            { text: 'v1.0.0', link: '/migration/migration-v1-0-0' },
+            { text: 'v1.1.0', link: '/migration/migration-v1-1-0' },
+            { text: 'v1.2.0', link: '/migration/migration-v1-2-0' },
+          ],
         },
-        {
-          text: 'Input',
-          items: [
-            { text: 'InputManager', link: '/api/input/input-manager' },
-            { text: 'Touch System', link: '/api/input/touch-system' },
-          ]
-        },
-        {
-          text: 'Math',
-          items: [
-            { text: 'Scalar', link: '/api/math/scalar' },
-            { text: 'Vector2', link: '/api/math/vector2' },
-            { text: 'Rect', link: '/api/math/rect' },
-          ]
-        },
-        {
-          text: 'Platform',
-          items: [
-            { text: 'EngineConfig', link: '/api/platform/engine-config' },
-            { text: 'PlatformCapabilities', link: '/api/platform/platform-capabilities' },
-            { text: 'PlatformMemory', link: '/api/platform/platform-memory' },
-          ]
-        },
-        {
-          text: 'Module docs',
-          items: [
-            { text: 'Configuration flags', link: '/api/modules/configuration' },
-            { text: 'UI module', link: '/api/modules/ui' },
-          ]
-        }
       ],
       '/examples/': [
         {
           text: 'Examples',
           items: [
-            { text: 'Samples index (repo catalogue)', link: '/examples/demos' },
+            { text: 'Samples (repo catalogue)', link: '/examples/demos' },
             { text: 'Hello World', link: '/examples/hello-world' },
             { text: 'Camera', link: '/examples/camera' },
             { text: 'Dual Palette', link: '/examples/dual-palette' },
             { text: 'Sprites', link: '/examples/sprite-animation' },
             { text: 'Snake', link: '/examples/snake' },
+            { text: 'Brick Breaker', link: '/examples/brick-breaker' },
+            { text: 'Space Invaders', link: '/examples/space-invaders' },
             { text: 'Physics', link: '/examples/physics-demo' },
             { text: 'Metroidvania', link: '/examples/metroidvania' },
             { text: 'Animated Tilemap', link: '/examples/animated-tilemap' },
             { text: 'Tilemaps (overview)', link: '/examples/tilemap-scene' },
-            { text: 'Tic Tac Toe', link: '/examples/ui-layout' },
+            { text: 'Tic Tac Toe', link: '/examples/tic-tac-toe' },
+            { text: 'UI layout (Tic Tac Toe)', link: '/examples/ui-layout' },
             { text: 'Flappy Bird', link: '/examples/flappy-bird' },
+            { text: 'Music demo (audio)', link: '/examples/music-demo' },
             { text: 'Audio (Snake + Tic Tac Toe)', link: '/examples/audio-playback' },
             { text: 'Entities tutorial (not in repo)', link: '/examples/basic-usage' },
           ]

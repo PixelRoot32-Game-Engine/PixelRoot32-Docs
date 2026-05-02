@@ -1,6 +1,6 @@
 # --- Project (PixelRoot32-Docs) ---
 # Local scripts not versioned
-scripts/
+# scripts/  # (disabled for CI sync script)
 
 # Drafts / auxiliary files with prefix _
 _*

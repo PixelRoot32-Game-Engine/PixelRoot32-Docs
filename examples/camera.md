@@ -1,12 +1,54 @@
-# Camera (`camera`)
+# Camera Demo Example
 
-Sample project: **[`examples/camera/`](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/camera)** — **`Camera2D`**, parallax, tile platforms, **`KinematicActor`**.
+Side-scrolling platformer-style demo that showcases **`Camera2D`** (smoothing and horizontal bounds), **parallax background layers**, and **`KinematicActor`** movement with tile-based ground and one-way platforms (`StaticActor`, collision layers). The world is wider than the screen so the camera follows the player.
 
-Environments: `native`, `esp32dev`.
+## Requirements (build flags)
 
-Authoritative details: [`examples/camera/README.md`](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/blob/main/examples/camera/README.md).
+- **`PIXELROOT32_ENABLE_SCENE_ARENA`**
 
-- Guides: [Rendering](/guide/rendering) (camera usage is exercised in this sample’s sources)
-- API: [Renderer](/api/graphics/renderer), [KinematicActor](/api/physics/kinematic-actor)
+Additional engine features (physics actors, tilemaps) follow defaults from [`PlatformDefaults.h`](../../include/platforms/PlatformDefaults.h). See **`platformio.ini`** in this folder for `native` and **`esp32dev`** presets.
 
-See the [samples index](./demos).
+The scene expects **`extern pixelroot32::core::Engine engine`** (see `src/platforms/native.h` / `esp32_dev.h` and `main.cpp`).
+
+## Platforms
+
+| Environment | Notes |
+|-------------|--------|
+| **`native`** | SDL2 window, 240×240 logical size (paths to SDL on Windows may need adjustment in `platformio.ini`). |
+| **`esp32dev`** | **ST7789** TFT 240×240, TFT_eSPI-style pin defines in `platformio.ini`. |
+
+The engine version or Git branch is set in **`lib_deps`** in `platformio.ini`.
+
+## Controls
+
+- **Left / Right** — move (buttons **2** and **3** in `InputManager` order).
+- **Jump** — button **4** (edge-triggered after release so hold does not spam jump).
+
+## Features
+
+- **`Camera2D`**: follow target, bounds, locked vertical scroll in this demo
+- **Parallax** layers (`GameLayers`) + tilemap strip for ground/platforms
+- **`KinematicActor`** player cube (`PlayerCube`), gravity and one-way platform collision masks
+- **Scene arena** for stable entity storage
+
+## Documentation links
+
+- [Graphics — Camera2D](/api/graphics#camera2d)
+- [Core — Scene / entities](/api/core)
+- [Physics — kinematic & static actors](/api/physics)
+- [Architecture](/architecture/architecture-index.md)
+
+## Build
+
+Run from **`examples/camera`**:
+
+```bash
+pio run -e native
+pio run -e esp32dev
+```
+
+## Upload (ESP32)
+
+```bash
+pio run -e esp32dev --target upload
+```
