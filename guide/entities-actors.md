@@ -544,6 +544,6 @@ stateDiagram-v2
 
 ## Next Steps
 
-- **[Scenes](/guide/scenes)** — How entities live in scenes
-- **[Physics](/guide/physics)** — Deep dive into collision and movement
-- **[Rendering](/guide/rendering)** — Drawing techniques and optimization
+- **[Scenes](./scenes.md)** — How entities live in scenes
+- **[Physics](./physics.md)** — Deep dive into collision and movement
+- **[Rendering](./rendering.md)** — Drawing techniques and optimization

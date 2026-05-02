@@ -425,5 +425,5 @@ checkbox->setStyle(graphics::Color::White, graphics::Color::Black, false);
 
 ## Next steps
 
-- **[Input](/guide/input)** — Touch and button handling
+- **[Input](./input.md)** — Touch and button handling
 - **[Examples/Hello World](/examples/hello-world)** — Sample projects

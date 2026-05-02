@@ -605,6 +605,6 @@ public:
 
 ## Next Steps
 
-- **[Entities & Actors](/guide/entities-actors)** — Actor types reference
-- **[CollisionSystem & tile helpers](/api/physics/collision-system)** — `TileCollisionBuilder`, layers, and static colliders
-- **[Architecture](/architecture/physics-system)** — Physics architecture deep dive
+- **[Entities & Actors](./entities-actors.md)** — Actor types reference
+- **[CollisionSystem & tile helpers](../api/physics.md#collision-system-the-flat-solver)** — `TileCollisionBuilder`, layers, and static colliders
+- **[Architecture](../architecture/physics-subsystem.md)** — Physics architecture deep dive

@@ -458,6 +458,6 @@ void setup() {
 
 ## Next Steps
 
-- **[Entities & Actors](/guide/entities-actors)** — Create game objects that live in scenes
-- **[Game Loop](/guide/game-loop)** — Understand the update/draw cycle
-- **[UI System](/guide/ui-system)** — Add interactive elements to scenes
+- **[Entities & Actors](./entities-actors.md)** — Create game objects that live in scenes
+- **[Game Loop](./game-loop.md)** — Understand the update/draw cycle
+- **[UI System](./ui-system.md)** — Add interactive elements to scenes

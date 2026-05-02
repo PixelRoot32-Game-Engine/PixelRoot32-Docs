@@ -1,8 +1,6 @@
-# Testing Guide - PixelRoot32 Game Engine
+# Testing
 
-**Document Version:** 1.1  
-**Last Updated:** February 2026  
-**Engine Version:** v1.0.0
+Unity-based unit and integration tests, PlatformIO environments (`native_test`), coverage scripts, and CI notes — single guide for the engine test tree.
 
 ## Overview
 

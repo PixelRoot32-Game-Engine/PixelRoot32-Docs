@@ -1,29 +1,54 @@
-# Hello World (`hello_world`)
+# Hello World Example
 
-This page tracks the **`examples/hello_world/`** sample in the engine repository — a **minimal** boot check: `UILabel`, button polling via **`InputManager`**, and a **background color** cycle. Display is **128×128** (see that folder’s `platformio.ini`).
+Minimal PixelRoot32 project: **`UILabel`** text, **button polling** through **`InputManager`**, and a **background color** that cycles every few frames. Intended as the smallest “engine boots → scene draws → input works” check.
 
-::: warning Not the “full UI demo” tutorial
-If you saw a longer walkthrough with `UIButton`, `UIVerticalLayout`, audio, and touch, that was a **composite tutorial** and does **not** match this repo folder. For rich UI patterns see [UI system](/guide/ui-system) and [`tic_tac_toe`](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/tic_tac_toe).
-:::
+## Requirements (build flags)
 
-::: warning ESP32-S3 builds
-If you target **ESP32-S3**, DMA display output can require pinning **Arduino Core 2.0.14** in `platformio.ini` (the sample repo already sets this for S3). If the display freezes after the first frame or you see **`pins_arduino.h` missing** after toolchain changes, see [ESP32-S3 DMA and Arduino Core](/guide/platform-config#esp32-s3-dma-arduino-core) and [Framework cache and pins_arduino.h](/guide/platform-config#framework-cache-pins-arduino).
-:::
+No special `PIXELROOT32_ENABLE_*` flags beyond what **`lib/platformio.ini`** / defaults pull in. Resolution is set with **`PHYSICAL_DISPLAY_WIDTH`**, **`PHYSICAL_DISPLAY_HEIGHT`** (**128×128**) in **`platformio.ini`**.
 
-## Source layout (repository)
+The scene uses **`extern pixelroot32::core::Engine engine`** from your platform file (`src/platforms/native.h` or `esp32_dev.h`) — same pattern as other examples.
 
-- [`src/main.cpp`](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/blob/main/examples/hello_world/src/main.cpp) — includes the platform header (`native` / `esp32_dev`).
-- [`src/HelloWorldScene.h`](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/blob/main/examples/hello_world/src/HelloWorldScene.h) / [`.cpp`](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/blob/main/examples/hello_world/src/HelloWorldScene.cpp) — scene logic and labels.
+## Platforms
 
-Authoritative build flags, pinout, and **`pio run`** commands are in **[`examples/hello_world/README.md`](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/blob/main/examples/hello_world/README.md)** on GitHub.
+| Environment | Display |
+|-------------|---------|
+| **`native`** | SDL2, 128×128 logical size |
+| **`esp32dev`** | **ST7735** 128×128 (GreenTab3 profile), SPI pins in **`platformio.ini`**: MOSI **23**, SCLK **18**, DC **2**, RST **4**, CS **-1** |
+| **`esp32s3`** | **ST7735** 128×128 (GreenTab3 profile), SPI pins in **`platformio.ini`**: MOSI **12**, MISO **14**, SCLK **13**, DC **10**, RST **11**, CS **9** |
 
-## APIs to read next
+> ⚠️ **Note for ESP32-S3**: The `env:esp32s3` uses Arduino Core **2.0.14** as a workaround for DMA freeze issues (see [espressif/arduino-esp32#9618](https://github.com/espressif/arduino-esp32/issues/9618)). This is configured in `platformio.ini` via `platform_packages`.
 
-- [Engine](/api/core/engine), [Scene](/api/core/scene)
-- [Renderer](/api/graphics/renderer), [InputManager](/api/input/input-manager)
-- UI: [UILabel](/api/modules/ui) (via UI module docs)
 
-## See also
 
-- [Samples index](./demos)
-- [Entities tutorial](./basic-usage) — patterns with `Entity` (separate from this folder)
+## Controls
+
+- **D-pad / face buttons** — any press is shown in the second label (`checkButtonPress()` in [`HelloWorldScene.cpp`](src/HelloWorldScene.cpp)).
+- Background advances on a fixed frame interval (`COLOR_CHANGE_INTERVAL`).
+
+## Features
+
+- **`Scene`** lifecycle (`init` / `update` / `draw`)
+- **`UILabel`** and `Renderer` text/color APIs
+- **InputManager** button bitmask
+
+## Documentation links
+
+- [Core API](/api/core)
+- [UI API](/api/ui)
+- [Graphics / Renderer](/api/graphics)
+
+## Build
+
+From **`examples/hello_world`**:
+
+```bash
+pio run -e native
+pio run -e esp32dev
+pio run -e esp32_s3
+```
+
+## Upload (ESP32)
+
+```bash
+pio run -e esp32dev --target upload
+```

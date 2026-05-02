@@ -506,6 +506,5 @@ for (int i = 0; i < 100; ++i) {
 
 ## Next Steps
 
-- **[Resolution Scaling](/guide/resolution-scaling)** — Deep dive into logical/physical resolution
-- **[Tilemaps](/guide/tilemaps)** — Advanced tilemap techniques
-- **[Multi-Palette](/guide/multi-palette)** — Palette management
+- **[Performance Guide](./performance/esp32-performance.md)** — Logical vs physical resolution, hot paths
+- **[Graphics Techniques](./graphics-techniques.md)** — Tilemaps, palettes, indexed color

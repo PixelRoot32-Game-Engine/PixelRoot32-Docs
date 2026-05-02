@@ -2,7 +2,7 @@
 
 PixelRoot32 provides a **NES-like** audio subsystem: **four fixed channels** (two pulse, one triangle, one noise), **mono** 16-bit output, **event-driven** playback (`AudioEvent`), and **sample-accurate** timing decoupled from the game frame rate. There is **no DMC/sample channel** in the current engine.
 
-For implementation details, see the engine source: [`ARCH_AUDIO_SUBSYSTEM.md`](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/blob/main/docs/architecture/ARCH_AUDIO_SUBSYSTEM.md) (authoritative).
+For implementation details, see [Audio subsystem](../architecture/audio-subsystem.md) (authoritative).
 
 ## Architecture Overview
 
@@ -92,7 +92,7 @@ Per-channel volume is set per **`AudioEvent::volume`**; there are no separate `s
 
 ## Music (`MusicPlayer`)
 
-Sequencing is **sample-accurate** and **tick-based** inside **`ApuCore`**. **`MusicPlayer`** only **enqueues** `AudioCommand`s (`MUSIC_PLAY`, tempo/BPM, pause/resume, stop). See **[Music Player API](/api/audio/music-player)** and the long-form **[Music player guide](/guide/music-player)**.
+Sequencing is **sample-accurate** and **tick-based** inside **`ApuCore`**. **`MusicPlayer`** only **enqueues** `AudioCommand`s (`MUSIC_PLAY`, tempo/BPM, pause/resume, stop). See **[Music Player API](../api/audio.md#playing-music)** and the long-form **[Music player guide](./music-player-guide.md)**.
 
 ### Multi-track layout
 
@@ -150,7 +150,7 @@ audioConfig.sampleRate = 22050;
 pr32::core::Engine engine(displayConfig, inputConfig, audioConfig);
 ```
 
-See **[AudioEngine](/api/audio/audio-engine)** for **`AudioConfig`** fields and architecture links.
+See **[AudioEngine](../api/audio.md)** for **`AudioConfig`** fields and architecture links.
 
 ## Platform differences
 
@@ -169,8 +169,8 @@ See **[AudioEngine](/api/audio/audio-engine)** for **`AudioConfig`** fields and 
 
 ## Next steps
 
-- **[Audio architecture](/architecture/audio-architecture)** — Subsystem narrative (kept in sync with the engine; see also engine [`ARCH_AUDIO_SUBSYSTEM.md`](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/blob/main/docs/architecture/ARCH_AUDIO_SUBSYSTEM.md))
-- **[AudioEngine & types](/api/audio/audio-engine)** — Methods, `AudioEvent`, `AudioCommand`, `AudioConfig`, music transport queries
-- **[AudioScheduler](/api/audio/audio-scheduler)** — Schedulers vs **`ApuCore`**
-- **[MusicPlayer](/api/audio/music-player)** — Tracks, presets, tempo/BPM
+- **[Audio architecture](../architecture/audio-subsystem.md)** — Subsystem narrative (kept in sync with the engine)
+- **[AudioEngine & types](../api/audio.md)** — Methods, `AudioEvent`, `AudioCommand`, `AudioConfig`, music transport queries
+- **[AudioScheduler](../api/audio.md#architecture-notes)** — Schedulers vs **`ApuCore`**
+- **[MusicPlayer](../api/audio.md#playing-music)** — Tracks, presets, tempo/BPM
 - **Engine source:** [`ApuCore.h` / `ApuCore.cpp`](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/include/audio) — authoritative implementation

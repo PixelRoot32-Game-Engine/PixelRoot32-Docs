@@ -63,4 +63,4 @@ Packed modes can reduce draw setup when a sprite uses several colors in one arra
 ## See also
 
 - [Rendering](/guide/rendering)
-- [Multi-palette](/guide/multi-palette)
+- [Graphics Techniques](/guide/graphics-techniques.md)

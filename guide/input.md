@@ -259,7 +259,7 @@ int virtualDirFromTouch(const pixelroot32::input::TouchEvent& event,
 
 ### Gestures
 
-Higher-level gestures (swipe, long-press) are usually derived from `TouchEvent` streams in `onUnconsumedTouchEvent` or custom widgets—see [Touch system API](/api/input/touch-system).
+Higher-level gestures (swipe, long-press) are usually derived from `TouchEvent` streams in `onUnconsumedTouchEvent` or custom widgets—see [Touch system API](../api/input.md#touch-input-system).
 
 ### Buffered combos
 
@@ -303,6 +303,6 @@ Wire your scene’s `update` method so it receives `engine.getInputManager()` (o
 
 ## Next steps
 
-- [Touch input architecture](/architecture/ARCH_TOUCH_INPUT)
-- [UI system](/guide/ui-system)
-- [InputManager API](/api/input/input-manager)
+- [Touch input architecture](../architecture/touch-input.md)
+- [UI system](./ui-system.md)
+- [InputManager API](../api/input.md#inputmanager)

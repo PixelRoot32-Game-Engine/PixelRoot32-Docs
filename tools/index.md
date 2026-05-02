@@ -28,8 +28,11 @@ The **Tool Suite** adds advanced editor modules. Licensing and downloads are han
 Coming soon - visual editor for multi-layer tilemaps, tilesets, animations, attributes, and **C++ export** aligned with the engine.
 
 - [Overview](/tools/tilemap-editor/overview)
+- [Quick start](/tools/tilemap-editor/quick-start)
 - [Installation](/tools/tilemap-editor/installation)
 - [Usage guide](/tools/tilemap-editor/usage-guide)
+- [Advanced guide](/tools/tilemap-editor/advanced-guide)
+- [Technical reference](/tools/tilemap-editor/technical-reference)
 
 ### Music Editor (module 2)
 
@@ -45,4 +48,4 @@ Upcoming - tracker-style music authoring for PixelRoot32.
 | Tilemap Editor | Premium (suite) | Coming soon |
 | Music Editor | Premium (suite) | Upcoming |
 
-**Engine docs:** [Tilemaps](/guide/tilemaps) · [Multi-palette](/guide/multi-palette) · [Rendering](/guide/rendering) · [Tile animation (architecture)](/architecture/ARCH_TILE_ANIMATION)
+**Engine docs:** [Graphics Techniques](../guide/graphics-techniques.md) · [Rendering](../guide/rendering.md) · [Tile animation (architecture)](../architecture/tile-animation.md)
