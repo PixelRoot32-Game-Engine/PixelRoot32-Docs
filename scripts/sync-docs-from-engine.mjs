@@ -1,6 +1,9 @@
 // Syncs documentation from engine repository to docs repo
 // Usage:
 //   node scripts/sync-docs-from-engine.mjs --engine ../PixelRoot32-Game-Engine
+// Syncs documentation from engine repository to docs repo
+// Usage:
+//   node scripts/sync-docs-from-engine.mjs --engine ../PixelRoot32-Game-Engine
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
