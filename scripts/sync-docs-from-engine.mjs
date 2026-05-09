@@ -1,3 +1,6 @@
+// Syncs documentation from engine repository to docs repo
+// Usage:
+//   node scripts/sync-docs-from-engine.mjs --engine ../PixelRoot32-Game-Engine
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -35,7 +38,45 @@ function syncDocs() {
     }
   }
 
+  addGitHubLinksToExamples();
+
   console.log('Docs sync complete.');
+}
+
+function addGitHubLinksToExamples() {
+  const examplesDir = path.join(docsTarget, 'examples');
+  
+  if (!fs.existsSync(examplesDir)) {
+    console.log('Examples directory not found, skipping link addition.');
+    return;
+  }
+
+  const entries = fs.readdirSync(examplesDir, { withFileTypes: true });
+  
+  for (const entry of entries) {
+    if (!entry.isFile() || !entry.name.endsWith('.md')) {
+      continue;
+    }
+    
+    if (entry.name === 'demos.md') {
+      continue;
+    }
+
+    const exampleNameKebab = path.basename(entry.name, '.md');
+    const exampleNameSnake = exampleNameKebab.replace(/-/g, '_');
+    const githubLink = `https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/${exampleNameSnake}`;
+    const filePath = path.join(examplesDir, entry.name);
+    const content = fs.readFileSync(filePath, 'utf8');
+    
+    if (content.includes(githubLink)) {
+      console.log(`Link already present in ${entry.name}, skipping.`);
+      continue;
+    }
+
+    const linkToAdd = `\n\n---\n\n**Source code:** ${githubLink}\n`;
+    fs.appendFileSync(filePath, linkToAdd, 'utf8');
+    console.log(`Added GitHub link to ${entry.name}`);
+  }
 }
 
 function copyDirRecursive(src, dest, excluded) {
