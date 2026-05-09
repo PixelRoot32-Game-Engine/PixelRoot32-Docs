@@ -69,3 +69,8 @@ pio run -e esp32dev
 # ESP32 CYD-style (ILI9341 240×320)
 pio run -e esp32cyd
 ```
+
+
+---
+
+**Source code:** https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/animated_tilemap

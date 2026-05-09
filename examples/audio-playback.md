@@ -82,3 +82,8 @@ pio run -e esp32dev
 ```bash
 pio run -e esp32dev --target upload
 ```
+
+
+---
+
+**Source code:** https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/audio_playback

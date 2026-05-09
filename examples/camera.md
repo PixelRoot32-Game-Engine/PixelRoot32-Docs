@@ -33,10 +33,10 @@ The engine version or Git branch is set in **`lib_deps`** in `platformio.ini`.
 
 ## Documentation links
 
-- [Graphics — Camera2D](/api/graphics#camera2d)
-- [Core — Scene / entities](/api/core)
-- [Physics — kinematic & static actors](/api/physics)
-- [Architecture](/architecture/architecture-index.md)
+- [Graphics — Camera2D](../../docs/api/graphics.md#camera2d)
+- [Core — Scene / entities](../../docs/api/core.md)
+- [Physics — kinematic & static actors](../../docs/api/physics.md)
+- [Architecture](../../docs/architecture/architecture-index.md)
 
 ## Build
 
@@ -52,3 +52,8 @@ pio run -e esp32dev
 ```bash
 pio run -e esp32dev --target upload
 ```
+
+
+---
+
+**Source code:** https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/camera

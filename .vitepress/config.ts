@@ -296,6 +296,7 @@ export default defineConfig({
             { text: 'Animated Tilemap', link: '/examples/animated-tilemap' },
             { text: 'Tilemaps (overview)', link: '/examples/tilemap-scene' },
             { text: 'Tic Tac Toe', link: '/examples/tic-tac-toe' },
+            { text: '2048', link: '/examples/2048' },
             { text: 'UI layout (Tic Tac Toe)', link: '/examples/ui-layout' },
             { text: 'Flappy Bird', link: '/examples/flappy-bird' },
             { text: 'Music demo (audio)', link: '/examples/music-demo' },
