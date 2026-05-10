@@ -35,9 +35,9 @@ Pin choices for I2S / DAC are in **`src/platforms/esp32_dev.h`** (edit there if 
 
 ## Documentation links
 
-- [Audio API](/api/audio)
-- [Core API](/api/core)
-- [Input API](/api/input)
+- [Audio API](../../docs/api/audio.md)
+- [Core API](../../docs/api/core.md)
+- [Input API](../../docs/api/input.md)
 
 ## Build
 
@@ -53,3 +53,8 @@ pio run -e esp32dev
 ```bash
 pio run -e esp32dev --target upload
 ```
+
+
+---
+
+**Source code:** https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/snake

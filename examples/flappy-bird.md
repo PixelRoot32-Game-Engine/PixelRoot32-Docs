@@ -52,3 +52,8 @@ pio run -e esp32c3 --target upload
 ```
 
 Wire your OLED according to the U8g2 configuration used in this project’s platform header / driver setup.
+
+
+---
+
+**Source code:** https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/flappy_bird
