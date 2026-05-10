@@ -14,7 +14,6 @@ and pushing them to the output device. Platforms implement this interface to
 bridge between the engine's sample generation and the actual hardware.
 
 Typical lifecycle:
-
 1. init() is called with an AudioEngine pointer.
 2. The backend sets up the audio output (I2S, SDL audio, etc.).
 3. In its output callback, the backend calls engine->generateSamples().

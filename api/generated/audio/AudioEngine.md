@@ -13,7 +13,6 @@ and managing music playback. Internally delegates to an AudioScheduler
 (typically DefaultAudioScheduler) which owns the ApuCore for synthesis.
 
 Usage:
-
 1. Construct with an AudioConfig and PlatformCapabilities.
 2. Call init() to set up the scheduler and backend.
 3. Call playEvent() to trigger one-shot sounds.
