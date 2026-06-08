@@ -21,6 +21,7 @@ The engine revision for each example is defined in `**lib_deps**` inside that ex
 - [animated_tilemap](./animated_tilemap) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/animated_tilemap)
 - [brick_breaker](./brick_breaker) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/brick_breaker)
 - [camera](./camera) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/camera)
+- [camera-effect-demo](./camera-effect-demo) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/camera-effect-demo)
 - [dual_palette](./dual_palette) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/dual_palette)
 - [flappy_bird](./flappy_bird) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/flappy_bird)
 - [hello_world](./hello_world) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/hello_world)
