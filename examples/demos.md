@@ -26,7 +26,7 @@ The engine revision for each example is defined in `**lib_deps**` inside that ex
 - [flappy_bird](./flappy_bird) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/flappy_bird)
 - [hello_world](./hello_world) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/hello_world)
 - [metroidvania](./metroidvania) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/metroidvania)
-- [music_demo](./music_demo) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/music_demo)
+- [music-demo](./music-demo) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/music-demo)
 - [physics](./physics) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/physics)
 - [snake](./snake) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/snake)
 - [space_invaders](./space_invaders) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/space_invaders)

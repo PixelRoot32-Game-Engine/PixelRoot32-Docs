@@ -193,11 +193,12 @@ export default defineConfig({
             },
             {
               text: 'Tilemap Editor',
-              collapsed: true,
+              collapsed: false,
               items: [
                 { text: 'Overview', link: '/tools/tilemap-editor/overview' },
                 { text: 'Quick start', link: '/tools/tilemap-editor/quick-start' },
                 { text: 'Installation', link: '/tools/tilemap-editor/installation' },
+                { text: 'License & Activation', link: '/tools/tilemap-editor/license-and-activation' },
                 { text: 'Usage guide', link: '/tools/tilemap-editor/usage-guide' },
                 { text: 'Advanced guide', link: '/tools/tilemap-editor/advanced-guide' },
                 { text: 'Technical reference', link: '/tools/tilemap-editor/technical-reference' },
