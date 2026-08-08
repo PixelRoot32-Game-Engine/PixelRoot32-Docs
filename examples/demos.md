@@ -19,6 +19,7 @@ The engine revision for each example is defined in `**lib_deps**` inside that ex
 
 - [2048](./2048) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/2048)
 - [animated_tilemap](./animated_tilemap) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/animated_tilemap)
+- [bomberbot](./bomberbot) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/bomberbot)
 - [brick_breaker](./brick_breaker) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/brick_breaker)
 - [camera](./camera) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/camera)
 - [camera-effect-demo](./camera-effect-demo) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/camera-effect-demo)
@@ -28,6 +29,7 @@ The engine revision for each example is defined in `**lib_deps**` inside that ex
 - [metroidvania](./metroidvania) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/metroidvania)
 - [music-demo](./music-demo) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/music-demo)
 - [physics](./physics) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/physics)
+- [room_screen](./room_screen) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/room_screen)
 - [snake](./snake) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/snake)
 - [space_invaders](./space_invaders) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/space_invaders)
 - [sprites](./sprites) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/sprites)
