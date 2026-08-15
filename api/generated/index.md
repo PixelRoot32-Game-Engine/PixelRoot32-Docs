@@ -69,6 +69,7 @@ The `apu` module documents PixelRoot32-APU `2.0.0`.
 - [GameplayEvent](./gameplay/GameplayEvent.md) — Fixed-size POD carried by the GameplayEventBus.
 - [GameplayEventBus](./gameplay/GameplayEventBus.md) — Fixed-capacity FIFO ring buffer for GameplayEvent, single-instance and Engine-owned.
 - [GameplayEventType](./gameplay/GameplayEventType.md) — Tag identifying the meaning of a GameplayEvent.
+- [GridMotion](./gameplay/GridMotion.md) — Plain five-`int` aggregate: logical cell, target cell, progress.
 - [GridSpec](./gameplay/GridSpec.md) — Plain six-`int` aggregate describing a grid's origin, per-axis cell
        size, and extent (columns/rows). No member functions, no
        per-instance runtime state beyond these fields — a `constexpr
@@ -146,6 +147,12 @@ The `apu` module documents PixelRoot32-APU `2.0.0`.
 - [UIManager](./graphics/UIManager.md) — Registry of touch UI elements for event routing (non-owning pointers).
 - [UIPaddingContainer](./graphics/UIPaddingContainer.md) — Container that wraps a single UI element and applies padding.
 - [UIPanel](./graphics/UIPanel.md) — Visual container that draws a background and border around a child element.
+- [UISprite](./graphics/UISprite.md) — A UI leaf that draws a single sprite.
+- [UISpriteFormat](./graphics/UISpriteFormat.md) — Which member of a UISpriteRef's storage is live.
+- [UISpriteRef](./graphics/UISpriteRef.md) — Non-owning, format-tagged pointer to one sprite plus its draw
+       parameters.
+- [UISpriteRow](./graphics/UISpriteRow.md) — A UI leaf that draws a row of repeated icons whose fill is driven by
+       one value — hearts, lives, keys, ammo.
 - [UITouchButton](./graphics/UITouchButton.md) — Touch-optimized button widget.
 - [UITouchCheckbox](./graphics/UITouchCheckbox.md) — Touch-optimized checkbox widget.
 - [UITouchElement](./graphics/UITouchElement.md) — UIElement with embedded UITouchWidget data for touch interaction.
