@@ -63,7 +63,7 @@ When subsystems are disabled via `PIXELROOT32_ENABLE_*` flags, their memory allo
 |------|-------------|--------------|-------------------|
 | `PIXELROOT32_ENABLE_AUDIO=0` | ~8 KB | ~15 KB | AudioEngine, MusicPlayer, audio buffers |
 | `PIXELROOT32_ENABLE_PHYSICS=0` | ~12 KB | ~25 KB | CollisionSystem, spatial grid, physics actors |
-| `PIXELROOT32_ENABLE_UI_SYSTEM=0` | ~4 KB | ~20 KB | UIElement, all layouts, UI containers |
+| `PIXELROOT32_ENABLE_UI_SYSTEM=0` | ~4 KB | ~20 KB | UIElement, all layouts, UI containers, sprite elements |
 | `PIXELROOT32_ENABLE_PARTICLES=0` | ~6 KB | ~10 KB | ParticleEmitter, particle pools |
 | **All disabled** | **~30 KB** | **~70 KB** | Maximum savings |
 
@@ -106,8 +106,26 @@ Confirmed against the shipped `include/gameplay/StateMachine.h` layout — field
 | Flag | Default | RAM Cost When Enabled | Subsystem Added |
 |------|---------|------------------------|------------------|
 | `PIXELROOT32_ENABLE_GAMEPLAY_GRID_SPACE=1` | `0` | 0 B SRAM | `gameplay::GridSpace.h` — grid-to-world/world-to-grid coordinate conversion (`GridSpec`, `cellToWorldX/Y`, `cellToWorld`, `worldToCellX/Y`, `containsCell`) |
+| `PIXELROOT32_ENABLE_GAMEPLAY_GRID_SPACE=1` | `0` | 20 B SRAM **per moving actor** | `gameplay::GridMotion.h` — per-actor cell-to-cell step state (`GridMotion`, `isMoving`, `placeAt`, `beginStep`, `tickStep`, `interpolatedWorld`) |
 
-**`GridSpec` byte budget:** every shipped consumer (`examples/snake`, `examples/tic_tac_toe`) declares its grid as `inline constexpr GridSpec`. `constexpr` implies `const`, so the six-`int` aggregate lands in `.rodata`/flash, never `.data`/`.bss` — **0 B SRAM**, at every optimization level, independent of whether the optimizer also folds the constant away entirely. `sizeof(GridSpec) == 24 B` (six `int`s — `int` is 4 B under both the ESP32-C3's ILP32 and native's LP64), identical on both targets. A non-`constexpr` (runtime) `GridSpec` would cost 24 B SRAM instead; no shipped consumer uses one.
+**`GridSpec` byte budget:** every shipped consumer (`examples/snake`, `examples/2048`, `examples/bomberbot`) declares its grid as `inline constexpr GridSpec`. `constexpr` implies `const`, so the six-`int` aggregate lands in `.rodata`/flash, never `.data`/`.bss` — **0 B SRAM**, at every optimization level, independent of whether the optimizer also folds the constant away entirely. `sizeof(GridSpec) == 24 B` (six `int`s — `int` is 4 B under both the ESP32-C3's ILP32 and native's LP64), identical on both targets. A non-`constexpr` (runtime) `GridSpec` would cost 24 B SRAM instead; no shipped consumer uses one.
+
+**`GridMotion` byte budget:** unlike `GridSpec`, a `GridMotion` is inherently per-actor runtime state, so it does land in `.bss`. `sizeof(GridMotion) == 20 B` (five `int`s, identical on ILP32 and LP64). Worst case is one instance per grid-moving actor: `examples/bomberbot` embeds one in `PlayerActor` and one in each of its `kMaxEnemies` pool slots. Against the ESP32-C3 ceiling of 24 entities that is **480 B** if every entity moves on the grid — comfortably inside budget, and typically far lower since static actors (walls, bombs, pickups) need none. `GridMotion` shares `GridSpace`'s flag rather than taking its own: `interpolatedWorld()` takes a `GridSpec`, so "motion without space" is not a reachable configuration.
+
+**`GridMotion` scope, and what it deliberately excludes:** it owns the logical cell, the in-flight target, the arrival edge and the cell-to-pixel lerp — the mechanics. Cell-enterability tests, direction selection, arrival reactions and input buffering stay in game code, because every shipped consumer answers them differently: `bomberbot`'s player treats the bomb it just dropped as passable while its enemies treat every bomb as solid, and neither buffers direction input (both sample direction only at rest and ignore it in flight). Modelling those as engine callbacks would cost more configuration than the ~17 lines of mechanics it replaces.
+
+**Sprite UI elements (`UISprite` / `UISpriteRow`, under `PIXELROOT32_ENABLE_UI_SYSTEM`):** the UI system drew text and rectangles only, so any icon — an item slot, a dialog portrait, a button glyph, a resource HUD — had to be drawn by hand in a `Scene::draw()` override, outside the entity tree. `UISpriteRef` (`include/graphics/ui/UISpriteRef.h`) is the tagged union that lets one element handle all three sprite descriptors (`Sprite`, `Sprite2bpp`, `Sprite4bpp`), each of which has a different draw signature. The format switch exists in exactly one place, `drawUISpriteRef()` — type erasure over templating, the same trade the gameplay framework made, for the same reason: one copy in flash instead of one per instantiation.
+
+| Type | native/PC (64-bit) | Notes |
+|---|---|---|
+| `UIElement` (base) | 40 B | For reference |
+| `UISpriteRef` | 16 B | Pointer + format tag + tint/palette slot |
+| `UISprite` | 64 B | Base + one ref + flip flag. **Smaller than `UILabel` (80 B)**, which carries a `std::string` |
+| `UISpriteRow` | 136 B | Base + `kMaxStates` (5) refs + value/capacity/spacing scalars |
+
+With `PIXELROOT32_ENABLE_UI_SYSTEM=0` all three translation units compile to an empty object (434 B of container headers, zero code) — verified, not assumed.
+
+**Why `UISpriteRow` is one element and not a layout of N `UISprite`:** the obvious composition — `UIHorizontalLayout` holding one `UISprite` per icon — costs one scene entity per icon. A 16-heart bar would take two thirds of the 24-entity budget recommended for the ESP32-C3 (see the variant table above), and every one of those entities re-enters `Scene::sortEntities()` — an insertion sort that runs each frame once depth sorting is on — to produce an order that never changes. `UISpriteRow` draws N icons from one entity and 136 B instead. Its `capacity` is a plain `uint8_t` counter, not a per-icon array, so growing the row at runtime (a heart container) costs no additional storage.
 
 **Gameplay Framework Phase 3 part 2 — Room/Screen (opt-in, default `0`):** `RoomGraph<N>` is a header-only template class under `PIXELROOT32_ENABLE_GAMEPLAY_ROOM`. A `Scene` owns it via a type-erased `RoomGraphBase*` pointer (composition, no inheritance). Entering a room updates camera bounds and fires an optional `onEnter` callback. The flag defaults to `0` — when disabled the entire `#if` block is excluded and the engine contributes zero bytes.
 
@@ -713,6 +731,9 @@ In v1.0.0, the `TFT_eSPI_Drawer` uses double-buffering for DMA. Increasing `LINE
 - **Baseline**: 20 lines = ~10KB (at 240 width)
 - **Optimized**: 60 lines = ~30KB
 - **Max**: 120 lines = ~60KB (Half frame)
+
+> [!NOTE]
+> Figures above are per buffer, and the driver allocates two. The `60`-line setting was unreachable before `d6dc9ae` (a buffer-selection bug always forced the 30-line fallback); builds from that commit onward get the documented size, falling back only when DMA-capable internal RAM is short. Enabling `PIXELROOT32_TFT_12BIT_COLOR=1` shrinks each buffer by 25% (60 lines at 240 width: ~28.8KB → ~21.6KB) at the cost of a 768-byte pair LUT — see [ESP32 Performance Guide](../guide/performance/esp32-performance.md#12-bit-color-on-the-wire-rgb444).
 
 > [!IMPORTANT]
 > Non-FPU platforms like ESP32-C3 have more limited SRAM. Be cautious when increasing DMA block sizes or logical resolutions.
