@@ -5,10 +5,19 @@ import type { DefaultTheme } from 'vitepress'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
-/** Subfolders under `api/generated/` (excluding `index.md` at root). */
-const CATEGORY_ORDER = [
+/**
+ * Preferred display order for the subfolders under `api/generated/`.
+ *
+ * This list is an ordering hint, not an allowlist: any other directory the
+ * engine generates is appended after these. When it was an allowlist, a module
+ * added upstream (`apu`, `gameplay`) synced to disk but never reached the
+ * sidebar, leaving its pages reachable only from the generated index.
+ */
+const CATEGORY_ORDER: readonly string[] = [
   'audio',
+  'apu',
   'core',
+  'gameplay',
   'math',
   'physics',
   'graphics',
@@ -16,11 +25,13 @@ const CATEGORY_ORDER = [
   'drivers',
   'platforms',
   'test',
-] as const
+]
 
 const CATEGORY_LABEL: Record<string, string> = {
   audio: 'Audio',
+  apu: 'APU',
   core: 'Core',
+  gameplay: 'Gameplay',
   math: 'Math',
   physics: 'Physics',
   graphics: 'Graphics',
@@ -28,6 +39,28 @@ const CATEGORY_LABEL: Record<string, string> = {
   drivers: 'Drivers',
   platforms: 'Platforms',
   test: 'Test',
+}
+
+/** Directories present under `api/generated/`, known ones first, then the rest. */
+function readCategories(root: string): string[] {
+  if (!fs.existsSync(root)) return []
+
+  const onDisk = fs
+    .readdirSync(root, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => entry.name)
+
+  const known = CATEGORY_ORDER.filter((cat) => onDisk.includes(cat))
+  const unlisted = onDisk
+    .filter((cat) => !CATEGORY_ORDER.includes(cat))
+    .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }))
+
+  return [...known, ...unlisted]
+}
+
+/** Title-case fallback for a category with no explicit label. */
+function categoryLabel(cat: string): string {
+  return CATEGORY_LABEL[cat] ?? cat.charAt(0).toUpperCase() + cat.slice(1)
 }
 
 /**
@@ -40,9 +73,8 @@ export function buildApiGeneratedSidebarItems(): DefaultTheme.SidebarItem[] {
     { text: 'Index', link: '/api/generated/' },
   ]
 
-  for (const cat of CATEGORY_ORDER) {
+  for (const cat of readCategories(root)) {
     const dir = path.join(root, cat)
-    if (!fs.existsSync(dir) || !fs.statSync(dir).isDirectory()) continue
 
     const files = fs
       .readdirSync(dir)
@@ -55,7 +87,7 @@ export function buildApiGeneratedSidebarItems(): DefaultTheme.SidebarItem[] {
     })
 
     items.push({
-      text: CATEGORY_LABEL[cat] ?? cat,
+      text: categoryLabel(cat),
       collapsed: true,
       items: subItems,
     })
