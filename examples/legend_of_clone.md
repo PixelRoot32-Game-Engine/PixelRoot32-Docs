@@ -55,6 +55,7 @@ putting you below the cave rather than at the start of the game.
 | `StaticTilemapLayerCache` on a pinned camera | `TopDownScene::draw()` |
 | Sprite flipping as animation, NES-style | `PlayerActor::draw()` |
 | Offset bypass for a non-scrolling HUD strip | `drawStatusBar()` |
+| Per-pixel tile collision via `isTilePixelSolid` | `TileWorld::isSolidAtPixel()` |
 
 The asset shapes here follow **[metroidvania](../metroidvania/)**, which is the
 reference for how this engine expects tilemaps and sprites to be fed to it:
@@ -202,6 +203,72 @@ and the doorway constants — a border declaring a connection the tiles wall off
 an edge opening the room graph knows nothing about, a spawn cell sitting on the
 very tile that triggers a scene change. Each of those produces a game that runs
 and misbehaves, which no compiler will catch.
+
+## Tile collision
+
+Collision is a property of the **tile id**, exported next to the art as
+`TILE_SOLID[]` so it cannot drift away from it. How that flag is applied is
+selectable at compile time with `kCollisionMode` in `GameConstants.h`:
+
+| Mode | What it tests |
+| --- | --- |
+| `WholeTile` | A solid tile blocks its whole 16×16 cell; the bitmap is ignored. |
+| `PerPixel` | The cell must be solid **and** the tile's 4bpp bitmap opaque at that pixel (palette index 0 is walkable). |
+| `PerPixelEroded` | Per-pixel, with the tile's silhouette eroded by `kTileSolidErosionPx` first. **Default.** |
+
+`canOccupy()` branches with `if constexpr`, so the unselected modes are
+discarded at compile time and the unused engine helper is stripped by
+`--gc-sections` on ESP32.
+
+Both bounds are checked in `isSolidAtPixel` itself, and that is deliberate:
+`isSolid()` returning true for an out-of-range cell is **not** enough to stand
+in for the bounds check here. A true from it only means "do not return false
+yet", so control would fall through to the bitmap test, where `tileAt()` answers
+`0` for that same out-of-range cell and the empty tile's fully transparent
+bitmap reports "not solid" -- and the player walks off the right or bottom edge.
+The negative and the far edge need their own explicit returns.
+
+Erosion shrinks the **object**, not the player. A shrunken hitbox lets the body
+penetrate a concavity and snag inside it; shrinking the thing being walked into
+cannot. The cell flag is checked before any pixel read, so walkable ground never
+touches bitmap data.
+
+Worth knowing on *this* map: `PerPixel` and `WholeTile` behave identically,
+because these terrain tiles are fully opaque — a bush is drawn over its own
+background, not on transparency. Sweeping the overworld one pixel at a time,
+both allow **70,299** of 156,705 body positions. Only `PerPixelEroded` differs,
+at **75,187** — about 7% more room, which is the fringe of tree crowns and bush
+edges no longer catching the player. Per-pixel collision pays off against art
+with real transparency; erosion pays off against art with ragged edges.
+
+### Reproducing those numbers
+
+They come from [`tools/collision_survey.cpp`](tools/collision_survey.cpp),
+which links this example's own `TileWorld` and exported maps against the
+engine's `isTilePixelSolid`. It prints the three counts and asserts the
+properties they depend on — all four map edges blocked in every mode, spawn
+and both doorway cells reachable, and each mode a superset of the one before
+it. It exits non-zero if any of that stops holding.
+
+```bash
+cd examples/legend_of_clone
+g++ -O2 -std=gnu++17 -fno-exceptions -DPLATFORM_NATIVE -DSDL_MAIN_HANDLED \
+    -DPIXELROOT32_ENABLE_4BPP_SPRITES=1 -DPIXELROOT32_ENABLE_2BPP_SPRITES=0 \
+    -DPIXELROOT32_ENABLE_GAMEPLAY_ROOM=1 -DPIXELROOT32_ENABLE_AUDIO=0 \
+    -DPIXELROOT32_ENABLE_PHYSICS=0 -DPIXELROOT32_ENABLE_UI_SYSTEM=0 \
+    -DPIXELROOT32_ENABLE_PARTICLES=0 \
+    -DPHYSICAL_DISPLAY_WIDTH=240 -DPHYSICAL_DISPLAY_HEIGHT=240 \
+    -I../../include -I../../src -Isrc \
+    -o collision_survey tools/collision_survey.cpp src/TileWorld.cpp \
+    src/assets/OverworldTileMap.cpp src/assets/DungeonTileMap.cpp \
+    ../../src/physics/TilePixelCollision.cpp
+./collision_survey
+```
+
+The tool mirrors `PlayerActor::canOccupy` rather than including it, so it needs
+no `Entity`/`Engine` graph and builds as a plain host binary. That mirroring is
+the one thing to keep in step: change `canOccupy`'s shape and the tool's two
+helpers have to change with it.
 
 ## Map data
 

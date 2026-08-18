@@ -53,7 +53,8 @@ function syncDocs() {
     }
 
     if (fs.existsSync(destDir)) {
-      fs.cpSync(destDir, destLegacy, { recursive: true, force: true });
+      fs.rmSync(destLegacy, { recursive: true, force: true });
+      fs.cpSync(destDir, destLegacy, { recursive: true });
     }
   }
 
@@ -82,8 +83,7 @@ function addGitHubLinksToExamples() {
     }
 
     const exampleNameKebab = path.basename(entry.name, '.md');
-    const exampleNameSnake = exampleNameKebab.replace(/-/g, '_');
-    const githubLink = `https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/${exampleNameSnake}`;
+    const githubLink = `https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine/tree/main/examples/${exampleNameKebab}`;
     const filePath = path.join(examplesDir, entry.name);
     const content = fs.readFileSync(filePath, 'utf8');
     
@@ -101,6 +101,13 @@ function addGitHubLinksToExamples() {
 function syncExamplesFromSubdirs(srcDir, destDir) {
   if (!fs.existsSync(destDir)) {
     fs.mkdirSync(destDir, { recursive: true });
+  }
+
+  // Remove stale example docs that no longer exist in the engine.
+  for (const file of fs.readdirSync(destDir)) {
+    if (file.endsWith('.md')) {
+      fs.rmSync(path.join(destDir, file), { force: true });
+    }
   }
 
   const entries = fs.readdirSync(srcDir, { withFileTypes: true });
