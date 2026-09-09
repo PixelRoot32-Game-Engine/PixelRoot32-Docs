@@ -1,5 +1,6 @@
 import { defineConfig } from 'vitepress'
 import { buildApiGeneratedSidebarItems } from './buildApiGeneratedSidebar'
+import { buildExamplesSidebarItems } from './buildExamplesSidebar'
 
 /** Deploy base: `/` locally; CI sets VITEPRESS_BASE (e.g. `/RepoName/` for GitHub project pages). */
 function siteBase(): string {
@@ -283,22 +284,7 @@ export default defineConfig({
       '/examples/': [
         {
           text: 'Examples',
-          items: [
-            { text: 'Samples (repo catalogue)', link: '/examples/demos' },
-            { text: '2048', link: '/examples/2048' },
-            { text: 'Animated Tilemap', link: '/examples/animated_tilemap' },
-            { text: 'Bomberbot', link: '/examples/bomberbot' },
-            { text: 'Camera', link: '/examples/camera' },
-            { text: 'Flappy Bird', link: '/examples/flappy_bird' },
-            { text: 'Hello World', link: '/examples/hello_world' },
-            { text: 'Iso Dungeon', link: '/examples/iso_dungeon' },
-            { text: 'Legend of Clone', link: '/examples/legend_of_clone' },
-            { text: 'Metroidvania', link: '/examples/metroidvania' },
-            { text: 'Midway Clone', link: '/examples/midway_clone' },
-            { text: 'Music Demo', link: '/examples/music-demo' },
-            { text: 'Physics', link: '/examples/physics' },
-            { text: 'Sprites', link: '/examples/sprites' },
-          ]
+          items: buildExamplesSidebarItems(),
         }
       ]
     },
