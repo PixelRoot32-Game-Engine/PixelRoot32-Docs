@@ -7,7 +7,7 @@ These paths are **produced from the [PixelRoot32-Game-Engine](https://github.com
 | Site path | Engine source |
 |-----------|----------------|
 | `tools/**` | `docs/tools/` |
-| `examples/*.md` | `examples/*/README.md`, `examples/README.md`, and `docs/guide/entities-scene-tutorial.md` → `basic-usage.md` |
+| `examples/*.md` | `examples/*/README.md` (one per example folder; `demos.md` index generated) |
 | `guide/**` | `docs/guide/` (includes standards: coding style, guidelines, platform compatibility, performance) |
 | `api/**` | `docs/api/` |
 | `architecture/**` | `docs/architecture/` |

@@ -1,5 +1,6 @@
 import { defineConfig } from 'vitepress'
 import { buildApiGeneratedSidebarItems } from './buildApiGeneratedSidebar'
+import { buildExamplesSidebarItems } from './buildExamplesSidebar'
 
 /** Deploy base: `/` locally; CI sets VITEPRESS_BASE (e.g. `/RepoName/` for GitHub project pages). */
 function siteBase(): string {
@@ -283,27 +284,7 @@ export default defineConfig({
       '/examples/': [
         {
           text: 'Examples',
-          items: [
-            { text: 'Samples (repo catalogue)', link: '/examples/demos' },
-            { text: 'Hello World', link: '/examples/hello-world' },
-            { text: 'Camera', link: '/examples/camera' },
-            { text: 'Dual Palette', link: '/examples/dual-palette' },
-            { text: 'Sprites', link: '/examples/sprite-animation' },
-            { text: 'Snake', link: '/examples/snake' },
-            { text: 'Brick Breaker', link: '/examples/brick-breaker' },
-            { text: 'Space Invaders', link: '/examples/space-invaders' },
-            { text: 'Physics', link: '/examples/physics-demo' },
-            { text: 'Metroidvania', link: '/examples/metroidvania' },
-            { text: 'Animated Tilemap', link: '/examples/animated-tilemap' },
-            { text: 'Tilemaps (overview)', link: '/examples/tilemap-scene' },
-            { text: 'Tic Tac Toe', link: '/examples/tic-tac-toe' },
-            { text: '2048', link: '/examples/2048' },
-            { text: 'UI layout (Tic Tac Toe)', link: '/examples/ui-layout' },
-            { text: 'Flappy Bird', link: '/examples/flappy-bird' },
-            { text: 'Music demo (audio)', link: '/examples/music-demo' },
-            { text: 'Audio (Snake + Tic Tac Toe)', link: '/examples/audio-playback' },
-            { text: 'Entities tutorial (not in repo)', link: '/examples/basic-usage' },
-          ]
+          items: buildExamplesSidebarItems(),
         }
       ]
     },
