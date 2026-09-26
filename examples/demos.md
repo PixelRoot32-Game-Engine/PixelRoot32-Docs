@@ -17,7 +17,7 @@ The engine revision a demo builds against is defined in `lib_deps` inside that d
 
 ## Catalogue
 
-31 demos across 8 categories.
+32 demos across 8 categories.
 
 ### Getting Started
 
@@ -31,6 +31,7 @@ The engine revision a demo builds against is defined in `lib_deps` inside that d
 - [Iso Tilemap Export](./graphics/iso_tilemap_export/) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Demo-Projects/tree/main/graphics/iso_tilemap_export)
 - [Palette Swap](./graphics/palette_swap/) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Demo-Projects/tree/main/graphics/palette_swap)
 - [Particles](./graphics/particles/) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Demo-Projects/tree/main/graphics/particles)
+- [Scene Transitions](./graphics/scene_transitions/) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Demo-Projects/tree/main/graphics/scene_transitions)
 
 ### Input
 
