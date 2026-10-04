@@ -17,7 +17,7 @@ The engine revision a demo builds against is defined in `lib_deps` inside that d
 
 ## Catalogue
 
-32 demos across 8 categories.
+33 demos across 8 categories.
 
 ### Getting Started
 
@@ -70,6 +70,7 @@ The engine revision a demo builds against is defined in `lib_deps` inside that d
 - [Legend Of Clone](./games/legend_of_clone/) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Demo-Projects/tree/main/games/legend_of_clone)
 - [Midway Clone](./games/midway_clone/) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Demo-Projects/tree/main/games/midway_clone)
 - [Pong](./games/pong/) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Demo-Projects/tree/main/games/pong)
+- [Pool](./games/pool/) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Demo-Projects/tree/main/games/pool)
 - [Snake](./games/snake/) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Demo-Projects/tree/main/games/snake)
 - [Space Invaders](./games/space_invaders/) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Demo-Projects/tree/main/games/space_invaders)
 - [Tic Tac Toe](./games/tic_tac_toe/) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Demo-Projects/tree/main/games/tic_tac_toe)
