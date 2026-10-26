@@ -61,7 +61,7 @@ const CATEGORY_LABEL = {
 };
 
 /** Acronyms that must not be title-cased into `Ui` / `Sfx` / `Hud`. */
-const ACRONYMS = { ui: 'UI', sfx: 'SFX', hud: 'HUD', api: 'API', npc: 'NPC' };
+const ACRONYMS = { ui: 'UI', sfx: 'SFX', hud: 'HUD', api: 'API', npc: 'NPC', esp: 'ESP' };
 
 /** `sfx_bank` -> `SFX Bank`; used for catalogue entries and sidebar text. */
 function humanize(name) {
