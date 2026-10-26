@@ -17,7 +17,7 @@ The engine revision a demo builds against is defined in `lib_deps` inside that d
 
 ## Catalogue
 
-33 demos across 8 categories.
+37 demos across 9 categories.
 
 ### Getting Started
 
@@ -69,9 +69,16 @@ The engine revision a demo builds against is defined in `lib_deps` inside that d
 - [Flappy Bird](./games/flappy_bird/) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Demo-Projects/tree/main/games/flappy_bird)
 - [Legend Of Clone](./games/legend_of_clone/) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Demo-Projects/tree/main/games/legend_of_clone)
 - [Midway Clone](./games/midway_clone/) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Demo-Projects/tree/main/games/midway_clone)
+- [Minesweeper](./games/minesweeper/) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Demo-Projects/tree/main/games/minesweeper)
+- [Pacman](./games/pacman/) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Demo-Projects/tree/main/games/pacman)
 - [Pong](./games/pong/) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Demo-Projects/tree/main/games/pong)
 - [Pool](./games/pool/) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Demo-Projects/tree/main/games/pool)
 - [Snake](./games/snake/) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Demo-Projects/tree/main/games/snake)
 - [Space Invaders](./games/space_invaders/) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Demo-Projects/tree/main/games/space_invaders)
+- [Tetris](./games/tetris/) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Demo-Projects/tree/main/games/tetris)
 - [Tic Tac Toe](./games/tic_tac_toe/) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Demo-Projects/tree/main/games/tic_tac_toe)
 - [Top Down City](./games/top_down_city/) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Demo-Projects/tree/main/games/top_down_city)
+
+### Networking
+
+- [ESP Now Dice](./networking/esp_now_dice/) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Demo-Projects/tree/main/networking/esp_now_dice)

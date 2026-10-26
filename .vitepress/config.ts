@@ -97,6 +97,7 @@ export default defineConfig({
             { text: 'Physics', link: '/guide/physics' },
             { text: 'Audio', link: '/guide/audio' },
             { text: 'UI System', link: '/guide/ui-system' },
+            { text: 'Networking', link: '/guide/networking' },
           ],
         },
         {
@@ -147,6 +148,7 @@ export default defineConfig({
             { text: 'Physics', link: '/guide/physics' },
             { text: 'Audio', link: '/guide/audio' },
             { text: 'UI System', link: '/guide/ui-system' },
+            { text: 'Networking', link: '/guide/networking' },
           ],
         },
         {
@@ -234,6 +236,7 @@ export default defineConfig({
             { text: 'Resolution scaling', link: '/architecture/resolution-scaling' },
             { text: 'Tile animation', link: '/architecture/tile-animation' },
             { text: 'Touch input', link: '/architecture/touch-input' },
+            { text: 'Networking subsystem', link: '/architecture/networking-subsystem' },
           ],
         },
       ],
@@ -254,6 +257,7 @@ export default defineConfig({
             { text: 'Audio', link: '/api/audio' },
             { text: 'Input', link: '/api/input' },
             { text: 'Platform', link: '/api/platform' },
+            { text: 'Networking', link: '/api/networking' },
           ],
         },
         {
