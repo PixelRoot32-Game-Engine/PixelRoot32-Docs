@@ -98,6 +98,7 @@ export default defineConfig({
             { text: 'Audio', link: '/guide/audio' },
             { text: 'UI System', link: '/guide/ui-system' },
             { text: 'Networking', link: '/guide/networking' },
+            { text: 'Persistence', link: '/guide/persistence' },
           ],
         },
         {
@@ -149,6 +150,7 @@ export default defineConfig({
             { text: 'Audio', link: '/guide/audio' },
             { text: 'UI System', link: '/guide/ui-system' },
             { text: 'Networking', link: '/guide/networking' },
+            { text: 'Persistence', link: '/guide/persistence' },
           ],
         },
         {
@@ -237,6 +239,7 @@ export default defineConfig({
             { text: 'Tile animation', link: '/architecture/tile-animation' },
             { text: 'Touch input', link: '/architecture/touch-input' },
             { text: 'Networking subsystem', link: '/architecture/networking-subsystem' },
+            { text: 'Persistence subsystem', link: '/architecture/persistence-subsystem' },
           ],
         },
       ],
@@ -258,6 +261,7 @@ export default defineConfig({
             { text: 'Input', link: '/api/input' },
             { text: 'Platform', link: '/api/platform' },
             { text: 'Networking', link: '/api/networking' },
+            { text: 'Persistence', link: '/api/persistence' },
           ],
         },
         {
