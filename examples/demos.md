@@ -17,7 +17,7 @@ The engine revision a demo builds against is defined in `lib_deps` inside that d
 
 ## Catalogue
 
-37 demos across 9 categories.
+39 demos across 9 categories.
 
 ### Getting Started
 
@@ -66,6 +66,7 @@ The engine revision a demo builds against is defined in `lib_deps` inside that d
 - [Bomberbot](./games/bomberbot/) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Demo-Projects/tree/main/games/bomberbot)
 - [Brick Breaker](./games/brick_breaker/) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Demo-Projects/tree/main/games/brick_breaker)
 - [Chess](./games/chess/) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Demo-Projects/tree/main/games/chess)
+- [Doom](./games/doom/) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Demo-Projects/tree/main/games/doom)
 - [Flappy Bird](./games/flappy_bird/) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Demo-Projects/tree/main/games/flappy_bird)
 - [Legend Of Clone](./games/legend_of_clone/) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Demo-Projects/tree/main/games/legend_of_clone)
 - [Midway Clone](./games/midway_clone/) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Demo-Projects/tree/main/games/midway_clone)
@@ -82,3 +83,4 @@ The engine revision a demo builds against is defined in `lib_deps` inside that d
 ### Networking
 
 - [ESP Now Dice](./networking/esp_now_dice/) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Demo-Projects/tree/main/networking/esp_now_dice)
+- [Pong](./networking/pong/) — [source code](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Demo-Projects/tree/main/networking/pong)
