@@ -6,7 +6,7 @@
 > experimental, or deliberately simplified to keep one idea in focus.
 
 Language: C++17  
-Engine: `feature/dialog-system` branch of PixelRoot32-Game-Engine (git dependency, until 1.11.0 is released)  
+Engine: `gperez88/PixelRoot32-Game-Engine@^1.12.0`  
 Environments: `native`, `esp32dev`, `host_test`  
 Category: Games  
 
@@ -96,7 +96,7 @@ engine sources straight from the installed checkout.
 | `DialogBox` sized with `measureHeightPx` | `game/DialogLayout.cpp` |
 | Dynamic layer over a cached static layer | `DungeonScene::overlayLayer()` |
 
-The asset shapes here follow **[metroidvania](../metroidvania/)**, which is the
+The asset shapes here follow **[metroidvania](../../gameplay/metroidvania/)**, which is the
 reference for how this engine expects tilemaps and sprites to be fed to it:
 tileset pools and map indices in flash behind `PIXELROOT32_SCENE_FLASH_ATTR`,
 read through `PIXELROOT32_READ_BYTE_P`, drawn through `StaticTilemapLayerCache`,
