@@ -58,7 +58,7 @@ python main.py [input] [options]
 
 **Optional:**
 
-- `--prefix NAME`: Prefix for generated arrays (e.g., `PLAYER_JUM`)
+- `--prefix NAME`: Prefix for generated arrays (e.g., `PLAYER_JUM`). Since v0.4.0, prefixed arrays are emitted as C++17 `inline constexpr` (one copy in flash across all `.cpp` files), so use a unique prefix per sprite sheet; without a prefix they stay `static const`. See [Naming with prefixes](/tools/sprite-compiler/advanced-features#naming-with-prefixes).
 - `--out FILE`: Output header file (default: `sprites.h`)
 - `--offset X,Y`: Initial offset in pixels (default: `0,0`)
 - `--mode MODE`: Export mode (`layered`, `2bpp`, `4bpp`)
@@ -240,7 +240,7 @@ Use **`--prefix`** to keep generated symbol names readable.
 
 ## Palettes, thresholds, and other switches
 
-Extra options (custom palette files, built-in palette names, dithering, header guard, includes, etc.) **depend on the version of the tool**. From the repository root, run:
+Extra options (custom palette files, built-in palette names, dithering, includes, etc.) **depend on the version of the tool**. From the repository root, run:
 
 ```bash
 python main.py --help
